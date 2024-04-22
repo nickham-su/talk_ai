@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:auto_updater/auto_updater.dart';
+import 'package:flutter/foundation.dart';
 import 'package:talk_ai/routes.dart';
 import 'package:talk_ai/shared/components/layout/controllers/layout_controller.dart';
 import 'package:talk_ai/shared/repositories/create_tables.dart';
@@ -18,10 +19,12 @@ import 'shared/utils/sqlite.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  const feedURL =
-      'https://github.com/nickham-su/talk_ai/releases/latest/download/appcast.xml';
-  await autoUpdater.setFeedURL(feedURL);
-  await autoUpdater.checkForUpdates();
+  if (kReleaseMode) {
+    const feedURL =
+        'https://github.com/nickham-su/talk_ai/releases/latest/download/appcast.xml';
+    await autoUpdater.setFeedURL(feedURL);
+    await autoUpdater.checkForUpdates();
+  }
 
   final dir = await getApplicationDocumentsDirectory();
 
