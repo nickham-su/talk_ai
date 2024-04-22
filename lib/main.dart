@@ -19,13 +19,6 @@ import 'shared/utils/sqlite.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  if (kReleaseMode) {
-    const feedURL =
-        'https://github.com/nickham-su/talk_ai/releases/latest/download/appcast.xml';
-    await autoUpdater.setFeedURL(feedURL);
-    await autoUpdater.checkForUpdates();
-  }
-
   final dir = await getApplicationDocumentsDirectory();
 
   // 创建talk_ai文件夹

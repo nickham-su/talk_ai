@@ -5,18 +5,18 @@
         <description>An intelligent chatbot powered by large language models. Easily integrate OpenAI API, customize prompts to generate personalized assistants. Simple and user-friendly, empowering seamless conversations.</description>
         <language>en</language>
         <item>
-            <title>Version 1.0.2</title>
+            <title>Version 1.0.3</title>
             <!-- 对于 macOS 项目，建议将 'sparkle:version' 和 'sparkle:shortVersionString' 添加到项目节点中，而不是作为 'enclosure' 的一部分。 -->
-            <sparkle:shortVersionString>1.0.2</sparkle:shortVersionString>
-            <sparkle:version>2</sparkle:version>
+            <sparkle:shortVersionString>1.0.3</sparkle:shortVersionString>
+            <sparkle:version>1</sparkle:version>
             <sparkle:releaseNotesLink>
                 https://github.com/nickham-su/talk_ai/releases/latest/download/release_notes.html
             </sparkle:releaseNotesLink>
             <pubDate>Mon, 22 Apr 2024 00:00:00 +0800</pubDate>
-            <enclosure url="https://github.com/nickham-su/talk_ai/releases/latest/download/talk_ai-1.0.2+2-macos.zip"
-                sparkle:edSignature="BPxJOz7bPtUYVaraDLlT8oYpRX/NhAvMXoc6IUZ3zTYPmUb88s02ODLty+DaBwhQ+aZobGPI9qdTSf5jIScACw=="
+            <enclosure url="https://github.com/nickham-su/talk_ai/releases/latest/download/talk_ai-1.0.3+1-macos.zip"
+                sparkle:edSignature="7g92WPIK0CiUNaqcb5hQTcNTIccvvXxD7X7CTUB4u+N6J+5E9qbrfYVzytGZAPVFSZf1UcN35XLwbrVYAFD1Dg=="
                 sparkle:os="macos"
-                length="23486587"
+                length="23415566"
                 type="application/octet-stream" />
         </item>
         <item>
