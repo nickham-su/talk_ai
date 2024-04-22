@@ -25,6 +25,7 @@ class UpdateWidget extends GetView<SettingController> {
               const feedURL =
                   'https://github.com/nickham-su/talk_ai/releases/latest/download/appcast.xml';
               await autoUpdater.setFeedURL(feedURL);
+              await Future.delayed(const Duration(seconds: 1));
               await autoUpdater.checkForUpdates();
             },
             child: const Text('检查更新',
