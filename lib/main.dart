@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:auto_updater/auto_updater.dart';
 import 'package:talk_ai/routes.dart';
 import 'package:talk_ai/shared/components/layout/controllers/layout_controller.dart';
@@ -8,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as path;
 
 import 'modules/setting/repositorys/setting_repository.dart';
 import 'shared/utils/sqlite.dart';
@@ -15,15 +18,23 @@ import 'shared/utils/sqlite.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // String feedURL = 'http://localhost:5002/appcast.xml';
-  // await autoUpdater.setFeedURL(feedURL);
-  // await autoUpdater.checkForUpdates();
-  // await autoUpdater.setScheduledCheckInterval(3600);
+  String feedURL = 'https://github.com/nickham-su/talk_ai/releases/latest/download/appcast.xml';
+  await autoUpdater.setFeedURL(feedURL);
+  await autoUpdater.checkForUpdates();
+  await autoUpdater.setScheduledCheckInterval(3600);
 
   final dir = await getApplicationDocumentsDirectory();
-  print('dir:${dir.path}');
-  Hive.init(dir.path);
-  Sqlite.openDB(dir.path);
+
+  // 创建talk_ai文件夹
+  final talkAIDir = path.join(dir.path, 'talk_ai');
+  final talkAIDirFile = Directory(talkAIDir);
+  if (!talkAIDirFile.existsSync()) {
+    talkAIDirFile.createSync();
+  }
+  print('talkAIDir:$talkAIDir');
+
+  Hive.init(talkAIDir);
+  Sqlite.openDB(talkAIDir);
   initDBTables();
 
   // 注册全局控制器、服务

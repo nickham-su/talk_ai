@@ -13,10 +13,10 @@
                 https://your_domain/your_path/release_notes.html
             </sparkle:releaseNotesLink>
             <pubDate>Mon, 22 Apr 2024 00:00:00 +0800</pubDate>
-            <enclosure url="1.0.0+1/talk_ai-1.0.0+1-macos.zip"
-                sparkle:edSignature="Dj3oNqbVuK3Flui2sIz3TLZxc2ZCmQxKvs5hmMrG34DBxPCZv3zgKT4ETGYOB6vr0FlKKftwd/llWK9LTJW8CA=="
+            <enclosure url="talk_ai-1.0.0+1-macos.zip"
+                sparkle:edSignature="5D1V6pJ+wt75ZkbnwghIG+8UtgW50JI0092YgzTzT1dvjHYmdJE9v1RzoJ8iFNVeHLWfoxgPTDi6Yy7O97e4CA=="
                 sparkle:os="macos"
-                length="23594659"
+                length="23603920"
                 type="application/octet-stream" />
         </item>
         <item>

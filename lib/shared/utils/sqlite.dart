@@ -4,7 +4,7 @@ import 'dart:io';
 
 /// 数据库基类
 class Sqlite {
-  static String dbFile = 'chat_box.db';
+  static String dbFile = 'talk_ai.db';
   static late String dbDir;
   static late Database db;
 
