@@ -1,0 +1,189 @@
+import 'dart:convert';
+
+import 'package:get/get.dart';
+
+import '../../../apis/openai_api.dart';
+import '../llm_model.dart';
+import '../../message/message_model.dart';
+import '../llm_type.dart';
+
+class OpenaiModel extends LLM {
+  @override
+  final LLMType type = LLMType.openai;
+
+  final String url; // 服务器地址
+  final String apiKey; // API 密钥
+  final String model; // 模型名称
+  final String stop; // 停止词
+
+  OpenaiModel({
+    required super.llmId,
+    required super.name,
+    required super.lastUseTime,
+    required this.url,
+    required this.apiKey,
+    required this.model,
+    required this.stop,
+  });
+
+  factory OpenaiModel.fromJson(dynamic json) {
+    return OpenaiModel(
+      llmId: json['llm_id'] ?? -1,
+      name: json['name'],
+      lastUseTime: json['last_use_time'] ?? 0,
+      url: json['url'],
+      apiKey: json['api_key'] ?? '',
+      model: json['model'] ?? '',
+      stop: json['stop'] ?? '',
+    );
+  }
+
+  factory OpenaiModel.fromFormData(List<FormDataItem> data) {
+    Map<String, String> map = {};
+    for (var item in data) {
+      map[item.key] = item.value;
+    }
+    return OpenaiModel.fromJson(map);
+  }
+
+  /// 将llmId、name、type之外的数据转换为json
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      'url': url,
+      'api_key': apiKey,
+      'model': model,
+      'stop': stop,
+    };
+  }
+
+  /// 获取初始化表单数据
+  static List<FormDataItem> getInitFormData() {
+    return [
+      FormDataItem(
+        label: '类型',
+        key: 'type',
+        value: LLMType.openai.value,
+        isDisabled: true,
+      ),
+      FormDataItem(
+        label: '自定义名称',
+        key: 'name',
+        value: '',
+        isRequired: true,
+      ),
+      FormDataItem(
+        label: 'URL',
+        key: 'url',
+        value: '',
+        isRequired: true,
+      ),
+      FormDataItem(
+        label: 'API Key(选填)',
+        key: 'api_key',
+        value: '',
+      ),
+      FormDataItem(
+        label: '模型名称(选填)',
+        key: 'model',
+        value: '',
+      ),
+      FormDataItem(
+        label: '停止词(选填)：多个词用逗号分隔,最多4个',
+        key: 'stop',
+        value: '',
+      ),
+    ];
+  }
+
+  /// 获取表单数据
+  @override
+  List<FormDataItem> getFormData() {
+    return [
+      FormDataItem(
+        label: '类型',
+        key: 'type',
+        value: type.value,
+        isDisabled: true,
+      ),
+      FormDataItem(
+        label: '自定义名称',
+        key: 'name',
+        value: name,
+        isRequired: true,
+      ),
+      FormDataItem(
+        label: 'URL',
+        key: 'url',
+        value: url,
+        isRequired: true,
+      ),
+      FormDataItem(
+        label: 'API Key(选填)',
+        key: 'api_key',
+        value: apiKey,
+      ),
+      FormDataItem(
+        label: '模型名称(选填)',
+        key: 'model',
+        value: model,
+      ),
+      FormDataItem(
+        label: '停止词(选填)：多个词用逗号分隔,最多4个',
+        key: 'stop',
+        value: stop,
+      ),
+    ];
+  }
+
+  /// 聊天完成
+  @override
+  Stream<String> chatCompletions({
+    required List<MessageModel> messages,
+    double temperature = 0.8,
+    double topP = 0.95,
+  }) {
+    List<String>? stopList;
+    if (stop.isNotEmpty) {
+      stopList = stop.split(',').map((e) {
+        // 转义字符
+        return e
+            .replaceAll(r'\n', '\n')
+            .replaceAll(r'\t', '\t')
+            .replaceAll(r'\b', '\b')
+            .replaceAll(r'\r', '\r')
+            .replaceAll(r'\f', '\f');
+      }).toList();
+    }
+
+    if (messages.isEmpty) {
+      throw 'messages is empty';
+    }
+
+    // 将system角色的消息，合并到第一条user角色的消息中
+    final systemContent =
+        messages.first.role == MessageRole.system ? messages.first.content : '';
+    messages.removeWhere((element) => element.role == MessageRole.system);
+    if (messages.isNotEmpty &&
+        systemContent.isNotEmpty &&
+        messages.first.role == MessageRole.user) {
+      messages.first.content = '$systemContent\n${messages.first.content}';
+    }
+
+    return OpenaiApi.chatCompletions(
+      url: url,
+      apiKey: apiKey,
+      model: model,
+      messages: messages,
+      temperature: temperature,
+      topP: topP,
+      stop: stopList,
+    );
+  }
+
+  /// 取消请求
+  @override
+  cancel() {
+    OpenaiApi.cancel();
+  }
+}

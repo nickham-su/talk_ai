@@ -1,0 +1,63 @@
+PODS:
+  - auto_updater_macos (0.0.1):
+    - FlutterMacOS
+    - Sparkle
+  - FlutterMacOS (1.0.0)
+  - path_provider_foundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
+  - Sparkle (2.6.0)
+  - sqlite3 (3.45.1):
+    - sqlite3/common (= 3.45.1)
+  - sqlite3/common (3.45.1)
+  - sqlite3/fts5 (3.45.1):
+    - sqlite3/common
+  - sqlite3/perf-threadsafe (3.45.1):
+    - sqlite3/common
+  - sqlite3/rtree (3.45.1):
+    - sqlite3/common
+  - sqlite3_flutter_libs (0.0.1):
+    - FlutterMacOS
+    - sqlite3 (~> 3.45.1)
+    - sqlite3/fts5
+    - sqlite3/perf-threadsafe
+    - sqlite3/rtree
+  - url_launcher_macos (0.0.1):
+    - FlutterMacOS
+
+DEPENDENCIES:
+  - auto_updater_macos (from `Flutter/ephemeral/.symlinks/plugins/auto_updater_macos/macos`)
+  - FlutterMacOS (from `Flutter/ephemeral`)
+  - path_provider_foundation (from `Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/darwin`)
+  - sqlite3_flutter_libs (from `Flutter/ephemeral/.symlinks/plugins/sqlite3_flutter_libs/macos`)
+  - url_launcher_macos (from `Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/macos`)
+
+SPEC REPOS:
+  trunk:
+    - Sparkle
+    - sqlite3
+
+EXTERNAL SOURCES:
+  auto_updater_macos:
+    :path: Flutter/ephemeral/.symlinks/plugins/auto_updater_macos/macos
+  FlutterMacOS:
+    :path: Flutter/ephemeral
+  path_provider_foundation:
+    :path: Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/darwin
+  sqlite3_flutter_libs:
+    :path: Flutter/ephemeral/.symlinks/plugins/sqlite3_flutter_libs/macos
+  url_launcher_macos:
+    :path: Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/macos
+
+SPEC CHECKSUMS:
+  auto_updater_macos: 3e3462c418fe4e731917eacd8d28eef7af84086d
+  FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
+  path_provider_foundation: 3784922295ac71e43754bd15e0653ccfd36a147c
+  Sparkle: fb7987538d60157cce51603690235056257c48f3
+  sqlite3: 73b7fc691fdc43277614250e04d183740cb15078
+  sqlite3_flutter_libs: 06a05802529659a272beac4ee1350bfec294f386
+  url_launcher_macos: d2691c7dd33ed713bf3544850a623080ec693d95
+
+PODFILE CHECKSUM: 236401fc2c932af29a9fcf0e97baeeb2d750d367
+
+COCOAPODS: 1.15.2
