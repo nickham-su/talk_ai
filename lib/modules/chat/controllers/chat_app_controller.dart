@@ -682,6 +682,26 @@ class ChatAppController extends GetxController {
     return messages.last.msgId == message.msgId &&
         bottomConversationIds.last == message.conversationId;
   }
+
+  Timer? _scrollTimer;
+
+  // TODO: 这个方式不太流畅
+  void startScrolling(double direction) {
+    _scrollTimer?.cancel();
+    _scrollTimer = Timer.periodic(Duration(milliseconds: 16), (timer) {
+      scrollController
+          .jumpTo(scrollController.offset + direction * 5.0); // 滚动速度，可以调整
+    });
+  }
+
+  void stopScrolling() {
+    _scrollTimer?.cancel();
+  }
+
+  @override
+  void dispose() {
+    _scrollTimer?.cancel();
+  }
 }
 
 /// 使用线程获取会话id列表，查询和分组都在后台线程运算
