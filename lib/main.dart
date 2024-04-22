@@ -18,10 +18,10 @@ import 'shared/utils/sqlite.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  String feedURL = 'https://github.com/nickham-su/talk_ai/releases/latest/download/appcast.xml';
+  const feedURL =
+      'https://github.com/nickham-su/talk_ai/releases/latest/download/appcast.xml';
   await autoUpdater.setFeedURL(feedURL);
   await autoUpdater.checkForUpdates();
-  await autoUpdater.setScheduledCheckInterval(3600);
 
   final dir = await getApplicationDocumentsDirectory();
 

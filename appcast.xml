@@ -7,16 +7,16 @@
         <item>
             <title>Version 1.0.2</title>
             <!-- 对于 macOS 项目，建议将 'sparkle:version' 和 'sparkle:shortVersionString' 添加到项目节点中，而不是作为 'enclosure' 的一部分。 -->
-            <sparkle:version>3</sparkle:version>
             <sparkle:shortVersionString>1.0.2</sparkle:shortVersionString>
+            <sparkle:version>2</sparkle:version>
             <sparkle:releaseNotesLink>
                 https://github.com/nickham-su/talk_ai/releases/latest/download/release_notes.html
             </sparkle:releaseNotesLink>
             <pubDate>Mon, 22 Apr 2024 00:00:00 +0800</pubDate>
-            <enclosure url="https://github.com/nickham-su/talk_ai/releases/latest/download/talk_ai-1.0.2+1-macos.zip"
-                sparkle:edSignature="nfFqXUXicteK8d1A42wcuhic8TNc+w1c1j+qo9Ltdoi/lihD/cKl9tAbyNNRBhSlOA7h4QCbUOlxBvxaQIjJDQ=="
+            <enclosure url="https://github.com/nickham-su/talk_ai/releases/latest/download/talk_ai-1.0.2+2-macos.zip"
+                sparkle:edSignature="BPxJOz7bPtUYVaraDLlT8oYpRX/NhAvMXoc6IUZ3zTYPmUb88s02ODLty+DaBwhQ+aZobGPI9qdTSf5jIScACw=="
                 sparkle:os="macos"
-                length="23484931"
+                length="23486587"
                 type="application/octet-stream" />
         </item>
         <item>
