@@ -52,7 +52,7 @@ class LLMRepository {
   /// 查询所有模型
   static List<LLM> queryAll() {
     final result =
-        Sqlite.db.select('SELECT * FROM $tableName ORDER BY llm_id DESC');
+        Sqlite.db.select('SELECT * FROM $tableName ORDER BY last_use_time DESC');
     return result.map((e) {
       final type = e[2] as String;
       Map<String, dynamic> json = jsonDecode(e[3] as String);

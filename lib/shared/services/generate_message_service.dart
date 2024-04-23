@@ -33,6 +33,9 @@ class GenerateMessageService extends GetxService {
   /// 错误事件处理函数缓存, key为generateId
   final Map<int, List<void Function(dynamic)>> _errorHandlerMap = {};
 
+  /// 用户取消事件处理函数缓存, key为generateId
+  final Map<int, List<void Function()>> _cancelHandlerMap = {};
+
   /// 消息更新事件处理函数缓存, key为msgId
   final Map<int, List<Listener<void Function()>>> _updateMessageHandlerMap = {};
 
@@ -52,6 +55,7 @@ class GenerateMessageService extends GetxService {
     void Function(String)? onGenerate,
     void Function()? onDone,
     void Function(dynamic)? onError,
+    void Function()? onCancel,
   }) {
     // 去重
     if (isGenerating) {
@@ -92,6 +96,7 @@ class GenerateMessageService extends GetxService {
       onGenerate: onGenerate,
       onDone: onDone,
       onError: onError,
+      onCancel: onCancel,
     );
 
     // 更新LLM使用时间
@@ -156,7 +161,7 @@ class GenerateMessageService extends GetxService {
       generateId: generatedMessage.generateId,
       status: MessageStatus.cancel,
     );
-    _handleDone(generatedMessage.generateId);
+    _handleCancel(generatedMessage.generateId);
     _removeGenerateListen(generatedMessage.generateId);
     final LLM? llm = Get.find<LLMService>().getLLM(generatedMessage.llmId);
     llm?.cancel();
@@ -218,6 +223,7 @@ class GenerateMessageService extends GetxService {
     void Function(String)? onGenerate,
     void Function()? onDone,
     void Function(dynamic)? onError,
+    void Function()? onCancel,
   }) {
     if (generateId == null && currentGenerateId == null) {
       return;
@@ -242,6 +248,12 @@ class GenerateMessageService extends GetxService {
       }
       _errorHandlerMap[generateId]!.add(onError);
     }
+    if (onCancel != null) {
+      if (_cancelHandlerMap[generateId] == null) {
+        _cancelHandlerMap[generateId!] = [];
+      }
+      _cancelHandlerMap[generateId]!.add(onCancel);
+    }
   }
 
   /// 移除监听生成消息
@@ -249,6 +261,7 @@ class GenerateMessageService extends GetxService {
     _generateHandlerMap.remove(generateId);
     _doneHandlerMap.remove(generateId);
     _errorHandlerMap.remove(generateId);
+    _cancelHandlerMap.remove(generateId);
   }
 
   /// 处理生成事件
@@ -274,6 +287,15 @@ class GenerateMessageService extends GetxService {
     _errorHandlerMap[generateId]?.forEach((handler) {
       try {
         handler(error);
+      } catch (e) {}
+    });
+  }
+
+  /// 处理取消事件
+  void _handleCancel(int generateId) {
+    _cancelHandlerMap[generateId]?.forEach((handler) {
+      try {
+        handler();
       } catch (e) {}
     });
   }

@@ -97,6 +97,11 @@ class ChatAppController extends GetxController {
           },
           onError: (e) {
             if (!isClosed) update(['editor_toolbar']);
+            _attachToBottom(always: true);
+          },
+          onCancel: () {
+            if (!isClosed) update(['editor_toolbar']);
+            _attachToBottom(always: true);
           },
         );
       }
@@ -480,6 +485,14 @@ class ChatAppController extends GetxController {
         MessageRepository.updateMessage(
           msgId: assistantMsgId!,
           status: MessageStatus.failed,
+        );
+        if (!isClosed) update(['editor_toolbar']);
+        if (autoScroll) _attachToBottom(always: true);
+      },
+      onCancel: () {
+        MessageRepository.updateMessage(
+          msgId: assistantMsgId!,
+          status: MessageStatus.cancel,
         );
         if (!isClosed) update(['editor_toolbar']);
         if (autoScroll) _attachToBottom(always: true);

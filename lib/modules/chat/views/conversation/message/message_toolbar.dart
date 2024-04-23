@@ -55,10 +55,7 @@ class FailedToolbar extends StatelessWidget {
           icon: 'assets/icons/refresh.svg',
           tooltip: '重试',
           onPressed: () {
-            Get.find<ChatAppController>().regenerateMessage(
-              msgId: message.msgId,
-              generateId: message.generateId,
-            );
+            regenerateMessage(message);
           },
         ),
       ],
@@ -194,6 +191,10 @@ void regenerateMessage(ConversationMessageModel message) {
                 Get.find<ChatAppController>().regenerateMessage(
                   msgId: message.msgId,
                   llmId: llmList[index].llmId,
+                  generateId: message.status == MessageStatus.failed ||
+                          message.status == MessageStatus.cancel
+                      ? message.generateId
+                      : null,
                 );
                 Get.back();
               },
