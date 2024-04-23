@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:talk_ai/shared/models/message/message_model.dart';
+import 'package:TalkAI/shared/models/message/message_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -681,6 +681,36 @@ class ChatAppController extends GetxController {
     final messages = MessageRepository.getMessageList(message.conversationId);
     return messages.last.msgId == message.msgId &&
         bottomConversationIds.last == message.conversationId;
+  }
+
+  /// 上次滚动时间
+  int _scrollTime = 0;
+
+  /// 是否在滚动
+  bool _isScrolling = false;
+
+  /// 开始滚动
+  void startScrolling(double direction) {
+    const interval = 16; // 间隔
+    const speed = 5.0; // 速度
+    final now = DateTime.now().millisecondsSinceEpoch;
+    if (now - _scrollTime < interval) {
+      return;
+    }
+    _scrollTime = now;
+    _isScrolling = true;
+    scrollController.jumpTo(scrollController.offset + direction * speed);
+
+    Future.delayed(const Duration(milliseconds: interval), () {
+      if (_isScrolling) {
+        startScrolling(direction);
+      }
+    });
+  }
+
+  /// 停止滚动
+  void stopScrolling() {
+    _isScrolling = false;
   }
 }
 

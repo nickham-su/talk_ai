@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:TalkAI/modules/setting/views/components/update_widget.dart';
 
 import '../../../shared/components/layout/models/layout_menu_type.dart';
 import '../../../shared/components/layout/views/layout.dart';
@@ -42,6 +43,7 @@ class SettingPage extends StatelessWidget {
                   const ThemeWidget(),
                   const NetworkTimeout(),
                   const CacheWidget(),
+                  const UpdateWidget(),
                 ],
               ))),
     );

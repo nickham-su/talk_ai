@@ -1,4 +1,4 @@
-import 'package:talk_ai/shared/models/message/message_model.dart';
+import 'package:TalkAI/shared/models/message/message_model.dart';
 
 import '../../../shared/models/message/message_status.dart';
 

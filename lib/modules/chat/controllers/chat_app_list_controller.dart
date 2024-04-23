@@ -1,4 +1,4 @@
-import 'package:talk_ai/modules/chat/repositorys/chat_app_repository.dart';
+import 'package:TalkAI/modules/chat/repositorys/chat_app_repository.dart';
 import 'package:get/get.dart';
 
 import '../../../routes.dart';

@@ -23,6 +23,11 @@ class CacheWidget extends GetView<SettingController> {
             ),
           ),
           TextButton(
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all(
+                Get.theme.colorScheme.secondaryContainer,
+              ),
+            ),
             onPressed: () {
               dialog(
                 title: '清除缓存',
@@ -40,8 +45,9 @@ class CacheWidget extends GetView<SettingController> {
             },
             child: Text('清除所有缓存数据',
                 style: TextStyle(
-                  fontSize: 14,
-                  color: Get.theme.colorScheme.error,
+                  fontWeight: FontWeight.w300,
+                  fontSize: 12,
+                  color: Get.theme.colorScheme.secondary,
                 )),
           ),
         ],

@@ -1,4 +1,4 @@
-import 'package:talk_ai/modules/chat/models/chat_app_model.dart';
+import 'package:TalkAI/modules/chat/models/chat_app_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';

@@ -62,20 +62,23 @@ class OpenaiApi {
       ),
     );
 
+    // 上次未完成的数据，数据可能会被截断
+    String uncompletedData = '';
+
     await for (var data in response.data!.stream) {
       final resStr = utf8.decode(data);
 
       // 匹配所有 data: 开头的字符串
-      final regex = RegExp(r'data:\s*(\{.*\})');
-      final matchArr = regex.allMatches(resStr);
+      final regex = RegExp(r'data:(.*)[\n$]');
+      final matchArr = regex.allMatches(uncompletedData + resStr);
       if (matchArr.isEmpty) {
         continue;
       }
       for (var match in matchArr) {
         final data = match.group(1)!;
         // 去掉 data: 开头的字符串, 保留 json 字符串
-        final regex = RegExp(r'^data:\s*');
-        final jsonStr = data.replaceFirst(regex, '');
+        final regex = RegExp(r'^data:');
+        final jsonStr = data.replaceFirst(regex, '').trim();
 
         // 解析 json 字符串
         try {
@@ -88,8 +91,9 @@ class OpenaiApi {
             }
             yield choice.delta.content!;
           }
+          uncompletedData = '';
         } catch (e) {
-          throw '解析数据失败: $e\nresponse: $resStr';
+          uncompletedData = data;
         }
       }
     }

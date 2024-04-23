@@ -10,10 +10,8 @@ import 'custom_markdown_node.dart';
 /// Markdown组件
 class MarkdownContentWidget extends StatelessWidget {
   final String content;
-  final bool selectable;
 
-  const MarkdownContentWidget(
-      {super.key, required this.content, this.selectable = true});
+  const MarkdownContentWidget({super.key, required this.content});
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +33,7 @@ class MarkdownContentWidget extends StatelessWidget {
         return MarkdownBlock(
           data: content,
           config: markdownConfig,
-          selectable: selectable,
+          selectable: true,
           generator: MarkdownGenerator(
             inlineSyntaxList: inlineSyntaxList,
             generators: [searchGeneratorWithTag],

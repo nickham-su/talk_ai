@@ -1,4 +1,4 @@
-import 'package:talk_ai/modules/llm/views/llm_setting.dart';
+import 'package:TalkAI/modules/llm/views/llm_setting.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

@@ -1,13 +1,16 @@
-import 'package:auto_updater/auto_updater.dart';
-import 'package:talk_ai/routes.dart';
-import 'package:talk_ai/shared/components/layout/controllers/layout_controller.dart';
-import 'package:talk_ai/shared/repositories/create_tables.dart';
-import 'package:talk_ai/shared/services/generate_message_service.dart';
-import 'package:talk_ai/shared/services/llm_service.dart';
+import 'dart:io';
+
+import 'package:TalkAI/routes.dart';
+import 'package:TalkAI/shared/components/layout/controllers/layout_controller.dart';
+import 'package:TalkAI/shared/repositories/create_tables.dart';
+import 'package:TalkAI/shared/controllers/app_update_controller.dart';
+import 'package:TalkAI/shared/services/generate_message_service.dart';
+import 'package:TalkAI/shared/services/llm_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as path;
 
 import 'modules/setting/repositorys/setting_repository.dart';
 import 'shared/utils/sqlite.dart';
@@ -15,20 +18,24 @@ import 'shared/utils/sqlite.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // String feedURL = 'http://localhost:5002/appcast.xml';
-  // await autoUpdater.setFeedURL(feedURL);
-  // await autoUpdater.checkForUpdates();
-  // await autoUpdater.setScheduledCheckInterval(3600);
-
   final dir = await getApplicationDocumentsDirectory();
-  print('dir:${dir.path}');
-  Hive.init(dir.path);
-  Sqlite.openDB(dir.path);
+
+  // 创建TalkAI文件夹
+  final talkAIDir = path.join(dir.path, 'TalkAI');
+  final talkAIDirFile = Directory(talkAIDir);
+  if (!talkAIDirFile.existsSync()) {
+    talkAIDirFile.createSync();
+  }
+  print('talkAIDir:$talkAIDir');
+
+  Hive.init(talkAIDir);
+  Sqlite.openDB(talkAIDir);
   initDBTables();
 
   // 注册全局控制器、服务
   Get.put(LayoutController(), permanent: true);
   Get.put(GenerateMessageService(), permanent: true);
+  Get.put(AppUpdateController(), permanent: true);
   final llmService = LLMService();
   Get.put(llmService, permanent: true);
 
