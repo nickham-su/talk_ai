@@ -62,18 +62,28 @@ class ChatAppController extends GetxController {
 
   /// 设置当前聊天App
   void setChatApp(ChatAppModel? chatApp) async {
-    final oldChatAppId = this.chatApp?.chatAppId ?? -1;
+    final oldChatApp = this.chatApp;
 
     // 设置当前聊天App
     this.chatApp = chatApp;
-    if (chatApp != null && chatApp.chatAppId == oldChatAppId) {
-      // 如果chatAppId没有改变，则不需要更新会话列表。
-      // 但是chatApp的属性可能改变了，所以总是要更新。
+
+    if (chatApp != null &&
+        oldChatApp != null &&
+        chatApp.chatAppId == oldChatApp.chatAppId &&
+        chatApp.prompt == oldChatApp.prompt) {
+      // 如果chatApp没有改变，且prompt没有改变，则不需要更新会话列表。
       return;
     }
 
     closeSearch();
     if (chatApp != null) {
+      if (oldChatApp != null &&
+          chatApp.chatAppId == oldChatApp.chatAppId &&
+          chatApp.prompt != oldChatApp.prompt) {
+        // 更新了提示词可能会修改最后一条系统消息，先清空再加载，确保列表刷新
+        clearConversationList();
+        await WidgetsBinding.instance.endOfFrame;
+      }
       // 获取会话列表
       await fetchConversationList(chatApp.chatAppId);
       await WidgetsBinding.instance.endOfFrame;

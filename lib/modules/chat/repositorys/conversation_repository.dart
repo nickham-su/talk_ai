@@ -31,10 +31,32 @@ class ConversationRepository {
     final result = Sqlite.db.select('''
         SELECT conversation_id FROM $tableName
         WHERE chat_app_id = ?
-        ORDER BY updated_time ASC
+        ORDER BY updated_time DESC
         LIMIT 2000
       ''', [chatAppId]);
-    return result.map((e) => e[0] as int).toList();
+    return result.map((e) => e[0] as int).toList().reversed.toList();
+  }
+
+  /// 获取最后一个会话
+  static ConversationModel? getLastConversation(int chatAppId) {
+    final result = Sqlite.db.select('''
+      SELECT * FROM $tableName
+      WHERE chat_app_id = ?
+      ORDER BY updated_time DESC
+      LIMIT 1
+    ''', [chatAppId]);
+    if (result.isEmpty) {
+      return null;
+    }
+    final conversation = result[0];
+    final messages = MessageRepository.getMessageList(conversation[0] as int);
+    return ConversationModel(
+      conversationId: conversation[0] as int,
+      chatAppId: conversation[1] as int,
+      createdTime: DateTime.fromMillisecondsSinceEpoch(conversation[2] as int),
+      updatedTime: DateTime.fromMillisecondsSinceEpoch(conversation[3] as int),
+      messages: messages,
+    );
   }
 
   /// 获取会话

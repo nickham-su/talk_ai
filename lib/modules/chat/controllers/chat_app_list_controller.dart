@@ -1,4 +1,5 @@
 import 'package:TalkAI/modules/chat/repositorys/chat_app_repository.dart';
+import 'package:TalkAI/shared/models/message/message_model.dart';
 import 'package:get/get.dart';
 
 import '../../../routes.dart';
@@ -96,6 +97,17 @@ class ChatAppListController extends GetxController {
       topP: topP,
     );
     refreshChatApps();
+    // 如果最后一个会话只有一条系统消息，则更新助理设定
+    final conversation = ConversationRepository.getLastConversation(chatAppId);
+    if (conversation != null &&
+        conversation.messages.length == 1 &&
+        conversation.messages.first.role == MessageRole.system) {
+      MessageRepository.updateMessage(
+        msgId: conversation.messages.first.msgId,
+        content: prompt,
+      );
+    }
+
     selectChatApp(chatAppId);
   }
 
