@@ -23,7 +23,7 @@ void main() async {
   final dir = await getApplicationDocumentsDirectory();
 
   // 创建talk_ai文件夹
-  final talkAIDir = path.join(dir.path, 'talk_ai');
+  final talkAIDir = path.join(dir.path, 'TalkAI');
   final talkAIDirFile = Directory(talkAIDir);
   if (!talkAIDirFile.existsSync()) {
     talkAIDirFile.createSync();

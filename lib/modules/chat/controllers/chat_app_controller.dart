@@ -683,24 +683,34 @@ class ChatAppController extends GetxController {
         bottomConversationIds.last == message.conversationId;
   }
 
-  Timer? _scrollTimer;
+  /// 上次滚动时间
+  int _scrollTime = 0;
 
-  // TODO: 这个方式不太流畅
+  /// 是否在滚动
+  bool _isScrolling = false;
+
+  /// 开始滚动
   void startScrolling(double direction) {
-    _scrollTimer?.cancel();
-    _scrollTimer = Timer.periodic(Duration(milliseconds: 16), (timer) {
-      scrollController
-          .jumpTo(scrollController.offset + direction * 5.0); // 滚动速度，可以调整
+    const interval = 16; // 间隔
+    const speed = 5.0; // 速度
+    final now = DateTime.now().millisecondsSinceEpoch;
+    if (now - _scrollTime < interval) {
+      return;
+    }
+    _scrollTime = now;
+    _isScrolling = true;
+    scrollController.jumpTo(scrollController.offset + direction * speed);
+
+    Future.delayed(const Duration(milliseconds: interval), () {
+      if (_isScrolling) {
+        startScrolling(direction);
+      }
     });
   }
 
+  /// 停止滚动
   void stopScrolling() {
-    _scrollTimer?.cancel();
-  }
-
-  @override
-  void dispose() {
-    _scrollTimer?.cancel();
+    _isScrolling = false;
   }
 }
 
