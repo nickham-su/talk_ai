@@ -45,7 +45,8 @@ class CacheWidget extends GetView<SettingController> {
             },
             child: Text('清除所有缓存数据',
                 style: TextStyle(
-                  fontSize: 14,
+                  fontWeight: FontWeight.w300,
+                  fontSize: 12,
                   color: Get.theme.colorScheme.secondary,
                 )),
           ),

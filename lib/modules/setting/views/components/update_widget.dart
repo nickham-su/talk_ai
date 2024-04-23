@@ -55,7 +55,8 @@ class UpdateWidget extends StatelessWidget {
                 },
                 child: Text(controller.needUpdate ? '立即自动更新' : '检查更新',
                     style: TextStyle(
-                      fontSize: 14,
+                      fontWeight: FontWeight.w300,
+                      fontSize: 12,
                       color: controller.needUpdate
                           ? Get.theme.colorScheme.error
                           : Get.theme.colorScheme.secondary,
@@ -84,7 +85,8 @@ class UpdateWidget extends StatelessWidget {
                 },
                 child: Text('手动下载',
                     style: TextStyle(
-                      fontSize: 14,
+                      fontWeight: FontWeight.w300,
+                      fontSize: 12,
                       color: Get.theme.colorScheme.secondary,
                     )),
               ),
