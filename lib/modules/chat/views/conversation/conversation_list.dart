@@ -13,13 +13,24 @@ class ConversationList extends StatelessWidget {
   Widget build(BuildContext context) {
     final centerKey = GlobalKey();
 
+    /// 鼠标按下开始移动时间
+    int startMoveTime = 0;
+
     return GetBuilder<ChatAppController>(
       builder: (controller) {
         return Listener(
           onPointerUp: (PointerUpEvent event) {
+            startMoveTime = 0;
             controller.stopScrolling();
           },
           onPointerMove: (PointerMoveEvent event) {
+            if (startMoveTime == 0) {
+              startMoveTime = DateTime.now().millisecondsSinceEpoch;
+            }
+            // 防止误触发滚动
+            if (DateTime.now().millisecondsSinceEpoch - startMoveTime < 300) {
+              return;
+            }
             final RenderBox renderBox = context.findRenderObject() as RenderBox;
             final Offset localPosition =
                 renderBox.globalToLocal(event.position);
