@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:talk_ai/shared/controllers/app_update_controller.dart';
 
 import '../../../../routes.dart';
 import '../controllers/layout_controller.dart';
@@ -21,19 +22,24 @@ class Sidebar extends StatelessWidget {
             padding: EdgeInsets.zero,
             children: <Widget>[
               getListTile(
-                controller,
-                LayoutMenuType.chat,
-                Routes.chat,
+                controller: controller,
+                type: LayoutMenuType.chat,
+                routePath: Routes.chat,
               ),
               getListTile(
-                controller,
-                LayoutMenuType.llm,
-                Routes.llm,
+                controller: controller,
+                type: LayoutMenuType.llm,
+                routePath: Routes.llm,
               ),
-              getListTile(
-                controller,
-                LayoutMenuType.setting,
-                Routes.setting,
+              GetBuilder<AppUpdateController>(
+                builder: (AppUpdateController appUpdateController) {
+                  return getListTile(
+                    controller: controller,
+                    type: LayoutMenuType.setting,
+                    routePath: Routes.setting,
+                    showBadge: appUpdateController.needUpdate,
+                  );
+                },
               ),
             ],
           )),
@@ -43,32 +49,60 @@ class Sidebar extends StatelessWidget {
   }
 
   // 获取菜单项
-  Widget getListTile(
-      LayoutController controller, LayoutMenuType type, String routePath) {
-    return Container(
+  Widget getListTile({
+    required LayoutController controller,
+    required LayoutMenuType type,
+    required String routePath,
+    bool showBadge = false,
+  }) {
+    return SizedBox(
         width: 50,
         height: 50,
         child: Tooltip(
           message: type.value,
           waitDuration: const Duration(milliseconds: 500),
           showDuration: Duration.zero,
-          child: IconButton(
-            style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all(
-                type == currentMenu
-                    ? Get.theme.colorScheme.primaryContainer
-                    : Colors.transparent,
+          child: Stack(
+            children: [
+              SizedBox(
+                width: 50,
+                height: 50,
+                child: IconButton(
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(
+                      type == currentMenu
+                          ? Get.theme.colorScheme.primaryContainer
+                          : Colors.transparent,
+                    ),
+                    padding: MaterialStateProperty.all(EdgeInsets.zero),
+                    alignment: Alignment.center,
+                    shape:
+                        MaterialStateProperty.all(const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.zero,
+                    )),
+                  ),
+                  icon: getIcon(type, currentMenu),
+                  onPressed: () {
+                    Get.offNamed(routePath);
+                  },
+                ),
               ),
-              padding: MaterialStateProperty.all(EdgeInsets.zero),
-              alignment: Alignment.center,
-              shape: MaterialStateProperty.all(const RoundedRectangleBorder(
-                borderRadius: BorderRadius.zero,
-              )),
-            ),
-            icon: getIcon(type, currentMenu),
-            onPressed: () {
-              Get.offNamed(routePath);
-            },
+              if (showBadge)
+                Positioned(
+                  right: 8,
+                  top: 8,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    constraints: const BoxConstraints(
+                      minWidth: 8,
+                      minHeight: 8,
+                    ),
+                  ),
+                ),
+            ],
           ),
         ));
   }

@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:talk_ai/routes.dart';
 import 'package:talk_ai/shared/components/layout/controllers/layout_controller.dart';
 import 'package:talk_ai/shared/repositories/create_tables.dart';
+import 'package:talk_ai/shared/controllers/app_update_controller.dart';
 import 'package:talk_ai/shared/services/generate_message_service.dart';
 import 'package:talk_ai/shared/services/llm_service.dart';
 import 'package:flutter/material.dart';
@@ -36,6 +37,7 @@ void main() async {
   // 注册全局控制器、服务
   Get.put(LayoutController(), permanent: true);
   Get.put(GenerateMessageService(), permanent: true);
+  Get.put(AppUpdateController(), permanent: true);
   final llmService = LLMService();
   Get.put(llmService, permanent: true);
 
