@@ -1,4 +1,4 @@
-import 'package:talk_ai/modules/chat/views/conversation/conversation_page.dart';
+import 'package:TalkAI/modules/chat/views/conversation/conversation_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

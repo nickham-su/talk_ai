@@ -1,13 +1,11 @@
 import 'dart:io';
 
-import 'package:auto_updater/auto_updater.dart';
-import 'package:flutter/foundation.dart';
-import 'package:talk_ai/routes.dart';
-import 'package:talk_ai/shared/components/layout/controllers/layout_controller.dart';
-import 'package:talk_ai/shared/repositories/create_tables.dart';
-import 'package:talk_ai/shared/controllers/app_update_controller.dart';
-import 'package:talk_ai/shared/services/generate_message_service.dart';
-import 'package:talk_ai/shared/services/llm_service.dart';
+import 'package:TalkAI/routes.dart';
+import 'package:TalkAI/shared/components/layout/controllers/layout_controller.dart';
+import 'package:TalkAI/shared/repositories/create_tables.dart';
+import 'package:TalkAI/shared/controllers/app_update_controller.dart';
+import 'package:TalkAI/shared/services/generate_message_service.dart';
+import 'package:TalkAI/shared/services/llm_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
@@ -22,7 +20,7 @@ void main() async {
 
   final dir = await getApplicationDocumentsDirectory();
 
-  // 创建talk_ai文件夹
+  // 创建TalkAI文件夹
   final talkAIDir = path.join(dir.path, 'TalkAI');
   final talkAIDirFile = Directory(talkAIDir);
   if (!talkAIDirFile.existsSync()) {

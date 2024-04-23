@@ -1,7 +1,7 @@
 import 'package:auto_updater/auto_updater.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:talk_ai/shared/components/snackbar.dart';
+import 'package:TalkAI/shared/components/snackbar.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../../../shared/apis/app_version.dart';

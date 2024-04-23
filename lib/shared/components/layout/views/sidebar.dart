@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:talk_ai/shared/controllers/app_update_controller.dart';
+import 'package:TalkAI/shared/controllers/app_update_controller.dart';
 
 import '../../../../routes.dart';
 import '../controllers/layout_controller.dart';

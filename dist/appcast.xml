@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
     <channel>
-        <title>talk_ai</title>
+        <title>TalkAI</title>
         <description>An intelligent chatbot powered by large language models. Easily integrate OpenAI API, customize prompts to generate personalized assistants. Simple and user-friendly, empowering seamless conversations.</description>
         <language>en</language>
         <item>
             <title>Version 1.0.5</title>
             <sparkle:shortVersionString>1.0.5</sparkle:shortVersionString>
-            <sparkle:version>6</sparkle:version>
+            <sparkle:version>7</sparkle:version>
             <sparkle:releaseNotesLink>
                 https://github.com/nickham-su/talk_ai/releases/latest/download/release_notes.html
             </sparkle:releaseNotesLink>
             <pubDate>Mon, 23 Apr 2024 00:00:00 +0800</pubDate>
-            <enclosure url="https://github.com/nickham-su/talk_ai/releases/latest/download/talk_ai-1.0.5+6-macos.zip"
-                sparkle:edSignature="93+KMe6UcdgJHsqPv54Lx1LUk/xNoqq/AUBKV5xamFnpWh5LDv4I4aL0JF7cE+tCqxkHFYS3GxNCME+xnNYvCQ=="
+            <enclosure url="https://github.com/nickham-su/talk_ai/releases/latest/download/TalkAI-1.0.5+7-macos.zip"
+                sparkle:edSignature="l7nPkvA9t3dIDUbaR2IW8/quO3kjP035HdrJmStFRDZmGlUQCZJ8uYdSkOiN9kCsAO8FlSNKay65WE7BHXF1AQ=="
                 sparkle:os="macos"
-                length="23325397"
+                length="23327157"
                 type="application/octet-stream" />
         </item>
         <item>
