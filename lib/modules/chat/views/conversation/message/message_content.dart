@@ -52,7 +52,7 @@ class MessageContent extends StatelessWidget {
           contentWidget = ConstrainedWidget(
             child: getTextContent(
               content,
-              fontSize: 14,
+              fontSize: 16,
               color: Get.theme.textTheme.bodyMedium?.color?.withOpacity(0.3),
             ),
           );
