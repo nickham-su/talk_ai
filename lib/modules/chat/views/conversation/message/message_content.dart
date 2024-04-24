@@ -54,10 +54,12 @@ class MessageContent extends StatelessWidget {
           contentWidget = ConstrainedWidget(
             child: getTextContent(
               content,
-              fontSize: 16,
+              fontWeight: FontWeight.w300,
               color: Get.theme.textTheme.bodyMedium?.color?.withOpacity(0.3),
             ),
           );
+        } else if (message.role == MessageRole.user) {
+          contentWidget = getTextContent(content);
         } else if (controller.showMarkdown) {
           contentWidget = MarkdownContentWidget(content: content);
         } else {
@@ -117,15 +119,15 @@ class MessageContent extends StatelessWidget {
     );
   }
 
-  getTextContent(String content, {double? fontSize, Color? color}) {
+  getTextContent(String content, {Color? color, FontWeight? fontWeight}) {
     return Container(
       padding: const EdgeInsets.only(top: 4),
       child: SelectionArea(
         child: Text(
           content,
           style: TextStyle(
-            fontSize: fontSize,
-            fontWeight: FontWeight.w300,
+            fontSize: 16,
+            fontWeight: fontWeight,
             color: color ?? Get.theme.textTheme.bodyMedium?.color,
           ),
         ),
