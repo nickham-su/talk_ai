@@ -73,8 +73,8 @@ class MessageContent extends StatelessWidget {
                 roleName,
                 style: TextStyle(
                   fontWeight: FontWeight.w300,
-                  color: Get.theme.textTheme.bodyMedium?.color
-                      ?.withOpacity(0.7),
+                  color:
+                      Get.theme.textTheme.bodyMedium?.color?.withOpacity(0.7),
                 ),
               ),
               contentWidget,
@@ -101,13 +101,15 @@ class MessageContent extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  message.role == MessageRole.assistant ||
-                      message.role == MessageRole.user
+                  message.status != MessageStatus.unsent &&
+                          message.status != MessageStatus.sending &&
+                          (message.role == MessageRole.assistant ||
+                              message.role == MessageRole.user)
                       ? getMarkdownToggle(
-                    isMarkdown: controller.showMarkdown,
-                    onMarkdown: controller.setMarkdown,
-                    onOriginal: controller.setOriginal,
-                  )
+                          isMarkdown: controller.showMarkdown,
+                          onMarkdown: controller.setMarkdown,
+                          onOriginal: controller.setOriginal,
+                        )
                       : SizedBox(),
                   MessageToolbar(message: message),
                 ],
@@ -121,7 +123,7 @@ class MessageContent extends StatelessWidget {
 
   getTextContent(String content, {Color? color, FontWeight? fontWeight}) {
     return Container(
-      padding: const EdgeInsets.only(top: 4),
+      padding: const EdgeInsets.only(top: 8, bottom: 8),
       child: SelectionArea(
         child: Text(
           content,
