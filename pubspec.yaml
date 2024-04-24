@@ -57,6 +57,7 @@ dependencies:
   package_info: ^2.0.2
   # 启动浏览器
   url_launcher: ^6.2.6
+  window_manager: ^0.3.8
 
 dev_dependencies:
   flutter_test:
