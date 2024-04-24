@@ -45,7 +45,9 @@ class MessageContent extends StatelessWidget {
             : message.content;
 
     return GetBuilder<MessageContentController>(
-      init: MessageContentController(),
+      id: 'message_content_${message.msgId}',
+      tag: 'message_content_${message.msgId}',
+      init: MessageContentController(message.msgId),
       builder: (controller) {
         late Widget contentWidget;
         if (message.role == MessageRole.system) {
@@ -203,15 +205,19 @@ class MessageContent extends StatelessWidget {
 }
 
 class MessageContentController extends GetxController {
+  final int msgId;
+
+  MessageContentController(this.msgId);
+
   bool showMarkdown = true;
 
   void setMarkdown() {
     showMarkdown = true;
-    update();
+    update(['message_content_$msgId']);
   }
 
   void setOriginal() {
     showMarkdown = false;
-    update();
+    update(['message_content_$msgId']);
   }
 }
