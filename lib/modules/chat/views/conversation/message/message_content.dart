@@ -58,8 +58,6 @@ class MessageContent extends StatelessWidget {
               color: Get.theme.textTheme.bodyMedium?.color?.withOpacity(0.3),
             ),
           );
-        } else if (message.role == MessageRole.user) {
-          contentWidget = getTextContent(content);
         } else if (controller.showMarkdown) {
           contentWidget = MarkdownContentWidget(content: content);
         } else {
@@ -71,24 +69,13 @@ class MessageContent extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Text(
-                    roleName,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w300,
-                      color: Get.theme.textTheme.bodyMedium?.color
-                          ?.withOpacity(0.7),
-                    ),
-                  ),
-                  message.role == MessageRole.assistant
-                      ? getMarkdownToggle(
-                          isMarkdown: controller.showMarkdown,
-                          onMarkdown: controller.setMarkdown,
-                          onOriginal: controller.setOriginal,
-                        )
-                      : SizedBox(),
-                ],
+              Text(
+                roleName,
+                style: TextStyle(
+                  fontWeight: FontWeight.w300,
+                  color: Get.theme.textTheme.bodyMedium?.color
+                      ?.withOpacity(0.7),
+                ),
               ),
               contentWidget,
               Visibility(
@@ -111,7 +98,20 @@ class MessageContent extends StatelessWidget {
                   ),
                 ),
               ),
-              MessageToolbar(message: message),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  message.role == MessageRole.assistant ||
+                      message.role == MessageRole.user
+                      ? getMarkdownToggle(
+                    isMarkdown: controller.showMarkdown,
+                    onMarkdown: controller.setMarkdown,
+                    onOriginal: controller.setOriginal,
+                  )
+                      : SizedBox(),
+                  MessageToolbar(message: message),
+                ],
+              ),
             ],
           ),
         );
@@ -141,7 +141,7 @@ class MessageContent extends StatelessWidget {
     required void Function() onOriginal,
   }) {
     return Container(
-      margin: const EdgeInsets.only(left: 20),
+      margin: const EdgeInsets.only(right: 12),
       child: Row(
         children: [
           TextButton(
@@ -154,8 +154,8 @@ class MessageContent extends StatelessWidget {
                   : Get.theme.colorScheme.secondaryContainer.withOpacity(0.5),
               shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  bottomLeft: Radius.circular(20),
+                  topLeft: Radius.circular(16),
+                  bottomLeft: Radius.circular(16),
                 ),
               ),
             ),
@@ -182,8 +182,8 @@ class MessageContent extends StatelessWidget {
                   : Get.theme.colorScheme.secondaryContainer,
               shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.only(
-                  topRight: Radius.circular(20),
-                  bottomRight: Radius.circular(20),
+                  topRight: Radius.circular(16),
+                  bottomRight: Radius.circular(16),
                 ),
               ),
             ),
