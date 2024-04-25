@@ -1,12 +1,10 @@
 import 'dart:io';
 
-import 'package:TalkAI/modules/chat/views/conversation/search/search_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../../../controllers/chat_app_controller.dart';
-import 'editor_quote_message.dart';
 import 'editor_toolbar.dart';
 
 class EditorWidget extends StatelessWidget {
@@ -21,7 +19,6 @@ class EditorWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const EditorToolbar(),
-              const EditorQuoteMessage(),
               RawKeyboardListener(
                 focusNode: FocusNode(),
                 onKey: (RawKeyEvent event) {

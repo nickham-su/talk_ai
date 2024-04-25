@@ -30,7 +30,7 @@ class MessagePaginationController extends GetxController {
     // 判断消息是否是最后一条消息
     final message = messages[index];
     final chatAppController = Get.find<ChatAppController>();
-    final isLastMessage = chatAppController.isLastMessage(message.msgId);
+    final isLastMessage = chatAppController.isLastMessage(msgId: message.msgId);
 
     // 保存消息
     final generateId = message.generateId;

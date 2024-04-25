@@ -75,7 +75,7 @@ class UserMessageToolbar extends StatelessWidget {
       children: [
         ToolbarIcon(
           icon: 'assets/icons/edit.svg',
-          tooltip: '修改',
+          tooltip: '修改后，重新发送',
           onPressed: () {
             final controller = Get.find<ChatAppController>();
             controller.quote(message.msgId);
@@ -104,15 +104,15 @@ class AssistantMessageToolbar extends StatelessWidget {
   Widget build(BuildContext context) {
     final service = Get.find<GenerateMessageService>();
     final genMsgList = service.getMessages(message.msgId);
+    final chatAppController = Get.find<ChatAppController>();
+
+    final isLastMessage = chatAppController.isLastMessage(
+      msgId: message.msgId,
+      conversationId: message.conversationId,
+    );
+
     return Row(
       children: [
-        ToolbarIcon(
-          icon: 'assets/icons/message.svg',
-          tooltip: '回复',
-          onPressed: () {
-            Get.find<ChatAppController>().quote(message.msgId);
-          },
-        ),
         ToolbarIcon(
           icon: 'assets/icons/refresh.svg',
           tooltip: '更换模型、再答一次',
@@ -131,6 +131,16 @@ class AssistantMessageToolbar extends StatelessWidget {
             },
           ),
         ),
+        Visibility(
+          visible: !isLastMessage,
+          child: ToolbarIcon(
+            icon: 'assets/icons/arrow/arrowdown_fill.svg',
+            tooltip: '从这里，继续对话',
+            onPressed: () {
+              chatAppController.quote(message.msgId);
+            },
+          ),
+        )
       ],
     );
   }
