@@ -166,7 +166,7 @@ class MessageContent extends StatelessWidget {
               'Markdown',
               style: TextStyle(
                 color: isMarkdown
-                    ? Get.theme.textTheme.bodyMedium?.color
+                    ? Get.theme.textTheme.bodyMedium?.color?.withOpacity(0.7)
                     : Get.theme.textTheme.bodyMedium?.color?.withOpacity(0.35),
                 fontSize: 11,
                 height: 1,
@@ -195,7 +195,7 @@ class MessageContent extends StatelessWidget {
               style: TextStyle(
                 color: isMarkdown
                     ? Get.theme.textTheme.bodyMedium?.color?.withOpacity(0.35)
-                    : Get.theme.textTheme.bodyMedium?.color,
+                    : Get.theme.textTheme.bodyMedium?.color?.withOpacity(0.7),
                 fontSize: 11,
                 height: 1,
                 fontWeight: FontWeight.w300,
