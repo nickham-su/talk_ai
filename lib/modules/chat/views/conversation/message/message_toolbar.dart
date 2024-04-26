@@ -134,7 +134,7 @@ class AssistantMessageToolbar extends StatelessWidget {
         Visibility(
           visible: !isLastMessage,
           child: ToolbarIcon(
-            icon: 'assets/icons/arrow/arrowdown_fill.svg',
+            icon: 'assets/icons/arrow/arrowright_fill.svg',
             tooltip: '从这里，继续对话',
             onPressed: () {
               chatAppController.quote(message.msgId);

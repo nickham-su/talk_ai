@@ -516,12 +516,14 @@ class ChatAppController extends GetxController {
   }
 
   /// 删除引用消息之后的消息
-  void _removeMessagesAfterQuote(ConversationMessageModel quoteMsg) {
+  bool _removeMessagesAfterQuote(ConversationMessageModel quoteMsg) {
+    bool isDeleted = false;
     final messages = MessageRepository.getMessageList(quoteMsg.conversationId);
     if (quoteMsg.role == MessageRole.user) {
       // 修改消息，删除引用消息之后的消息，包括引用消息
       for (var message in messages) {
         if (message.msgId >= quoteMsg.msgId) {
+          isDeleted = true;
           MessageRepository.deleteMessage(msgId: message.msgId);
           generateMessageService.removeMessages(message.msgId);
         }
@@ -530,11 +532,13 @@ class ChatAppController extends GetxController {
       // 回复消息，删除引用消息之后的消息
       for (var message in messages) {
         if (message.msgId > quoteMsg.msgId) {
+          isDeleted = true;
           MessageRepository.deleteMessage(msgId: message.msgId);
           generateMessageService.removeMessages(message.msgId);
         }
       }
     }
+    return isDeleted;
   }
 
   /// 删除当前消息以及之后的所有消息
@@ -568,12 +572,14 @@ class ChatAppController extends GetxController {
       snackbar('提示', '引用的消息不存在');
       return;
     }
-    // 删除引用消息之后的消息
-    _removeMessagesAfterQuote(quoteMessage!);
     // 更新会话时间
     ConversationRepository.updateConversationTime(quoteMessage!.conversationId);
-    // 刷新会话列表，先删除是为了确保正确更新
-    await clearConversationList();
+
+    // 删除引用消息之后的消息
+    if (_removeMessagesAfterQuote(quoteMessage!)) {
+      // 如果删除了消息，则清空会话列表，再加载会话
+      await clearConversationList();
+    }
     await fetchConversationList(chatApp!.chatAppId);
     await WidgetsBinding.instance.endOfFrame;
     await scrollToBottom();
