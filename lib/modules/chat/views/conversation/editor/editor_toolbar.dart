@@ -20,7 +20,6 @@ class EditorToolbar extends StatelessWidget {
           const SearchButton(),
           getDivider(),
           const UpButton(),
-          const DownButton(),
           const BottomButton(),
         ];
 
@@ -177,35 +176,6 @@ class UpButton extends StatelessWidget {
         onPressed: () {
           final controller = Get.find<ChatAppController>();
           controller.scrollToPreviousConversation();
-          controller.inputFocusNode.requestFocus();
-        },
-      ),
-    );
-  }
-}
-
-/// 下一个会话按钮
-class DownButton extends StatelessWidget {
-  const DownButton({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 2),
-      child: IconButton(
-        visualDensity: VisualDensity.compact,
-        tooltip: '下一个会话',
-        icon: SvgPicture.asset(
-          'assets/icons/arrow/down.svg',
-          width: 18,
-          height: 18,
-          theme: SvgTheme(
-            currentColor: Get.theme.colorScheme.inverseSurface,
-          ),
-        ),
-        onPressed: () {
-          final controller = Get.find<ChatAppController>();
-          controller.scrollToNextConversation();
           controller.inputFocusNode.requestFocus();
         },
       ),

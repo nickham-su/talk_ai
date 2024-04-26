@@ -781,43 +781,6 @@ class ChatAppController extends GetxController {
     );
   }
 
-  /// 滚动到下一个会话
-  scrollToNextConversation() {
-    List<Element> list = [];
-    scrollKey.currentContext!.visitChildElements((element) {
-      list.addAll(_getChild(element, 1, 25));
-    });
-    // 按位置排序，从上到下
-    list.sort((a, b) {
-      final renderObjectA = a.findRenderObject() as RenderBox;
-      final renderObjectB = b.findRenderObject() as RenderBox;
-      final positionA = renderObjectA.localToGlobal(Offset.zero);
-      final positionB = renderObjectB.localToGlobal(Offset.zero);
-      return positionA.dy.compareTo(positionB.dy);
-    });
-    // 计算移动的距离
-    double top = 0;
-    double height = 0;
-    for (var element in list) {
-      final renderObject = element.findRenderObject() as RenderBox;
-      final position = renderObject.localToGlobal(Offset.zero);
-      if (position.dy > 50) {
-        break;
-      }
-      top = position.dy;
-      height = renderObject.size.height;
-    }
-    // 移动
-    scrollController.animateTo(
-      min(
-        scrollController.position.pixels + top + height,
-        scrollController.position.maxScrollExtent + 50,
-      ),
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.easeInOut,
-    );
-  }
-
   List<Element> _getChild(Element element, int current, int maxLevel) {
     if (current > maxLevel) {
       return [];
