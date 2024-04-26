@@ -27,23 +27,24 @@ class AppList extends GetView<ChatAppListController> {
         children: [
           const ListHeader(),
           Expanded(
-            child: Obx(() => ListView(children: getChatAppList())),
+            child: Obx(() => ListView.builder(
+                  itemCount: controller.chatAppList.length,
+                  itemBuilder: (context, index) {
+                    final app = controller.chatAppList[index];
+                    return ListItem(
+                        key: ValueKey('key_chat_app_${app.chatAppId}'),
+                        app: app,
+                        selected:
+                            app.chatAppId == controller.currentChatAppId.value,
+                        onTap: () {
+                          controller.selectChatApp(app.chatAppId);
+                        });
+                  },
+                )),
           ),
         ],
       ),
     );
-  }
-
-  List<Widget> getChatAppList() {
-    final list = controller.chatAppList
-        .map((app) => ListItem(
-            app: app,
-            selected: app.chatAppId == controller.currentChatAppId.value,
-            onTap: () {
-              controller.selectChatApp(app.chatAppId);
-            }))
-        .toList();
-    return list;
   }
 }
 
@@ -69,6 +70,11 @@ class _ListItemState extends State<ListItem> {
   Widget build(BuildContext context) {
     return MouseRegion(
       onEnter: (event) {
+        final chatAppListController = Get.find<ChatAppListController>();
+        if (chatAppListController.currentChatAppId.value !=
+            widget.app.chatAppId) {
+          return;
+        }
         setState(() {
           hover = true;
         });
@@ -88,33 +94,19 @@ class _ListItemState extends State<ListItem> {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
-        trailing: hover == false
+        trailing: hover == false ? null : getButtons(widget.app),
+        tileColor: widget.app.toppingTime.millisecondsSinceEpoch == 0
             ? null
-            : Tooltip(
-                waitDuration: const Duration(milliseconds: 500),
-                showDuration: Duration.zero,
-                message: '设置',
-                child: IconButton(
-                  onPressed: () {
-                    Get.dialog(
-                      ChatAppSettingDialog(chatAppModel: widget.app),
-                      barrierDismissible: true,
-                    );
-                  },
-                  icon: SvgPicture.asset(
-                    'assets/icons/setting.svg',
-                    width: 16,
-                    height: 16,
-                    theme: SvgTheme(
-                      currentColor: Get.theme.colorScheme.secondary,
-                    ),
-                  ),
-                ),
-              ),
+            : Get.theme.colorScheme.secondaryContainer.withOpacity(0.3),
         selected: widget.selected,
         selectedTileColor: Get.theme.colorScheme.primaryContainer,
         contentPadding: const EdgeInsets.only(left: 16),
-        onTap: widget.onTap,
+        onTap: () {
+          setState(() {
+            hover = true;
+          });
+          widget.onTap();
+        },
       ),
     );
   }
@@ -163,4 +155,69 @@ class ListHeader extends GetView<ChatAppListController> {
       ),
     );
   }
+}
+
+Widget getButtons(ChatAppModel chatApp) {
+  return Container(
+    width: 60,
+    child: Row(
+      children: [
+        Tooltip(
+          waitDuration: const Duration(milliseconds: 500),
+          showDuration: Duration.zero,
+          message:
+              chatApp.toppingTime.millisecondsSinceEpoch == 0 ? '置顶' : '取消置顶',
+          child: IconButton(
+            style: ButtonStyle(
+              minimumSize: MaterialStateProperty.all<Size>(const Size(28, 28)),
+              padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                const EdgeInsets.all(0),
+              ),
+            ),
+            onPressed: () async {
+              await Future.delayed(const Duration(milliseconds: 100));
+              Get.find<ChatAppListController>().toggleTop(chatApp.chatAppId);
+            },
+            icon: SvgPicture.asset(
+              chatApp.toppingTime.millisecondsSinceEpoch == 0
+                  ? 'assets/icons/arrow/top.svg'
+                  : 'assets/icons/arrow/top_cancel.svg',
+              width: 16,
+              height: 16,
+              theme: SvgTheme(
+                currentColor: Get.theme.colorScheme.secondary,
+              ),
+            ),
+          ),
+        ),
+        Tooltip(
+          waitDuration: const Duration(milliseconds: 500),
+          showDuration: Duration.zero,
+          message: '设置',
+          child: IconButton(
+            style: ButtonStyle(
+              minimumSize: MaterialStateProperty.all<Size>(const Size(28, 28)),
+              padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                const EdgeInsets.all(0),
+              ),
+            ),
+            onPressed: () {
+              Get.dialog(
+                ChatAppSettingDialog(chatAppModel: chatApp),
+                barrierDismissible: true,
+              );
+            },
+            icon: SvgPicture.asset(
+              'assets/icons/setting.svg',
+              width: 16,
+              height: 16,
+              theme: SvgTheme(
+                currentColor: Get.theme.colorScheme.secondary,
+              ),
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
 }

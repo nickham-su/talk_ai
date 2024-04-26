@@ -132,4 +132,16 @@ class ChatAppListController extends GetxController {
     ChatAppRepository.recordLastUseTime(chatAppId);
     refreshChatApps();
   }
+
+  /// 切换置顶状态
+  void toggleTop(int chatAppId) {
+    final chatApp = getChatApp(chatAppId);
+    if (chatApp == null) return;
+    if (chatApp.toppingTime.millisecondsSinceEpoch == 0) {
+      ChatAppRepository.top(chatAppId);
+    } else {
+      ChatAppRepository.unTop(chatAppId);
+    }
+    refreshChatApps();
+  }
 }

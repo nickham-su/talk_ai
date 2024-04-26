@@ -7,6 +7,7 @@ class ChatAppModel {
   final double temperature; // 温度
   final double topP; // top_p
   final DateTime lastUseTime; // 最后使用时间
+  final DateTime toppingTime; // 置顶时间
 
   ChatAppModel({
     required this.chatAppId,
@@ -16,5 +17,6 @@ class ChatAppModel {
     required this.temperature,
     required this.topP,
     required this.lastUseTime,
+    required this.toppingTime,
   });
 }
