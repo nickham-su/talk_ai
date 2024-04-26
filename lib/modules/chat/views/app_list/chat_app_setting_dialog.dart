@@ -45,7 +45,7 @@ class ChatAppSettingDialog extends GetView<ChatAppSettingController> {
             ),
           ),
           width: 700,
-          height: 600,
+          height: 520,
           child: Column(
             children: [
               Container(
@@ -109,12 +109,11 @@ class ChatAppSettingDialog extends GetView<ChatAppSettingController> {
                               },
                             )),
                         SliderWidget(
-                          labelText: '温度',
-                          tooltip: '''温度Temperature：
-控制生成文本的随机性，它是一个0到1之间的浮点数。
+                          labelText: 'Temperature',
+                          tooltip: '''控制生成文本的随机性，它是一个0到1之间的浮点数。
 当temperature接近0时,模型会变得更加确定和保守,倾向于选择概率最高的下一个词。这会导致输出更加确定但缺乏多样性。
 当temperature接近1时,模型会变得更加随机和富有创造力,生成的文本更加多样化但相关性可能降低。''',
-                          labelWidth: 60,
+                          labelWidth: 120,
                           initialValue: controller.temperature,
                           max: 1,
                           min: 0.1,
@@ -122,21 +121,14 @@ class ChatAppSettingDialog extends GetView<ChatAppSettingController> {
                           onChanged: (value) {
                             controller.temperature = value;
                           },
-                        ),
-                        SliderWidget(
-                          labelText: 'top_p',
-                          tooltip: '''Top_p:
-Top_p参数也叫nucleus sampling,用于从概率分布的前p部分中采样下一个词。它同样是0到1之间的浮点数。
-当top_p=1时,模型会考虑所有可能的下一个词。
-当top_p<1时(如0.9),模型只会从累积概率达到top_p的那些词中采样,忽略概率较低的词。这有助于生成更相关连贯的文本。
-适中的top_p值可以过滤掉一些低概率的噪音,同时保留一定的多样性。''',
-                          labelWidth: 60,
-                          initialValue: controller.topP,
-                          max: 1,
-                          min: 0.1,
-                          divisions: 18,
-                          onChanged: (value) {
-                            controller.topP = value;
+                          format: (value) {
+                            if (value <= 0.65) {
+                              return '${value.toStringAsFixed(2)} 严谨';
+                            } else if (value <= 0.85) {
+                              return '${value.toStringAsFixed(2)} 均衡';
+                            } else {
+                              return '${value.toStringAsFixed(2)} 创意';
+                            }
                           },
                         ),
                       ],

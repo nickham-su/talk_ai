@@ -32,4 +32,16 @@ class SettingRepository {
     final box = Hive.box(_boxName);
     box.put('network_timeout', timeout);
   }
+
+  /// 记录检测更新时间
+  static setCheckUpdateTime() {
+    final box = Hive.box(_boxName);
+    box.put('check_update_time', DateTime.now().millisecondsSinceEpoch);
+  }
+
+  /// 获取检测更新时间，单位：毫秒
+  static int getCheckUpdateTime() {
+    final box = Hive.box(_boxName);
+    return box.get('check_update_time', defaultValue: 0);
+  }
 }

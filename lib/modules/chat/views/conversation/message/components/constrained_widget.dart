@@ -13,7 +13,7 @@ class ConstrainedWidget extends StatefulWidget {
 class _ConstrainedWidgetState extends State<ConstrainedWidget> {
   final GlobalKey boxKey = GlobalKey();
 
-  static const _maxHeight = 80.0;
+  static const _maxHeight = 90.0;
 
   // 是否超过最大高度
   bool overMaxHeight = false;

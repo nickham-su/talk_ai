@@ -45,14 +45,14 @@ class ChatAppController extends GetxController {
   /// 滚动控制器
   final ScrollController scrollController = ScrollController();
 
+  /// scrollview的key
+  final GlobalKey scrollKey = GlobalKey();
+
   /// scrollview center上方的会话id列表
   List<int> topConversationIds = [];
 
   /// scrollview center下方的会话id列表
   List<int> bottomConversationIds = [];
-
-  /// 引用消息
-  ConversationMessageModel? quoteMessage;
 
   /// 生成消息服务
   final generateMessageService = Get.find<GenerateMessageService>();
@@ -62,18 +62,28 @@ class ChatAppController extends GetxController {
 
   /// 设置当前聊天App
   void setChatApp(ChatAppModel? chatApp) async {
-    final oldChatAppId = this.chatApp?.chatAppId ?? -1;
+    final oldChatApp = this.chatApp;
 
     // 设置当前聊天App
     this.chatApp = chatApp;
-    if (chatApp != null && chatApp.chatAppId == oldChatAppId) {
-      // 如果chatAppId没有改变，则不需要更新会话列表。
-      // 但是chatApp的属性可能改变了，所以总是要更新。
+
+    if (chatApp != null &&
+        oldChatApp != null &&
+        chatApp.chatAppId == oldChatApp.chatAppId &&
+        chatApp.prompt == oldChatApp.prompt) {
+      // 如果chatApp没有改变，且prompt没有改变，则不需要更新会话列表。
       return;
     }
 
     closeSearch();
     if (chatApp != null) {
+      if (oldChatApp != null &&
+          chatApp.chatAppId == oldChatApp.chatAppId &&
+          chatApp.prompt != oldChatApp.prompt) {
+        // 更新了提示词可能会修改最后一条系统消息，先清空再加载，确保列表刷新
+        clearConversationList();
+        await WidgetsBinding.instance.endOfFrame;
+      }
       // 获取会话列表
       await fetchConversationList(chatApp.chatAppId);
       await WidgetsBinding.instance.endOfFrame;
@@ -97,6 +107,11 @@ class ChatAppController extends GetxController {
           },
           onError: (e) {
             if (!isClosed) update(['editor_toolbar']);
+            _attachToBottom(always: true);
+          },
+          onCancel: () {
+            if (!isClosed) update(['editor_toolbar']);
+            _attachToBottom(always: true);
           },
         );
       }
@@ -232,6 +247,8 @@ class ChatAppController extends GetxController {
       isBottom = false;
       await _scrollToBottom(animate: animate, curve: Curves.easeIn);
     }
+    await WidgetsBinding.instance.endOfFrame;
+    await WidgetsBinding.instance.endOfFrame;
     await _scrollToBottom(
       animate: animate,
       curve: isBottom ? Curves.easeInOut : Curves.easeOut,
@@ -274,27 +291,8 @@ class ChatAppController extends GetxController {
       return;
     }
 
-    late int conversationId; // 会话id
-    if (quoteMessage != null) {
-      conversationId = quoteMessage!.conversationId;
-    } else {
-      conversationId = bottomConversationIds.last;
-    }
-
-    if (quoteMessage != null) {
-      // 删除引用消息之后的消息
-      _removeMessagesAfterQuote(quoteMessage!);
-      await fetchConversationList(chatApp!.chatAppId);
-    }
-
-    // 插入用户消息
-    MessageRepository.insertMessage(
-      chatAppId: chatApp!.chatAppId,
-      conversationId: conversationId,
-      role: MessageRole.user,
-      content: inputController.text.trim(),
-      status: MessageStatus.completed,
-    );
+    // 会话id
+    int conversationId = bottomConversationIds.last;
 
     // 查询历史消息
     List<ConversationMessageModel> messages =
@@ -324,15 +322,24 @@ class ChatAppController extends GetxController {
     // 更新会话时间
     ConversationRepository.updateConversationTime(conversationId);
 
+    // 插入用户消息
+    MessageRepository.insertMessage(
+      chatAppId: chatApp!.chatAppId,
+      conversationId: conversationId,
+      role: MessageRole.user,
+      content: inputController.text.trim(),
+      status: MessageStatus.completed,
+    );
+
+    // 查询历史消息
+    messages = MessageRepository.getMessageList(conversationId);
+
     // 生成消息
     _generateMessage(
       messages: messages,
       llm: llm,
       conversationId: conversationId,
     );
-
-    // 清空引用消息
-    removeQuote();
 
     // 清空输入框，延迟是等待最后的回车键输入完成
     Future.delayed(const Duration(milliseconds: 100), () {
@@ -484,6 +491,14 @@ class ChatAppController extends GetxController {
         if (!isClosed) update(['editor_toolbar']);
         if (autoScroll) _attachToBottom(always: true);
       },
+      onCancel: () {
+        MessageRepository.updateMessage(
+          msgId: assistantMsgId!,
+          status: MessageStatus.cancel,
+        );
+        if (!isClosed) update(['editor_toolbar']);
+        if (autoScroll) _attachToBottom(always: true);
+      },
     );
 
     // 更新generateId
@@ -501,12 +516,14 @@ class ChatAppController extends GetxController {
   }
 
   /// 删除引用消息之后的消息
-  void _removeMessagesAfterQuote(ConversationMessageModel quoteMsg) {
+  bool _removeMessagesAfterQuote(ConversationMessageModel quoteMsg) {
+    bool isDeleted = false;
     final messages = MessageRepository.getMessageList(quoteMsg.conversationId);
     if (quoteMsg.role == MessageRole.user) {
       // 修改消息，删除引用消息之后的消息，包括引用消息
       for (var message in messages) {
         if (message.msgId >= quoteMsg.msgId) {
+          isDeleted = true;
           MessageRepository.deleteMessage(msgId: message.msgId);
           generateMessageService.removeMessages(message.msgId);
         }
@@ -515,11 +532,13 @@ class ChatAppController extends GetxController {
       // 回复消息，删除引用消息之后的消息
       for (var message in messages) {
         if (message.msgId > quoteMsg.msgId) {
+          isDeleted = true;
           MessageRepository.deleteMessage(msgId: message.msgId);
           generateMessageService.removeMessages(message.msgId);
         }
       }
     }
+    return isDeleted;
   }
 
   /// 删除当前消息以及之后的所有消息
@@ -545,26 +564,29 @@ class ChatAppController extends GetxController {
   }
 
   /// 引用消息
-  void quote(int msgId) {
+  void quote(int msgId) async {
+    late ConversationMessageModel quoteMessage;
     try {
       quoteMessage = MessageRepository.getMessage(msgId);
     } catch (e) {
-      quoteMessage = null;
       snackbar('提示', '引用的消息不存在');
+      return;
     }
-    update(['editor_quote_message']);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      inputFocusNode.requestFocus();
-    });
-  }
+    // 更新会话时间
+    ConversationRepository.updateConversationTime(quoteMessage!.conversationId);
 
-  /// 删除引用消息
-  void removeQuote() {
-    quoteMessage = null;
-    update(['editor_quote_message']);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      inputFocusNode.requestFocus();
-    });
+    // 删除引用消息之后的消息
+    if (_removeMessagesAfterQuote(quoteMessage!)) {
+      // 如果删除了消息，则清空会话列表，再加载会话
+      await clearConversationList();
+    }
+    await fetchConversationList(chatApp!.chatAppId);
+    await WidgetsBinding.instance.endOfFrame;
+    await scrollToBottom();
+    if (quoteMessage.role == MessageRole.user) {
+      inputController.text = quoteMessage.content;
+    }
+    inputFocusNode.requestFocus();
   }
 
   /// 使用chatApp
@@ -675,12 +697,18 @@ class ChatAppController extends GetxController {
   }
 
   /// 是否为最后一条消息
-  bool isLastMessage(int msgId) {
-    final message = MessageRepository.getMessage(msgId);
+  bool isLastMessage({required int msgId, int? conversationId}) {
+    if (conversationId == null) {
+      final message = MessageRepository.getMessage(msgId);
+      conversationId = message.conversationId;
+    }
 
-    final messages = MessageRepository.getMessageList(message.conversationId);
-    return messages.last.msgId == message.msgId &&
-        bottomConversationIds.last == message.conversationId;
+    if (bottomConversationIds.last != conversationId) {
+      return false;
+    }
+
+    final lastMessage = MessageRepository.getLastMessage(conversationId);
+    return msgId == lastMessage?.msgId;
   }
 
   /// 上次滚动时间
@@ -711,6 +739,64 @@ class ChatAppController extends GetxController {
   /// 停止滚动
   void stopScrolling() {
     _isScrolling = false;
+  }
+
+  /// 滚动到上一个会话
+  scrollToPreviousConversation() {
+    final scrollRender =
+        scrollKey.currentContext!.findRenderObject() as RenderBox;
+    final scrollHeight = scrollRender.size.height;
+
+    // 获取会话Element列表
+    List<Element> list = [];
+    scrollKey.currentContext!.visitChildElements((element) {
+      list.addAll(_getChild(element, 1, 25));
+    });
+
+    // 按位置排序，从上到下
+    list.sort((a, b) {
+      final renderObjectA = a.findRenderObject() as RenderBox;
+      final renderObjectB = b.findRenderObject() as RenderBox;
+      final positionA = renderObjectA.localToGlobal(Offset.zero);
+      final positionB = renderObjectB.localToGlobal(Offset.zero);
+      return positionA.dy.compareTo(positionB.dy);
+    });
+
+    // 计算移动的距离
+    double top = 0;
+    for (var element in list) {
+      final renderObject = element.findRenderObject() as RenderBox;
+      final position = renderObject.localToGlobal(Offset.zero);
+      if (position.dy >= (scrollHeight - 50)) {
+        break;
+      }
+      top = position.dy;
+    }
+    // 移动
+    scrollController.animateTo(
+      max(scrollController.position.pixels - (scrollHeight - top),
+          scrollController.position.minScrollExtent - 50),
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  List<Element> _getChild(Element element, int current, int maxLevel) {
+    if (current > maxLevel) {
+      return [];
+    }
+    List<Element> list = [];
+    element.visitChildElements((element) {
+      Key? key = element.widget.key;
+      if (key is ValueKey &&
+          key.value.toString().contains('key_conversation_')) {
+        list.add(element);
+        return;
+      }
+      final children = _getChild(element, current + 1, maxLevel);
+      list.addAll(children);
+    });
+    return list;
   }
 }
 

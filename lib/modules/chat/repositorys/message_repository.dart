@@ -81,6 +81,19 @@ class MessageRepository {
     return _selectResultToModel(result.first);
   }
 
+  /// 获取最后一条消息
+  static ConversationMessageModel? getLastMessage(int conversationId) {
+    final result = Sqlite.db.select('''
+      SELECT * FROM $tableName WHERE conversation_id = ? 
+      ORDER BY msg_id DESC
+      LIMIT 1
+    ''', [conversationId]);
+    if (result.isEmpty) {
+      return null;
+    }
+    return _selectResultToModel(result.first);
+  }
+
   /// 搜索消息
   static ConversationMessageModel? search({
     required int chatAppId,

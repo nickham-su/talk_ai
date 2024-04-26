@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:get/get.dart';
 import 'package:package_info/package_info.dart';
 
+import '../../modules/setting/repositorys/setting_repository.dart';
 import '../apis/app_version.dart';
 
 class AppUpdateController extends GetxController {
@@ -12,7 +15,12 @@ class AppUpdateController extends GetxController {
 
   @override
   void onInit() {
+    // 启动后延迟10秒检查更新
     Future.delayed(const Duration(seconds: 10), () {
+      checkUpdate();
+    });
+    // 启动定时器检查更新
+    Timer.periodic(const Duration(minutes: 1), (timer) {
       checkUpdate();
     });
     super.onInit();
@@ -20,6 +28,13 @@ class AppUpdateController extends GetxController {
 
   /// 检查更新
   void checkUpdate() async {
+    const interval = 1000 * 60 * 60 * 24; // 间隔时间24小时
+    final lastCheckTs = SettingRepository.getCheckUpdateTime();
+    final now = DateTime.now().millisecondsSinceEpoch;
+    if (now - lastCheckTs < interval) {
+      return;
+    }
+    SettingRepository.setCheckUpdateTime();
     final remoteVersion = await AppVersion.getLatestVersion();
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     String buildNumber = packageInfo.buildNumber;

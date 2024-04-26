@@ -45,14 +45,16 @@ class MessageContent extends StatelessWidget {
             : message.content;
 
     return GetBuilder<MessageContentController>(
-      init: MessageContentController(),
+      id: 'message_content_${message.msgId}',
+      tag: 'message_content_${message.msgId}',
+      init: MessageContentController(message.msgId),
       builder: (controller) {
         late Widget contentWidget;
         if (message.role == MessageRole.system) {
           contentWidget = ConstrainedWidget(
             child: getTextContent(
               content,
-              fontSize: 14,
+              fontWeight: FontWeight.w300,
               color: Get.theme.textTheme.bodyMedium?.color?.withOpacity(0.3),
             ),
           );
@@ -67,24 +69,13 @@ class MessageContent extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Text(
-                    roleName,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w300,
-                      color: Get.theme.textTheme.bodyMedium?.color
-                          ?.withOpacity(0.7),
-                    ),
-                  ),
-                  message.role == MessageRole.assistant
-                      ? getMarkdownToggle(
-                          isMarkdown: controller.showMarkdown,
-                          onMarkdown: controller.setMarkdown,
-                          onOriginal: controller.setOriginal,
-                        )
-                      : SizedBox(),
-                ],
+              Text(
+                roleName,
+                style: TextStyle(
+                  fontWeight: FontWeight.w300,
+                  color:
+                      Get.theme.textTheme.bodyMedium?.color?.withOpacity(0.7),
+                ),
               ),
               contentWidget,
               Visibility(
@@ -107,7 +98,22 @@ class MessageContent extends StatelessWidget {
                   ),
                 ),
               ),
-              MessageToolbar(message: message),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  message.status != MessageStatus.unsent &&
+                          message.status != MessageStatus.sending &&
+                          (message.role == MessageRole.assistant ||
+                              message.role == MessageRole.user)
+                      ? getMarkdownToggle(
+                          isMarkdown: controller.showMarkdown,
+                          onMarkdown: controller.setMarkdown,
+                          onOriginal: controller.setOriginal,
+                        )
+                      : SizedBox(),
+                  MessageToolbar(message: message),
+                ],
+              ),
             ],
           ),
         );
@@ -115,15 +121,15 @@ class MessageContent extends StatelessWidget {
     );
   }
 
-  getTextContent(String content, {double? fontSize, Color? color}) {
+  getTextContent(String content, {Color? color, FontWeight? fontWeight}) {
     return Container(
-      padding: const EdgeInsets.only(top: 4),
+      padding: const EdgeInsets.only(top: 8, bottom: 8),
       child: SelectionArea(
         child: Text(
           content,
           style: TextStyle(
-            fontSize: fontSize,
-            fontWeight: FontWeight.w300,
+            fontSize: 16,
+            fontWeight: fontWeight,
             color: color ?? Get.theme.textTheme.bodyMedium?.color,
           ),
         ),
@@ -137,7 +143,7 @@ class MessageContent extends StatelessWidget {
     required void Function() onOriginal,
   }) {
     return Container(
-      margin: const EdgeInsets.only(left: 20),
+      margin: const EdgeInsets.only(right: 12),
       child: Row(
         children: [
           TextButton(
@@ -146,12 +152,12 @@ class MessageContent extends StatelessWidget {
               padding:
                   const EdgeInsets.only(left: 8, right: 4, top: 0, bottom: 0),
               backgroundColor: isMarkdown
-                  ? Get.theme.colorScheme.secondaryContainer
-                  : Get.theme.colorScheme.secondaryContainer.withOpacity(0.5),
+                  ? Get.theme.colorScheme.secondaryContainer.withOpacity(0.6)
+                  : Get.theme.colorScheme.secondaryContainer.withOpacity(0.2),
               shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  bottomLeft: Radius.circular(20),
+                  topLeft: Radius.circular(16),
+                  bottomLeft: Radius.circular(16),
                 ),
               ),
             ),
@@ -160,8 +166,8 @@ class MessageContent extends StatelessWidget {
               'Markdown',
               style: TextStyle(
                 color: isMarkdown
-                    ? Get.theme.colorScheme.primary
-                    : Get.theme.colorScheme.primary.withOpacity(0.5),
+                    ? Get.theme.textTheme.bodyMedium?.color?.withOpacity(0.7)
+                    : Get.theme.textTheme.bodyMedium?.color?.withOpacity(0.35),
                 fontSize: 11,
                 height: 1,
                 fontWeight: FontWeight.w300,
@@ -174,12 +180,12 @@ class MessageContent extends StatelessWidget {
               padding:
                   const EdgeInsets.only(left: 4, right: 8, top: 0, bottom: 0),
               backgroundColor: isMarkdown
-                  ? Get.theme.colorScheme.secondaryContainer.withOpacity(0.5)
-                  : Get.theme.colorScheme.secondaryContainer,
+                  ? Get.theme.colorScheme.secondaryContainer.withOpacity(0.2)
+                  : Get.theme.colorScheme.secondaryContainer.withOpacity(0.6),
               shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.only(
-                  topRight: Radius.circular(20),
-                  bottomRight: Radius.circular(20),
+                  topRight: Radius.circular(16),
+                  bottomRight: Radius.circular(16),
                 ),
               ),
             ),
@@ -188,8 +194,8 @@ class MessageContent extends StatelessWidget {
               '原文',
               style: TextStyle(
                 color: isMarkdown
-                    ? Get.theme.colorScheme.primary.withOpacity(0.5)
-                    : Get.theme.colorScheme.primary,
+                    ? Get.theme.textTheme.bodyMedium?.color?.withOpacity(0.35)
+                    : Get.theme.textTheme.bodyMedium?.color?.withOpacity(0.7),
                 fontSize: 11,
                 height: 1,
                 fontWeight: FontWeight.w300,
@@ -203,15 +209,19 @@ class MessageContent extends StatelessWidget {
 }
 
 class MessageContentController extends GetxController {
+  final int msgId;
+
+  MessageContentController(this.msgId);
+
   bool showMarkdown = true;
 
   void setMarkdown() {
     showMarkdown = true;
-    update();
+    update(['message_content_$msgId']);
   }
 
   void setOriginal() {
     showMarkdown = false;
-    update();
+    update(['message_content_$msgId']);
   }
 }

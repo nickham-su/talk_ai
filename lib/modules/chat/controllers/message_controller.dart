@@ -75,6 +75,10 @@ class MessageController extends GetxController {
           listenGenerateId = 0;
           refreshMessage();
         },
+        onCancel: () {
+          listenGenerateId = 0;
+          refreshMessage();
+        },
       );
     }
 
