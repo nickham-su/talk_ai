@@ -152,7 +152,7 @@ class MessageContent extends StatelessWidget {
               padding:
                   const EdgeInsets.only(left: 8, right: 4, top: 0, bottom: 0),
               backgroundColor: isMarkdown
-                  ? Get.theme.colorScheme.secondaryContainer.withOpacity(0.6)
+                  ? Get.theme.colorScheme.secondaryContainer.withOpacity(0.5)
                   : Get.theme.colorScheme.secondaryContainer.withOpacity(0.2),
               shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.only(
@@ -166,8 +166,8 @@ class MessageContent extends StatelessWidget {
               'Markdown',
               style: TextStyle(
                 color: isMarkdown
-                    ? Get.theme.textTheme.bodyMedium?.color?.withOpacity(0.7)
-                    : Get.theme.textTheme.bodyMedium?.color?.withOpacity(0.35),
+                    ? Get.theme.textTheme.bodyMedium?.color?.withOpacity(0.6)
+                    : Get.theme.textTheme.bodyMedium?.color?.withOpacity(0.3),
                 fontSize: 11,
                 height: 1,
                 fontWeight: FontWeight.w300,
@@ -181,7 +181,7 @@ class MessageContent extends StatelessWidget {
                   const EdgeInsets.only(left: 4, right: 8, top: 0, bottom: 0),
               backgroundColor: isMarkdown
                   ? Get.theme.colorScheme.secondaryContainer.withOpacity(0.2)
-                  : Get.theme.colorScheme.secondaryContainer.withOpacity(0.6),
+                  : Get.theme.colorScheme.secondaryContainer.withOpacity(0.5),
               shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.only(
                   topRight: Radius.circular(16),
@@ -194,8 +194,8 @@ class MessageContent extends StatelessWidget {
               '原文',
               style: TextStyle(
                 color: isMarkdown
-                    ? Get.theme.textTheme.bodyMedium?.color?.withOpacity(0.35)
-                    : Get.theme.textTheme.bodyMedium?.color?.withOpacity(0.7),
+                    ? Get.theme.textTheme.bodyMedium?.color?.withOpacity(0.3)
+                    : Get.theme.textTheme.bodyMedium?.color?.withOpacity(0.6),
                 fontSize: 11,
                 height: 1,
                 fontWeight: FontWeight.w300,
