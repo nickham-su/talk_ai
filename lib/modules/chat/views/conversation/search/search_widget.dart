@@ -127,6 +127,7 @@ class SearchWidget extends StatelessWidget {
                   onPressed: () async {
                     await Future.delayed(const Duration(milliseconds: 100));
                     controller.toggleSearch();
+                    controller.inputFocusNode.requestFocus();
                   },
                 ),
               ],

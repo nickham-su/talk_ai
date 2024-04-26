@@ -45,6 +45,9 @@ class ChatAppController extends GetxController {
   /// 滚动控制器
   final ScrollController scrollController = ScrollController();
 
+  /// scrollview的key
+  final GlobalKey scrollKey = GlobalKey();
+
   /// scrollview center上方的会话id列表
   List<int> topConversationIds = [];
 
@@ -244,6 +247,8 @@ class ChatAppController extends GetxController {
       isBottom = false;
       await _scrollToBottom(animate: animate, curve: Curves.easeIn);
     }
+    await WidgetsBinding.instance.endOfFrame;
+    await WidgetsBinding.instance.endOfFrame;
     await _scrollToBottom(
       animate: animate,
       curve: isBottom ? Curves.easeInOut : Curves.easeOut,
@@ -696,8 +701,7 @@ class ChatAppController extends GetxController {
       return false;
     }
 
-    final lastMessage =
-        MessageRepository.getLastMessage(conversationId);
+    final lastMessage = MessageRepository.getLastMessage(conversationId);
     return msgId == lastMessage?.msgId;
   }
 
@@ -729,6 +733,101 @@ class ChatAppController extends GetxController {
   /// 停止滚动
   void stopScrolling() {
     _isScrolling = false;
+  }
+
+  /// 滚动到上一个会话
+  scrollToPreviousConversation() {
+    final scrollRender =
+        scrollKey.currentContext!.findRenderObject() as RenderBox;
+    final scrollHeight = scrollRender.size.height;
+
+    // 获取会话Element列表
+    List<Element> list = [];
+    scrollKey.currentContext!.visitChildElements((element) {
+      list.addAll(_getChild(element, 1, 25));
+    });
+
+    // 按位置排序，从上到下
+    list.sort((a, b) {
+      final renderObjectA = a.findRenderObject() as RenderBox;
+      final renderObjectB = b.findRenderObject() as RenderBox;
+      final positionA = renderObjectA.localToGlobal(Offset.zero);
+      final positionB = renderObjectB.localToGlobal(Offset.zero);
+      return positionA.dy.compareTo(positionB.dy);
+    });
+
+    // 计算移动的距离
+    double top = 0;
+    for (var element in list) {
+      final renderObject = element.findRenderObject() as RenderBox;
+      final position = renderObject.localToGlobal(Offset.zero);
+      if (position.dy >= (scrollHeight - 50)) {
+        break;
+      }
+      top = position.dy;
+    }
+    // 移动
+    scrollController.animateTo(
+      max(scrollController.position.pixels - (scrollHeight - top),
+          scrollController.position.minScrollExtent - 50),
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  /// 滚动到下一个会话
+  scrollToNextConversation() {
+    List<Element> list = [];
+    scrollKey.currentContext!.visitChildElements((element) {
+      list.addAll(_getChild(element, 1, 25));
+    });
+    // 按位置排序，从上到下
+    list.sort((a, b) {
+      final renderObjectA = a.findRenderObject() as RenderBox;
+      final renderObjectB = b.findRenderObject() as RenderBox;
+      final positionA = renderObjectA.localToGlobal(Offset.zero);
+      final positionB = renderObjectB.localToGlobal(Offset.zero);
+      return positionA.dy.compareTo(positionB.dy);
+    });
+    // 计算移动的距离
+    double top = 0;
+    double height = 0;
+    for (var element in list) {
+      final renderObject = element.findRenderObject() as RenderBox;
+      final position = renderObject.localToGlobal(Offset.zero);
+      if (position.dy > 50) {
+        break;
+      }
+      top = position.dy;
+      height = renderObject.size.height;
+    }
+    // 移动
+    scrollController.animateTo(
+      min(
+        scrollController.position.pixels + top + height,
+        scrollController.position.maxScrollExtent + 50,
+      ),
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  List<Element> _getChild(Element element, int current, int maxLevel) {
+    if (current > maxLevel) {
+      return [];
+    }
+    List<Element> list = [];
+    element.visitChildElements((element) {
+      Key? key = element.widget.key;
+      if (key is ValueKey &&
+          key.value.toString().contains('key_conversation_')) {
+        list.add(element);
+        return;
+      }
+      final children = _getChild(element, current + 1, maxLevel);
+      list.addAll(children);
+    });
+    return list;
   }
 }
 

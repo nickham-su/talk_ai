@@ -75,7 +75,7 @@ class ConversationWidget extends StatelessWidget {
                     chatAppController.currentMessageKey != null) {
                   key = chatAppController.currentMessageKey!;
                 } else {
-                  key = ValueKey(e.msgId);
+                  key = ValueKey('key_message_${e.msgId}');
                 }
 
                 return MessageWidget(

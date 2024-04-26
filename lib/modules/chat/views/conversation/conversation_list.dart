@@ -46,6 +46,7 @@ class ConversationList extends StatelessWidget {
             }
           },
           child: CustomScrollView(
+            key: controller.scrollKey,
             controller: controller.scrollController,
             center: centerKey,
             slivers: [
@@ -54,9 +55,10 @@ class ConversationList extends StatelessWidget {
                   (context, index) {
                     final current =
                         controller.topConversationIds.length - 1 - index;
+                    final conversationId =controller.topConversationIds[current];
                     return ConversationWidget(
-                      key: ValueKey(controller.topConversationIds[current]),
-                      conversationId: controller.topConversationIds[current],
+                      key: ValueKey('key_conversation_$conversationId'),
+                      conversationId: conversationId,
                     );
                   },
                   childCount: controller.topConversationIds.length,
@@ -69,7 +71,7 @@ class ConversationList extends StatelessWidget {
                     final conversationId =
                         controller.bottomConversationIds[index];
                     return ConversationWidget(
-                      key: ValueKey(conversationId),
+                      key: ValueKey('key_conversation_$conversationId'),
                       conversationId: conversationId,
                     );
                   },
