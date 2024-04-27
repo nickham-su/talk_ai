@@ -1,18 +1,20 @@
-import 'package:TalkAI/modules/llm/controllers/llm_share_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../shared/components/buttons/cancel_button.dart';
-import '../../../shared/components/buttons/confirm_button.dart';
-import '../../../shared/components/share/llm_share_link_dialog.dart';
+import '../../../../shared/components/buttons/cancel_button.dart';
+import '../../../../shared/components/buttons/confirm_button.dart';
+import '../../../../shared/components/share/llm_share_link_dialog.dart';
+import '../../controllers/chat_app_list_controller.dart';
+import '../../controllers/chat_app_share_controller.dart';
 
-class LLMShareDialog extends StatelessWidget {
-  const LLMShareDialog({Key? key}) : super(key: key);
+class AppShareDialog extends StatelessWidget {
+  const AppShareDialog({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<LLMShareController>(
-      init: LLMShareController(),
+    final chatAppListController = Get.find<ChatAppListController>();
+    return GetBuilder<ChatAppShareController>(
+      init: ChatAppShareController(),
       builder: (controller) {
         return Scaffold(
           backgroundColor: Colors.transparent,
@@ -43,22 +45,23 @@ class LLMShareDialog extends StatelessWidget {
                       ),
                     ),
                     child: const Text(
-                      '分享模型',
+                      '分享助理',
                       style: TextStyle(fontSize: 16),
                     ),
                   ),
                   Expanded(
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 16),
                       child: ListView.builder(
-                        itemCount: controller.llmList.length,
+                        itemCount: chatAppListController.chatAppList.length,
                         itemBuilder: (context, index) {
-                          final llm = controller.llmList[index];
+                          final app = chatAppListController.chatAppList[index];
                           return CheckboxListTile(
-                            title: Text(llm.name),
-                            value: controller.isSelect(llm.llmId),
+                            title: Text(app.name),
+                            value: controller.isSelect(app.chatAppId),
                             onChanged: (value) {
-                              controller.toggleSelect(llm.llmId);
+                              controller.toggleSelect(app.chatAppId);
                             },
                           );
                         },
@@ -75,7 +78,8 @@ class LLMShareDialog extends StatelessWidget {
                           onPressed: () async {
                             final url = controller.getShareUrl();
                             Get.back();
-                            await Future.delayed(const Duration(milliseconds: 200));
+                            await Future.delayed(
+                                const Duration(milliseconds: 200));
                             Get.dialog(
                               LLMShareLinkDialog(url: url),
                               barrierDismissible: true,

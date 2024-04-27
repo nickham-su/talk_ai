@@ -121,7 +121,7 @@ class ListHeader extends GetView<LLMController> {
                   width: 20,
                   height: 20,
                   theme: SvgTheme(
-                    currentColor: Get.theme.colorScheme.inverseSurface,
+                    currentColor: Get.theme.colorScheme.secondary,
                   ),
                 ),
               ),
@@ -145,7 +145,7 @@ class ListHeader extends GetView<LLMController> {
                   width: 17,
                   height: 17,
                   theme: SvgTheme(
-                    currentColor: Get.theme.colorScheme.inverseSurface,
+                    currentColor: Get.theme.colorScheme.secondary,
                   ),
                 ),
               ),

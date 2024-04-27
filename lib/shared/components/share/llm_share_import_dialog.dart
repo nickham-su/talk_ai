@@ -7,6 +7,7 @@ import 'package:clipboard/clipboard.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../modules/chat/repositorys/chat_app_repository.dart';
 import '../buttons/cancel_button.dart';
 import '../buttons/confirm_button.dart';
 import '../../services/llm_service.dart';
@@ -79,8 +80,12 @@ class LLMShareImportDialog extends StatelessWidget {
                       children: [
                         ConfirmButton(
                           text: '导入',
-                          onPressed: () {
-                            importData(input.trim());
+                          onPressed: () async {
+                            try {
+                              await importData(input.trim());
+                            } catch (e) {
+                              snackbar('导入失败', '请检查分享链接是否正确！');
+                            }
                           },
                         ),
                         const SizedBox(width: 16),
@@ -102,14 +107,15 @@ class LLMShareImportDialog extends StatelessWidget {
     );
   }
 
-  void importData(String url) async {
-    final compressed = url.replaceAll('talkai://', '');
+  importData(String url) async {
+    final reg = RegExp(r'^(.*?\n)*?talkai://');
+    final compressed = url.replaceAll(reg, '');
     final jsonStr = gzipDecompress(compressed);
     final data = jsonDecode(jsonStr);
 
+    /// 导入模型
     final countModels = data['models']?.length ?? 0;
     final List<String> failureModelsList = [];
-
     if (countModels > 0) {
       for (final model in data['models']) {
         try {
@@ -121,16 +127,52 @@ class LLMShareImportDialog extends StatelessWidget {
         }
       }
     }
+
+    /// 导入助理
+    final countChatApps = data['apps']?.length ?? 0;
+    final List<String> failureChatAppsList = [];
+    if (countChatApps > 0) {
+      for (final app in data['apps']) {
+        try {
+          ChatAppRepository.insert(
+            name: app['name'],
+            prompt: app['prompt'],
+            llmId: -1,
+            temperature: app['temperature'],
+          );
+        } catch (e) {
+          if (app['name'] != null) {
+            failureChatAppsList.add(app['name']);
+          }
+        }
+      }
+    }
+
+    /// 关闭对话框
     Get.back();
     await Future.delayed(const Duration(milliseconds: 200));
 
+    /// 提示导入结果
     String ret = '';
     if (countModels > 0) {
-      ret += '模型：成功导入${countModels - failureModelsList.length}个\n';
+      ret += '模型：成功导入${countModels - failureModelsList.length}个';
       if (failureModelsList.isNotEmpty) {
-        ret += '导入失败: ${failureModelsList.join('、')}';
+        ret += '\n导入失败: ${failureModelsList.join('、')}';
       }
     }
-    snackbar('导入结果', ret);
+    if (countChatApps > 0) {
+      if (ret.isNotEmpty) {
+        ret += '\n\n';
+      }
+      final countSuccess = countChatApps - failureChatAppsList.length;
+      ret += '助理：成功导入$countSuccess个';
+      if (failureChatAppsList.isNotEmpty) {
+        ret += '\n导入失败: ${failureChatAppsList.join('、')}';
+      }
+      if (countSuccess > 0) {
+        ret += '\n使用前，需要为助理设置模型！';
+      }
+    }
+    snackbar('导入结果', ret, duration: const Duration(seconds: 5));
   }
 }

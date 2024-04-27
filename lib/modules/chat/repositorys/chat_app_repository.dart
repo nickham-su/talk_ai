@@ -37,7 +37,7 @@ class ChatAppRepository {
     required String prompt,
     required int llmId,
     required double temperature,
-    required double topP,
+    double topP = 0.95,
   }) {
     final lastUseTime = DateTime.now();
     Sqlite.db.execute('''

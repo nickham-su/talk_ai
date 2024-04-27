@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 
 import '../../../../shared/components/layout/models/layout_menu_type.dart';
 import '../../controllers/chat_app_list_controller.dart';
+import 'app_share_dialog.dart';
 import 'chat_app_setting_dialog.dart';
 
 class AppList extends GetView<ChatAppListController> {
@@ -137,19 +138,57 @@ class ListHeader extends GetView<ChatAppListController> {
               style: Get.textTheme.headlineSmall?.copyWith(
                 fontSize: 14,
               )),
-          IconButton(
-            tooltip: '添加助理',
-            onPressed: () {
-              controller.showChatAppSettingDialog();
-            },
-            icon: SvgPicture.asset(
-              'assets/icons/add.svg',
-              width: 18,
-              height: 18,
-              theme: SvgTheme(
-                currentColor: Get.theme.colorScheme.inverseSurface,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              IconButton(
+                tooltip: '添加助理',
+                onPressed: () {
+                  controller.showChatAppSettingDialog();
+                },
+                style: ButtonStyle(
+                  minimumSize:
+                      MaterialStateProperty.all<Size>(const Size(28, 28)),
+                  padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                    const EdgeInsets.all(0),
+                  ),
+                ),
+                icon: SvgPicture.asset(
+                  'assets/icons/add.svg',
+                  width: 20,
+                  height: 20,
+                  theme: SvgTheme(
+                    currentColor: Get.theme.colorScheme.secondary,
+                  ),
+                ),
               ),
-            ),
+              IconButton(
+                tooltip: '分享助理',
+                onPressed: () {
+                  Get.dialog(
+                    const AppShareDialog(),
+                    barrierDismissible: true,
+                  );
+                },
+                style: ButtonStyle(
+                  minimumSize:
+                      MaterialStateProperty.all<Size>(const Size(28, 28)),
+                  padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                    const EdgeInsets.all(0),
+                  ),
+                ),
+                icon: SvgPicture.asset(
+                  'assets/icons/share.svg',
+                  width: 17,
+                  height: 17,
+                  theme: SvgTheme(
+                    currentColor:
+                        Get.theme.colorScheme.secondary,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 4),
+            ],
           ),
         ],
       ),

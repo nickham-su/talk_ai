@@ -47,6 +47,6 @@ class LLMShareController extends GetxController {
 
     final jsonStr = jsonEncode({'models': models});
     final compressed = gzipCompress(jsonStr);
-    return 'talkai://$compressed';
+    return '您的好友分享了${llms.length}个模型。打开TalkAI，在[设置]中导入：\ntalkai://$compressed';
   }
 }
