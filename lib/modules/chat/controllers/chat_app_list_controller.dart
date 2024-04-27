@@ -30,7 +30,15 @@ class ChatAppListController extends GetxController {
     super.onInit();
     refreshChatApps();
     if (chatAppList.isNotEmpty) {
-      selectChatApp(chatAppList.first.chatAppId);
+      /// 获取最后一次使用的聊天App
+      ChatAppModel? lastUseChatApp;
+      for (final chatApp in chatAppList) {
+        if (lastUseChatApp == null ||
+            chatApp.lastUseTime.isAfter(lastUseChatApp.lastUseTime)) {
+          lastUseChatApp = chatApp;
+        }
+      }
+      selectChatApp(lastUseChatApp!.chatAppId);
     }
   }
 

@@ -54,7 +54,7 @@ class LLMList extends GetView<LLMController> {
           },
           selected: controller.currentId.value == llm.llmId,
           selectedTileColor: Get.theme.colorScheme.primaryContainer,
-          contentPadding: const EdgeInsets.only(left: 16, right: 16),
+          contentPadding: const EdgeInsets.only(left: 16, right: 12),
           trailing: Text(
             llm.type.value,
             style: const TextStyle(
