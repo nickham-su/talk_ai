@@ -5,6 +5,7 @@ import 'package:TalkAI/modules/setting/views/components/update_widget.dart';
 import '../../../shared/components/layout/models/layout_menu_type.dart';
 import '../../../shared/components/layout/views/layout.dart';
 import 'components/cache_widget.dart';
+import 'components/import_widget.dart';
 import 'components/network_timeout.dart';
 import 'components/theme_widget.dart';
 
@@ -42,8 +43,8 @@ class SettingPage extends StatelessWidget {
                   ),
                   const ThemeWidget(),
                   const NetworkTimeout(),
-                  const CacheWidget(),
                   const UpdateWidget(),
+                  const ImportWidget(),
                 ],
               ))),
     );

@@ -57,7 +57,10 @@ dependencies:
   package_info: ^2.0.2
   # 启动浏览器
   url_launcher: ^6.2.6
+  # 窗口管理
   window_manager: ^0.3.8
+  # 剪贴板
+  clipboard: ^0.1.3
 
 dev_dependencies:
   flutter_test:

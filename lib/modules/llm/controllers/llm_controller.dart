@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
-import '../../../shared/components/snackbar.dart';
 import '../../../shared/models/llm/llm_model.dart';
 import '../../../shared/models/llm/llm_type.dart';
 import '../../../shared/models/llm/openai/openai_model.dart';
@@ -72,27 +71,16 @@ class LLMController extends GetxController {
   void createLLM() {
     LLMType? type;
     String? name;
+    Map<String, String> data = {};
     for (var item in formData) {
-      if (item.key == 'type') {
-        type = LLMType.values.firstWhere((e) => e.value == item.value);
-      } else if (item.key == 'name') {
-        name = item.value;
-      }
-    }
-    if (type == null || name == null) {
-      return;
+      data[item.key] = item.value;
     }
 
-    late LLM llm;
-    switch (type) {
-      case LLMType.openai:
-        llm = OpenaiModel.fromFormData(formData);
-        break;
-      default:
-        return;
-    }
     // 添加LLM
-    final id = llmService.addLLM(llm);
+    final id = llmService.addLLM(data);
+    if (id == null) {
+      return;
+    }
     // 选中新建的LLM
     currentId.value = id;
   }
@@ -103,16 +91,11 @@ class LLMController extends GetxController {
     if (llm == null) {
       return;
     }
-    late LLM newLLM;
-    switch (llm.type) {
-      case LLMType.openai:
-        newLLM = OpenaiModel.fromFormData(formData);
-        break;
-      default:
-        return;
+    Map<String, String> map = {};
+    for (var item in formData) {
+      map[item.key] = item.value;
     }
-    newLLM.llmId = llm.llmId;
-    llmService.updateLLM(newLLM);
+    llmService.updateLLM(llm.llmId, map);
   }
 
   /// 删除LLM

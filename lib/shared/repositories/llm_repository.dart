@@ -37,22 +37,26 @@ class LLMRepository {
   static int insert({
     required LLM llm,
   }) {
-    Sqlite.db.execute('''
+    try {
+      Sqlite.db.execute('''
       INSERT INTO $tableName (name, type, model_fields, last_use_time)
       VALUES (?, ?, ?, ?)
     ''', [
-      llm.name,
-      llm.type.value,
-      jsonEncode(llm.toJson()),
-      DateTime.now().millisecondsSinceEpoch,
-    ]);
+        llm.name,
+        llm.type.value,
+        jsonEncode(llm.toJson()),
+        DateTime.now().millisecondsSinceEpoch,
+      ]);
+    } catch (e) {
+      throw '模型保存失败，请检查模型名称是否重复：\n${llm.name}';
+    }
     return Sqlite.db.lastInsertRowId;
   }
 
   /// 查询所有模型
   static List<LLM> queryAll() {
-    final result =
-        Sqlite.db.select('SELECT * FROM $tableName ORDER BY last_use_time DESC');
+    final result = Sqlite.db
+        .select('SELECT * FROM $tableName ORDER BY last_use_time DESC');
     return result.map((e) {
       final type = e[2] as String;
       Map<String, dynamic> json = jsonDecode(e[3] as String);
@@ -93,10 +97,10 @@ class LLMRepository {
   }
 
   /// 删除模型
-  static void delete(LLM llm) {
+  static void delete(int llmId) {
     Sqlite.db.execute('''
       DELETE FROM $tableName
       WHERE llm_id = ?
-    ''', [llm.llmId]);
+    ''', [llmId]);
   }
 }

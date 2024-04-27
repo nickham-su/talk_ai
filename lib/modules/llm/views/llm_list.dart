@@ -3,8 +3,10 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
 import '../../../shared/components/layout/models/layout_menu_type.dart';
+import '../../../shared/components/share/llm_share_import_dialog.dart';
 import '../../../shared/models/llm/llm_type.dart';
 import '../controllers/llm_controller.dart';
+import 'llm_share_dialog.dart';
 
 class LLMList extends GetView<LLMController> {
   const LLMList({super.key});
@@ -93,22 +95,62 @@ class ListHeader extends GetView<LLMController> {
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(LayoutMenuType.llm.value,
               style: Get.textTheme.headlineSmall?.copyWith(
                 fontSize: 14,
               )),
-          IconButton(
-            tooltip: '添加模型',
-            onPressed: addLLM,
-            icon: SvgPicture.asset(
-              'assets/icons/add.svg',
-              width: 18,
-              height: 18,
-              theme: SvgTheme(
-                currentColor: Get.theme.colorScheme.inverseSurface,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              IconButton(
+                tooltip: '添加模型',
+                onPressed: (){
+                  Get.find<LLMController>().addLLM(LLMType.openai);
+                },
+                style: ButtonStyle(
+                  minimumSize:
+                      MaterialStateProperty.all<Size>(const Size(28, 28)),
+                  padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                    const EdgeInsets.all(0),
+                  ),
+                ),
+                icon: SvgPicture.asset(
+                  'assets/icons/add.svg',
+                  width: 20,
+                  height: 20,
+                  theme: SvgTheme(
+                    currentColor: Get.theme.colorScheme.inverseSurface,
+                  ),
+                ),
               ),
-            ),
+              IconButton(
+                tooltip: '分享模型',
+                onPressed: () {
+                  Get.dialog(
+                    const LLMShareDialog(),
+                    barrierDismissible: true,
+                  );
+                },
+                style: ButtonStyle(
+                  minimumSize:
+                      MaterialStateProperty.all<Size>(const Size(28, 28)),
+                  padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                    const EdgeInsets.all(0),
+                  ),
+                ),
+                icon: SvgPicture.asset(
+                  'assets/icons/share.svg',
+                  width: 17,
+                  height: 17,
+                  theme: SvgTheme(
+                    currentColor: Get.theme.colorScheme.inverseSurface,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 4),
+            ],
           ),
         ],
       ),
@@ -116,6 +158,7 @@ class ListHeader extends GetView<LLMController> {
   }
 }
 
+/// 添加模型，弹出选择框
 void addLLM() {
   List<LLMType> items = LLMType.values;
   Get.dialog(
@@ -140,3 +183,4 @@ void addLLM() {
     ),
   );
 }
+
