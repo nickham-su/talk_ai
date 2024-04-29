@@ -6,24 +6,22 @@ import 'resizable_sidebar_controller.dart';
 
 /// 可调节宽度的侧边栏
 class ResizableSidebarWidget extends StatelessWidget {
-  final String tag; // 侧边栏标识
-  final double minWidth; // 最小宽度
   final Widget child; // 子组件
 
   const ResizableSidebarWidget({
     super.key,
-    required this.tag,
-    required this.minWidth,
     required this.child,
   });
 
   @override
   Widget build(BuildContext context) {
-    final initWidth = SettingRepository.getSidebarWidth(tag, 200);
+    /// 最小宽度
+    const minWidth = 150.0;
+
+    /// 初始化宽度
+    final initWidth = SettingRepository.getSidebarWidth(200);
     return GetBuilder<ResizableSidebarController>(
-      id: tag,
-      tag: tag,
-      init: ResizableSidebarController(tag, initWidth),
+      init: ResizableSidebarController(initWidth),
       builder: (controller) {
         return Stack(
           children: [
@@ -38,7 +36,7 @@ class ResizableSidebarWidget extends StatelessWidget {
               child: GestureDetector(
                 onPanUpdate: (DragUpdateDetails details) {
                   final width = controller.width + details.delta.dx;
-                  SettingRepository.setSidebarWidth(tag, width);
+                  SettingRepository.setSidebarWidth(width);
                   controller.setWidth(width);
                 },
                 child: const MouseRegion(

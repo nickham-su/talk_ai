@@ -16,7 +16,10 @@ class LLMPage extends GetView<LLMController> {
       currentMenu: LayoutMenuType.llm,
       child: Row(
         children: [
-          const LLMList(),
+          Container(
+            color: Get.theme.colorScheme.secondaryContainer.withOpacity(0.3),
+            child: const LLMList(),
+          ),
           Obx(() => Expanded(
                 child: Container(
                   color: Get.theme.colorScheme.background,

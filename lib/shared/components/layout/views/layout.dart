@@ -14,29 +14,25 @@ class Layout extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder(builder: (LayoutController controller) {
       return Scaffold(
-          body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        color: Get.theme.colorScheme.secondaryContainer.withOpacity(0.2),
-        child: Row(
-          children: [
-            Container(
-              width: 50,
-              decoration: BoxDecoration(
-                border: Border(
-                  right: BorderSide(
-                    color:
-                        Get.theme.colorScheme.outlineVariant.withOpacity(0.5),
-                  ),
+        body: Container(
+          width: double.infinity,
+          height: double.infinity,
+          child: Row(
+            children: [
+              Container(
+                width: 60,
+                decoration: BoxDecoration(
+                  color:
+                      Get.theme.colorScheme.secondaryContainer.withOpacity(0.3),
                 ),
+                child: Sidebar(currentMenu: currentMenu),
               ),
-              child: Sidebar(currentMenu: currentMenu),
-            ),
-            // Expanded(child: Column(children: [TopBar(), Expanded(child: child)]))
-            Expanded(child: child)
-          ],
+              // Expanded(child: Column(children: [TopBar(), Expanded(child: child)]))
+              Expanded(child: child)
+            ],
+          ),
         ),
-      ));
+      );
     });
   }
 }

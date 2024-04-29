@@ -16,7 +16,10 @@ class ChatPage extends GetView<ChatAppListController> {
       currentMenu: LayoutMenuType.chat,
       child: Row(
         children: [
-          AppList(),
+          Container(
+            color: Get.theme.colorScheme.secondaryContainer.withOpacity(0.3),
+            child: const AppList(),
+          ),
           Obx(() => Expanded(
               child: Container(
                   color: Get.theme.colorScheme.background,

@@ -25,7 +25,14 @@ class SettingPage extends StatelessWidget {
           height: double.infinity,
           alignment: Alignment.center,
           padding: const EdgeInsets.symmetric(vertical: 40),
-          color: Get.theme.colorScheme.background,
+          decoration: BoxDecoration(
+            color: Get.theme.colorScheme.background,
+            border: Border(
+              left: BorderSide(
+                color: Get.theme.colorScheme.outlineVariant.withOpacity(0.5),
+              ),
+            ),
+          ),
           child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               width: parentWidth > maxWidth ? maxWidth : parentWidth,

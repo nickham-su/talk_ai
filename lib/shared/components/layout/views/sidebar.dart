@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:TalkAI/shared/controllers/app_update_controller.dart';
 
 import '../../../../routes.dart';
+import '../../window_header/window_header.dart';
 import '../controllers/layout_controller.dart';
 import '../models/layout_menu_type.dart';
 
@@ -17,6 +18,7 @@ class Sidebar extends StatelessWidget {
     return GetBuilder<LayoutController>(builder: (LayoutController controller) {
       return Column(
         children: [
+          const WindowHeader(height: 60),
           Expanded(
               child: ListView(
             padding: EdgeInsets.zero,
@@ -55,55 +57,64 @@ class Sidebar extends StatelessWidget {
     required String routePath,
     bool showBadge = false,
   }) {
-    return SizedBox(
-        width: 50,
-        height: 50,
-        child: Tooltip(
-          message: type.value,
-          waitDuration: const Duration(milliseconds: 500),
-          showDuration: Duration.zero,
-          child: Stack(
-            children: [
-              SizedBox(
-                width: 50,
-                height: 50,
-                child: IconButton(
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all(
-                      type == currentMenu
-                          ? Get.theme.colorScheme.primaryContainer
-                          : Colors.transparent,
-                    ),
-                    padding: MaterialStateProperty.all(EdgeInsets.zero),
-                    alignment: Alignment.center,
-                    shape:
-                        MaterialStateProperty.all(const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.zero,
-                    )),
+    return Container(
+        padding: const EdgeInsets.only(left: 5, right: 4),
+        margin: const EdgeInsets.only(bottom: 4),
+        child: Stack(
+          children: [
+            SizedBox(
+              width: double.infinity,
+              height: 56,
+              child: IconButton(
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all(
+                    type == currentMenu
+                        ? Get.theme.colorScheme.primaryContainer
+                        : Colors.transparent,
                   ),
-                  icon: getIcon(type, currentMenu),
-                  onPressed: () {
-                    Get.offNamed(routePath);
-                  },
+                  padding: MaterialStateProperty.all(EdgeInsets.zero),
+                  alignment: Alignment.center,
+                  shape: MaterialStateProperty.all(RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  )),
+                ),
+                icon: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    getIcon(type, currentMenu),
+                    Text(
+                      type.value,
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: type == currentMenu
+                            ? Get.theme.colorScheme.primary
+                            : Get.theme.textTheme.bodyMedium?.color
+                                ?.withOpacity(0.5),
+                      ),
+                    ),
+                  ],
+                ),
+                onPressed: () {
+                  Get.offNamed(routePath);
+                },
+              ),
+            ),
+            if (showBadge)
+              Positioned(
+                right: 8,
+                top: 8,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  constraints: const BoxConstraints(
+                    minWidth: 8,
+                    minHeight: 8,
+                  ),
                 ),
               ),
-              if (showBadge)
-                Positioned(
-                  right: 8,
-                  top: 8,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    constraints: const BoxConstraints(
-                      minWidth: 8,
-                      minHeight: 8,
-                    ),
-                  ),
-                ),
-            ],
-          ),
+          ],
         ));
   }
 
@@ -132,6 +143,6 @@ class Sidebar extends StatelessWidget {
       default:
         throw '未知的菜单类型';
     }
-    return SvgPicture.asset(iconFile, width: 24, height: 24);
+    return SvgPicture.asset(iconFile, width: 28, height: 28);
   }
 }

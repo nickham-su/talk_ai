@@ -24,8 +24,13 @@ void main() async {
   /// 创建TalkAI文件夹
   final appDocDir = await createDir();
 
-  /// 初始化Hive、Sqlite
+  /// 初始化Hive，窗口位置存在Hive中，所以要先初始化Hive
   Hive.init(appDocDir);
+
+  /// 初始化窗口位置
+  await initWindowPosition();
+
+  /// 创建数据库
   Sqlite.openDB(appDocDir);
   initDBTables();
 
@@ -92,4 +97,31 @@ void callbackCommandW() {
       windowManager.hide();
     }
   });
+}
+
+/// 初始化窗口位置
+Future initWindowPosition() async {
+  final size =
+      (await SettingRepository.getWindowSize()) ?? const Size(1000, 720);
+
+  WindowOptions windowOptions = WindowOptions(
+    size: size,
+    titleBarStyle: TitleBarStyle.hidden,
+  );
+  windowManager.waitUntilReadyToShow(windowOptions, () async {
+    await windowManager.show();
+    await windowManager.focus();
+  });
+
+  /// 监听窗口事件
+  windowManager.addListener(MyWindowListener());
+}
+
+class MyWindowListener with WindowListener {
+  @override
+  void onWindowResized() async {
+    /// 监听窗口大小变化，保存窗口大小
+    final size = await windowManager.getSize();
+    SettingRepository.setWindowSize(size);
+  }
 }

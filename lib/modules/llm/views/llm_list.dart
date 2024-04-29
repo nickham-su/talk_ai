@@ -5,6 +5,8 @@ import 'package:get/get.dart';
 import '../../../shared/components/layout/models/layout_menu_type.dart';
 import '../../../shared/components/resizable_sidebar/resizable_sidebar_widget.dart';
 import '../../../shared/components/share/llm_share_import_dialog.dart';
+import '../../../shared/components/window_header/window_header.dart';
+import '../../../shared/models/llm/llm_model.dart';
 import '../../../shared/models/llm/llm_type.dart';
 import '../controllers/llm_controller.dart';
 import 'llm_share_dialog.dart';
@@ -15,8 +17,6 @@ class LLMList extends GetView<LLMController> {
   @override
   Widget build(BuildContext context) {
     return ResizableSidebarWidget(
-      tag: 'llm_list',
-      minWidth: 150,
       child: Container(
         decoration: BoxDecoration(
           // color: Get.theme.scaffoldBackgroundColor,
@@ -32,7 +32,20 @@ class LLMList extends GetView<LLMController> {
           children: [
             const ListHeader(),
             Expanded(
-              child: Obx(() => ListView(children: getList())),
+              child: Obx(() {
+                final currentId = controller.currentId.value;
+                return ListView.separated(
+                  padding: const EdgeInsets.only(right: 4),
+                  itemCount: controller.llmService.llmList.length,
+                  itemBuilder: (context, index) {
+                    final llm = controller.llmService.llmList[index];
+                    return getItem(llm, currentId);
+                  },
+                  separatorBuilder: (BuildContext context, int index) {
+                    return const SizedBox(height: 2);
+                  },
+                );
+              }),
             ),
           ],
         ),
@@ -40,43 +53,32 @@ class LLMList extends GetView<LLMController> {
     );
   }
 
-  List<Widget> getList() {
-    return controller.llmService.llmList.map((llm) {
-      return Container(
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(
-              color: Get.theme.colorScheme.outlineVariant.withOpacity(0.5),
-            ),
-          ),
+  Widget getItem(LLM llm, int currentId) {
+    return ListTile(
+      onTap: () {
+        controller.changeIndex(llm.llmId);
+      },
+      selected: currentId == llm.llmId,
+      selectedTileColor: Get.theme.colorScheme.primaryContainer,
+      contentPadding: const EdgeInsets.only(left: 16, right: 12),
+      trailing: Text(
+        llm.type.value,
+        style: const TextStyle(
+          fontSize: 12,
         ),
-        height: 46,
-        child: ListTile(
-          onTap: () {
-            if (llm.llmId != null) {
-              controller.changeIndex(llm.llmId!);
-            }
-          },
-          selected: controller.currentId.value == llm.llmId,
-          selectedTileColor: Get.theme.colorScheme.primaryContainer,
-          contentPadding: const EdgeInsets.only(left: 16, right: 12),
-          trailing: Text(
-            llm.type.value,
-            style: const TextStyle(
-              fontSize: 12,
-            ),
-          ),
-          title: Text(
-            llm.name,
-            style: const TextStyle(
-              fontSize: 14,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
+      ),
+      title: Text(
+        llm.name,
+        style: const TextStyle(
+          fontSize: 14,
         ),
-      );
-    }).toList();
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(8)),
+      ),
+    );
   }
 }
 
@@ -86,78 +88,74 @@ class ListHeader extends GetView<LLMController> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      height: 50,
-      alignment: Alignment.centerLeft,
-      padding: const EdgeInsets.only(left: 16),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: Get.theme.colorScheme.outlineVariant.withOpacity(0.5),
-          ),
+    return WindowHeader(
+      child: Container(
+        width: double.infinity,
+        height: 60,
+        alignment: Alignment.centerLeft,
+        padding: const EdgeInsets.only(left: 16, top: 8),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(LayoutMenuType.llm.value,
+                style: Get.textTheme.headlineSmall?.copyWith(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w300,
+                )),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                IconButton(
+                  tooltip: '添加模型',
+                  onPressed: () {
+                    Get.find<LLMController>().addLLM(LLMType.openai);
+                  },
+                  style: ButtonStyle(
+                    minimumSize:
+                        MaterialStateProperty.all<Size>(const Size(28, 28)),
+                    padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                      const EdgeInsets.all(0),
+                    ),
+                  ),
+                  icon: SvgPicture.asset(
+                    'assets/icons/add.svg',
+                    width: 20,
+                    height: 20,
+                    theme: SvgTheme(
+                      currentColor: Get.theme.colorScheme.secondary,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  tooltip: '分享模型',
+                  onPressed: () {
+                    Get.dialog(
+                      const LLMShareDialog(),
+                      barrierDismissible: true,
+                    );
+                  },
+                  style: ButtonStyle(
+                    minimumSize:
+                        MaterialStateProperty.all<Size>(const Size(28, 28)),
+                    padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                      const EdgeInsets.all(0),
+                    ),
+                  ),
+                  icon: SvgPicture.asset(
+                    'assets/icons/share.svg',
+                    width: 17,
+                    height: 17,
+                    theme: SvgTheme(
+                      currentColor: Get.theme.colorScheme.secondary,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 4),
+              ],
+            ),
+          ],
         ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text(LayoutMenuType.llm.value,
-              style: Get.textTheme.headlineSmall?.copyWith(
-                fontSize: 14,
-              )),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              IconButton(
-                tooltip: '添加模型',
-                onPressed: () {
-                  Get.find<LLMController>().addLLM(LLMType.openai);
-                },
-                style: ButtonStyle(
-                  minimumSize:
-                      MaterialStateProperty.all<Size>(const Size(28, 28)),
-                  padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                    const EdgeInsets.all(0),
-                  ),
-                ),
-                icon: SvgPicture.asset(
-                  'assets/icons/add.svg',
-                  width: 20,
-                  height: 20,
-                  theme: SvgTheme(
-                    currentColor: Get.theme.colorScheme.secondary,
-                  ),
-                ),
-              ),
-              IconButton(
-                tooltip: '分享模型',
-                onPressed: () {
-                  Get.dialog(
-                    const LLMShareDialog(),
-                    barrierDismissible: true,
-                  );
-                },
-                style: ButtonStyle(
-                  minimumSize:
-                      MaterialStateProperty.all<Size>(const Size(28, 28)),
-                  padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                    const EdgeInsets.all(0),
-                  ),
-                ),
-                icon: SvgPicture.asset(
-                  'assets/icons/share.svg',
-                  width: 17,
-                  height: 17,
-                  theme: SvgTheme(
-                    currentColor: Get.theme.colorScheme.secondary,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 4),
-            ],
-          ),
-        ],
       ),
     );
   }
