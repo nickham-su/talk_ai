@@ -15,36 +15,40 @@ class Sidebar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<LayoutController>(builder: (LayoutController controller) {
-      return Column(
-        children: [
-          const SizedBox(height: 60),
-          Expanded(
-              child: ListView(
-            padding: EdgeInsets.zero,
-            children: <Widget>[
-              getListTile(
-                controller: controller,
-                type: LayoutMenuType.chat,
-                routePath: Routes.chat,
-              ),
-              getListTile(
-                controller: controller,
-                type: LayoutMenuType.llm,
-                routePath: Routes.llm,
-              ),
-              GetBuilder<AppUpdateController>(
-                builder: (AppUpdateController appUpdateController) {
-                  return getListTile(
-                    controller: controller,
-                    type: LayoutMenuType.setting,
-                    routePath: Routes.setting,
-                    showBadge: appUpdateController.needUpdate,
-                  );
-                },
-              ),
-            ],
-          )),
-        ],
+      return Container(
+        color: Get.theme.colorScheme.secondaryContainer.withOpacity(0.3),
+        width: 64,
+        child: Column(
+          children: [
+            const SizedBox(height: 60),
+            Expanded(
+                child: ListView(
+              padding: EdgeInsets.zero,
+              children: <Widget>[
+                getListTile(
+                  controller: controller,
+                  type: LayoutMenuType.chat,
+                  routePath: Routes.chat,
+                ),
+                getListTile(
+                  controller: controller,
+                  type: LayoutMenuType.llm,
+                  routePath: Routes.llm,
+                ),
+                GetBuilder<AppUpdateController>(
+                  builder: (AppUpdateController appUpdateController) {
+                    return getListTile(
+                      controller: controller,
+                      type: LayoutMenuType.setting,
+                      routePath: Routes.setting,
+                      showBadge: appUpdateController.needUpdate,
+                    );
+                  },
+                ),
+              ],
+            )),
+          ],
+        ),
       );
     });
   }

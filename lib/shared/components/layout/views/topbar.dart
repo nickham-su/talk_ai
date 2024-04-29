@@ -29,7 +29,6 @@ class _TopBarState extends State<TopBar> {
           } else {
             windowManager.unmaximize();
           }
-          setState(() => _isHovering = false);
         },
         child: Stack(children: [
           Container(

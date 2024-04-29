@@ -4,7 +4,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
 import '../../../../shared/components/layout/models/layout_menu_type.dart';
-import '../../../../shared/components/resizable_sidebar/resizable_sidebar_widget.dart';
 import '../../controllers/chat_app_list_controller.dart';
 import 'app_share_dialog.dart';
 import 'chat_app_setting_dialog.dart';
@@ -14,40 +13,26 @@ class AppList extends GetView<ChatAppListController> {
 
   @override
   Widget build(BuildContext context) {
-    return ResizableSidebarWidget(
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border(
-            right: BorderSide(
-              color: Get.theme.colorScheme.outlineVariant.withOpacity(0.5),
-            ),
-          ),
+    return Column(
+      children: [
+        const ListHeader(),
+        Expanded(
+          child: Obx(() => ListView.builder(
+                itemCount: controller.chatAppList.length,
+                itemBuilder: (context, index) {
+                  final app = controller.chatAppList[index];
+                  return ListItem(
+                      key: ValueKey('key_chat_app_${app.chatAppId}'),
+                      app: app,
+                      selected: app.chatAppId ==
+                          controller.currentChatAppId.value,
+                      onTap: () {
+                        controller.selectChatApp(app.chatAppId);
+                      });
+                },
+              )),
         ),
-        width: double.infinity,
-        height: double.infinity,
-        child: Column(
-          children: [
-            const ListHeader(),
-            Expanded(
-              child: Obx(() => ListView.builder(
-                    padding: const EdgeInsets.only(right: 8),
-                    itemCount: controller.chatAppList.length,
-                    itemBuilder: (context, index) {
-                      final app = controller.chatAppList[index];
-                      return ListItem(
-                          key: ValueKey('key_chat_app_${app.chatAppId}'),
-                          app: app,
-                          selected: app.chatAppId ==
-                              controller.currentChatAppId.value,
-                          onTap: () {
-                            controller.selectChatApp(app.chatAppId);
-                          });
-                    },
-                  )),
-            ),
-          ],
-        ),
-      ),
+      ],
     );
   }
 }
@@ -183,7 +168,7 @@ class ListHeader extends GetView<ChatAppListController> {
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 4),
             ],
           ),
         ],

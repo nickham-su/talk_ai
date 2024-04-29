@@ -3,7 +3,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
 import '../../../shared/components/layout/models/layout_menu_type.dart';
-import '../../../shared/components/resizable_sidebar/resizable_sidebar_widget.dart';
 import '../../../shared/models/llm/llm_model.dart';
 import '../../../shared/models/llm/llm_type.dart';
 import '../controllers/llm_controller.dart';
@@ -14,36 +13,22 @@ class LLMList extends GetView<LLMController> {
 
   @override
   Widget build(BuildContext context) {
-    return ResizableSidebarWidget(
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border(
-            right: BorderSide(
-              color: Get.theme.colorScheme.outlineVariant.withOpacity(0.5),
-            ),
-          ),
+    return Column(
+      children: [
+        const ListHeader(),
+        Expanded(
+          child: Obx(() {
+            final currentId = controller.currentId.value;
+            return ListView.builder(
+              itemCount: controller.llmService.llmList.length,
+              itemBuilder: (context, index) {
+                final llm = controller.llmService.llmList[index];
+                return getItem(llm, currentId);
+              },
+            );
+          }),
         ),
-        width: double.infinity,
-        height: double.infinity,
-        child: Column(
-          children: [
-            const ListHeader(),
-            Expanded(
-              child: Obx(() {
-                final currentId = controller.currentId.value;
-                return ListView.builder(
-                  padding: const EdgeInsets.only(right: 8),
-                  itemCount: controller.llmService.llmList.length,
-                  itemBuilder: (context, index) {
-                    final llm = controller.llmService.llmList[index];
-                    return getItem(llm, currentId);
-                  },
-                );
-              }),
-            ),
-          ],
-        ),
-      ),
+      ],
     );
   }
 
@@ -144,7 +129,7 @@ class ListHeader extends GetView<LLMController> {
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 4),
             ],
           ),
         ],
