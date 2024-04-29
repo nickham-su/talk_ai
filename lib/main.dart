@@ -22,17 +22,11 @@ void main() async {
   await windowManager.ensureInitialized();
 
   /// 创建TalkAI文件夹
-  final dir = await getApplicationDocumentsDirectory();
-  final talkAIDir = path.join(dir.path, 'TalkAI');
-  final talkAIDirFile = Directory(talkAIDir);
-  if (!talkAIDirFile.existsSync()) {
-    talkAIDirFile.createSync();
-  }
-  print('talkAIDir:$talkAIDir');
+  final appDocDir = await createDir();
 
   /// 初始化Hive、Sqlite
-  Hive.init(talkAIDir);
-  Sqlite.openDB(talkAIDir);
+  Hive.init(appDocDir);
+  Sqlite.openDB(appDocDir);
   initDBTables();
 
   /// 注册全局控制器、服务
@@ -71,6 +65,22 @@ void main() async {
       getPages: Routes.routes,
     ),
   ));
+}
+
+/// 创建文件夹
+Future<String> createDir() async {
+  final dir = await getApplicationDocumentsDirectory();
+  final oldTalkAIDir = Directory(path.join(dir.path, 'TalkAI'));
+  final newTalkAIDir = Directory(path.join(dir.path, '.TalkAI'));
+  if (oldTalkAIDir.existsSync() && !newTalkAIDir.existsSync()) {
+    // 将TalkAI文件夹重命名为.TalkAI
+    oldTalkAIDir.renameSync(newTalkAIDir.path);
+  } else if (!oldTalkAIDir.existsSync() && !newTalkAIDir.existsSync()) {
+    // 创建.TalkAI文件夹
+    newTalkAIDir.createSync();
+  }
+  print('talkAIDir:$newTalkAIDir');
+  return newTalkAIDir.path;
 }
 
 /// 快捷键command+W回调
