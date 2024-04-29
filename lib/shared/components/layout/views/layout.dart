@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../controllers/layout_controller.dart';
 import '../models/layout_menu_type.dart';
 import 'sidebar.dart';
+import 'topbar.dart';
 
 class Layout extends StatelessWidget {
   final Widget child;
@@ -17,20 +18,28 @@ class Layout extends StatelessWidget {
         body: Container(
           width: double.infinity,
           height: double.infinity,
-          child: Row(
-            children: [
-              Container(
-                width: 64,
-                decoration: BoxDecoration(
-                  color:
-                      Get.theme.colorScheme.secondaryContainer.withOpacity(0.3),
+          child: Stack(children: [
+            Row(
+              children: [
+                Container(
+                  width: 64,
+                  decoration: BoxDecoration(
+                    color: Get.theme.colorScheme.secondaryContainer
+                        .withOpacity(0.3),
+                  ),
+                  child: Sidebar(currentMenu: currentMenu),
                 ),
-                child: Sidebar(currentMenu: currentMenu),
-              ),
-              // Expanded(child: Column(children: [TopBar(), Expanded(child: child)]))
-              Expanded(child: child)
-            ],
-          ),
+                // Expanded(child: Column(children: [TopBar(), Expanded(child: child)]))
+                Expanded(child: child)
+              ],
+            ),
+            const Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: TopBar(),
+            ),
+          ]),
         ),
       );
     });

@@ -188,7 +188,7 @@ class ListHeader extends GetView<ChatAppListController> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 4),
+                const SizedBox(width: 12),
               ],
             ),
           ],
