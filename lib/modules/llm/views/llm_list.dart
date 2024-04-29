@@ -4,8 +4,6 @@ import 'package:get/get.dart';
 
 import '../../../shared/components/layout/models/layout_menu_type.dart';
 import '../../../shared/components/resizable_sidebar/resizable_sidebar_widget.dart';
-import '../../../shared/components/share/llm_share_import_dialog.dart';
-import '../../../shared/components/window_header/window_header.dart';
 import '../../../shared/models/llm/llm_model.dart';
 import '../../../shared/models/llm/llm_type.dart';
 import '../controllers/llm_controller.dart';
@@ -33,15 +31,12 @@ class LLMList extends GetView<LLMController> {
             Expanded(
               child: Obx(() {
                 final currentId = controller.currentId.value;
-                return ListView.separated(
+                return ListView.builder(
                   padding: const EdgeInsets.only(right: 8),
                   itemCount: controller.llmService.llmList.length,
                   itemBuilder: (context, index) {
                     final llm = controller.llmService.llmList[index];
                     return getItem(llm, currentId);
-                  },
-                  separatorBuilder: (BuildContext context, int index) {
-                    return const SizedBox(height: 2);
                   },
                 );
               }),
@@ -87,74 +82,72 @@ class ListHeader extends GetView<LLMController> {
 
   @override
   Widget build(BuildContext context) {
-    return WindowHeader(
-      child: Container(
-        width: double.infinity,
-        height: 60,
-        alignment: Alignment.centerLeft,
-        padding: const EdgeInsets.only(left: 12, top: 8),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(LayoutMenuType.llm.value,
-                style: Get.textTheme.headlineSmall?.copyWith(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w300,
-                )),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                IconButton(
-                  tooltip: '添加模型',
-                  onPressed: () {
-                    Get.find<LLMController>().addLLM(LLMType.openai);
-                  },
-                  style: ButtonStyle(
-                    minimumSize:
-                        MaterialStateProperty.all<Size>(const Size(28, 28)),
-                    padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                      const EdgeInsets.all(0),
-                    ),
-                  ),
-                  icon: SvgPicture.asset(
-                    'assets/icons/add.svg',
-                    width: 20,
-                    height: 20,
-                    theme: SvgTheme(
-                      currentColor: Get.theme.colorScheme.secondary,
-                    ),
+    return Container(
+      width: double.infinity,
+      height: 60,
+      alignment: Alignment.centerLeft,
+      padding: const EdgeInsets.only(left: 12, top: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(LayoutMenuType.llm.value,
+              style: Get.textTheme.headlineSmall?.copyWith(
+                fontSize: 16,
+                fontWeight: FontWeight.w300,
+              )),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              IconButton(
+                tooltip: '添加模型',
+                onPressed: () {
+                  Get.find<LLMController>().addLLM(LLMType.openai);
+                },
+                style: ButtonStyle(
+                  minimumSize:
+                      MaterialStateProperty.all<Size>(const Size(28, 28)),
+                  padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                    const EdgeInsets.all(0),
                   ),
                 ),
-                IconButton(
-                  tooltip: '分享模型',
-                  onPressed: () {
-                    Get.dialog(
-                      const LLMShareDialog(),
-                      barrierDismissible: true,
-                    );
-                  },
-                  style: ButtonStyle(
-                    minimumSize:
-                        MaterialStateProperty.all<Size>(const Size(28, 28)),
-                    padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                      const EdgeInsets.all(0),
-                    ),
-                  ),
-                  icon: SvgPicture.asset(
-                    'assets/icons/share.svg',
-                    width: 17,
-                    height: 17,
-                    theme: SvgTheme(
-                      currentColor: Get.theme.colorScheme.secondary,
-                    ),
+                icon: SvgPicture.asset(
+                  'assets/icons/add.svg',
+                  width: 20,
+                  height: 20,
+                  theme: SvgTheme(
+                    currentColor: Get.theme.colorScheme.secondary,
                   ),
                 ),
-                const SizedBox(width: 12),
-              ],
-            ),
-          ],
-        ),
+              ),
+              IconButton(
+                tooltip: '分享模型',
+                onPressed: () {
+                  Get.dialog(
+                    const LLMShareDialog(),
+                    barrierDismissible: true,
+                  );
+                },
+                style: ButtonStyle(
+                  minimumSize:
+                      MaterialStateProperty.all<Size>(const Size(28, 28)),
+                  padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                    const EdgeInsets.all(0),
+                  ),
+                ),
+                icon: SvgPicture.asset(
+                  'assets/icons/share.svg',
+                  width: 17,
+                  height: 17,
+                  theme: SvgTheme(
+                    currentColor: Get.theme.colorScheme.secondary,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+            ],
+          ),
+        ],
       ),
     );
   }

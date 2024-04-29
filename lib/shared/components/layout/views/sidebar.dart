@@ -4,7 +4,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:TalkAI/shared/controllers/app_update_controller.dart';
 
 import '../../../../routes.dart';
-import '../../window_header/window_header.dart';
 import '../controllers/layout_controller.dart';
 import '../models/layout_menu_type.dart';
 
@@ -18,7 +17,7 @@ class Sidebar extends StatelessWidget {
     return GetBuilder<LayoutController>(builder: (LayoutController controller) {
       return Column(
         children: [
-          const WindowHeader(height: 60),
+          const SizedBox(height: 60),
           Expanded(
               child: ListView(
             padding: EdgeInsets.zero,

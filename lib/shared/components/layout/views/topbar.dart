@@ -31,13 +31,30 @@ class _TopBarState extends State<TopBar> {
           }
           setState(() => _isHovering = false);
         },
-        child: AnimatedContainer(
-          height: 26,
-          color: _isHovering
-              ? Get.theme.colorScheme.inverseSurface.withOpacity(0.1)
-              : Colors.transparent,
-          duration: const Duration(milliseconds: 200),
-        ),
+        child: Stack(children: [
+          Container(
+            height: 20,
+            color: Colors.transparent,
+          ),
+          AnimatedContainer(
+            height: _isHovering ? 26 : 0,
+            duration: const Duration(milliseconds: 150),
+            curve: Curves.easeInOut,
+            decoration: BoxDecoration(
+              color: Get.theme.colorScheme.inverseSurface.withOpacity(0.1),
+              boxShadow: !_isHovering
+                  ? null
+                  : [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.06),
+                        spreadRadius: 0,
+                        blurRadius: 7,
+                        offset: const Offset(0, 0), // 阴影的位置
+                      )
+                    ],
+            ),
+          ),
+        ]),
       ),
     );
   }

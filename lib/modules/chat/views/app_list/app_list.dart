@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 
 import '../../../../shared/components/layout/models/layout_menu_type.dart';
 import '../../../../shared/components/resizable_sidebar/resizable_sidebar_widget.dart';
-import '../../../../shared/components/window_header/window_header.dart';
 import '../../controllers/chat_app_list_controller.dart';
 import 'app_share_dialog.dart';
 import 'chat_app_setting_dialog.dart';
@@ -30,7 +29,7 @@ class AppList extends GetView<ChatAppListController> {
           children: [
             const ListHeader(),
             Expanded(
-              child: Obx(() => ListView.separated(
+              child: Obx(() => ListView.builder(
                     padding: const EdgeInsets.only(right: 8),
                     itemCount: controller.chatAppList.length,
                     itemBuilder: (context, index) {
@@ -43,9 +42,6 @@ class AppList extends GetView<ChatAppListController> {
                           onTap: () {
                             controller.selectChatApp(app.chatAppId);
                           });
-                    },
-                    separatorBuilder: (BuildContext context, int index) {
-                      return const SizedBox(height: 2);
                     },
                   )),
             ),
@@ -126,73 +122,71 @@ class ListHeader extends GetView<ChatAppListController> {
 
   @override
   Widget build(BuildContext context) {
-    return WindowHeader(
-      child: Container(
-        width: double.infinity,
-        height: 60,
-        alignment: Alignment.centerLeft,
-        padding: const EdgeInsets.only(left: 12, top: 8),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(LayoutMenuType.chat.value,
-                style: Get.textTheme.headlineSmall?.copyWith(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w300,
-                )),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                IconButton(
-                  tooltip: '添加助理',
-                  onPressed: () {
-                    controller.showChatAppSettingDialog();
-                  },
-                  style: ButtonStyle(
-                    minimumSize:
-                        MaterialStateProperty.all<Size>(const Size(28, 28)),
-                    padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                      const EdgeInsets.all(0),
-                    ),
-                  ),
-                  icon: SvgPicture.asset(
-                    'assets/icons/add.svg',
-                    width: 20,
-                    height: 20,
-                    theme: SvgTheme(
-                      currentColor: Get.theme.colorScheme.secondary,
-                    ),
+    return Container(
+      width: double.infinity,
+      height: 60,
+      alignment: Alignment.centerLeft,
+      padding: const EdgeInsets.only(left: 12, top: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(LayoutMenuType.chat.value,
+              style: Get.textTheme.headlineSmall?.copyWith(
+                fontSize: 16,
+                fontWeight: FontWeight.w300,
+              )),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              IconButton(
+                tooltip: '添加助理',
+                onPressed: () {
+                  controller.showChatAppSettingDialog();
+                },
+                style: ButtonStyle(
+                  minimumSize:
+                      MaterialStateProperty.all<Size>(const Size(28, 28)),
+                  padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                    const EdgeInsets.all(0),
                   ),
                 ),
-                IconButton(
-                  tooltip: '分享助理',
-                  onPressed: () {
-                    Get.dialog(
-                      const AppShareDialog(),
-                      barrierDismissible: true,
-                    );
-                  },
-                  style: ButtonStyle(
-                    minimumSize:
-                        MaterialStateProperty.all<Size>(const Size(28, 28)),
-                    padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                      const EdgeInsets.all(0),
-                    ),
-                  ),
-                  icon: SvgPicture.asset(
-                    'assets/icons/share.svg',
-                    width: 17,
-                    height: 17,
-                    theme: SvgTheme(
-                      currentColor: Get.theme.colorScheme.secondary,
-                    ),
+                icon: SvgPicture.asset(
+                  'assets/icons/add.svg',
+                  width: 20,
+                  height: 20,
+                  theme: SvgTheme(
+                    currentColor: Get.theme.colorScheme.secondary,
                   ),
                 ),
-                const SizedBox(width: 12),
-              ],
-            ),
-          ],
-        ),
+              ),
+              IconButton(
+                tooltip: '分享助理',
+                onPressed: () {
+                  Get.dialog(
+                    const AppShareDialog(),
+                    barrierDismissible: true,
+                  );
+                },
+                style: ButtonStyle(
+                  minimumSize:
+                      MaterialStateProperty.all<Size>(const Size(28, 28)),
+                  padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                    const EdgeInsets.all(0),
+                  ),
+                ),
+                icon: SvgPicture.asset(
+                  'assets/icons/share.svg',
+                  width: 17,
+                  height: 17,
+                  theme: SvgTheme(
+                    currentColor: Get.theme.colorScheme.secondary,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+            ],
+          ),
+        ],
       ),
     );
   }
