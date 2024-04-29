@@ -20,40 +20,52 @@ class SettingPage extends StatelessWidget {
     double parentWidth = MediaQuery.of(context).size.width;
     return Layout(
       currentMenu: LayoutMenuType.setting,
-      child: Container(
-          width: double.infinity,
-          height: double.infinity,
-          alignment: Alignment.center,
-          padding: const EdgeInsets.symmetric(vertical: 40),
-          decoration: BoxDecoration(
-            color: Get.theme.colorScheme.background,
-            border: Border(
-              left: BorderSide(
-                color: Get.theme.colorScheme.outlineVariant.withOpacity(0.5),
+      child: Row(
+        children: [
+          Container(
+            width: 5,
+            decoration: BoxDecoration(
+              color: Get.theme.colorScheme.secondaryContainer.withOpacity(0.3),
+              border: Border(
+                right: BorderSide(
+                  color: Get.theme.colorScheme.outlineVariant.withOpacity(0.5),
+                ),
               ),
             ),
           ),
-          child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              width: parentWidth > maxWidth ? maxWidth : parentWidth,
-              height: double.infinity,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.only(top: 20, bottom: 20),
-                    child: const Text(
-                      '设置',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  const ThemeWidget(),
-                  const NetworkTimeout(),
-                  const UpdateWidget(),
-                  const ImportWidget(),
-                ],
-              ))),
+          Expanded(
+            child: Container(
+                width: double.infinity,
+                height: double.infinity,
+                alignment: Alignment.center,
+                padding: const EdgeInsets.symmetric(vertical: 40),
+                decoration: BoxDecoration(
+                  color: Get.theme.colorScheme.background,
+                ),
+                child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    width: parentWidth > maxWidth ? maxWidth : parentWidth,
+                    height: double.infinity,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.only(top: 20, bottom: 20),
+                          child: const Text(
+                            '设置',
+                            style: TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        const ThemeWidget(),
+                        const NetworkTimeout(),
+                        const UpdateWidget(),
+                        const ImportWidget(),
+                      ],
+                    ))),
+          ),
+        ],
+      ),
     );
   }
 }

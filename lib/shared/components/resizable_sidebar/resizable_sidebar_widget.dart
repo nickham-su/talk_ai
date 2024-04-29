@@ -42,7 +42,7 @@ class ResizableSidebarWidget extends StatelessWidget {
                 child: const MouseRegion(
                   cursor: SystemMouseCursors.resizeColumn,
                   child: SizedBox(
-                    width: 5,
+                    width: 8,
                     height: double.infinity,
                   ),
                 ),

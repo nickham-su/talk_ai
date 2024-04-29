@@ -20,7 +20,7 @@ class Layout extends StatelessWidget {
           child: Row(
             children: [
               Container(
-                width: 60,
+                width: 64,
                 decoration: BoxDecoration(
                   color:
                       Get.theme.colorScheme.secondaryContainer.withOpacity(0.3),

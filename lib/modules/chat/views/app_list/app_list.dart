@@ -2,7 +2,6 @@ import 'package:TalkAI/modules/chat/models/chat_app_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:window_manager/window_manager.dart';
 
 import '../../../../shared/components/layout/models/layout_menu_type.dart';
 import '../../../../shared/components/resizable_sidebar/resizable_sidebar_widget.dart';
@@ -19,7 +18,6 @@ class AppList extends GetView<ChatAppListController> {
     return ResizableSidebarWidget(
       child: Container(
         decoration: BoxDecoration(
-          // color: Get.theme.scaffoldBackgroundColor,
           border: Border(
             right: BorderSide(
               color: Get.theme.colorScheme.outlineVariant.withOpacity(0.5),
@@ -33,7 +31,7 @@ class AppList extends GetView<ChatAppListController> {
             const ListHeader(),
             Expanded(
               child: Obx(() => ListView.separated(
-                    padding: const EdgeInsets.only(right: 4),
+                    padding: const EdgeInsets.only(right: 8),
                     itemCount: controller.chatAppList.length,
                     itemBuilder: (context, index) {
                       final app = controller.chatAppList[index];
@@ -105,12 +103,9 @@ class _ListItemState extends State<ListItem> {
           overflow: TextOverflow.ellipsis,
         ),
         trailing: hover == false ? null : getButtons(widget.app),
-        tileColor: widget.app.toppingTime.millisecondsSinceEpoch == 0
-            ? null
-            : Get.theme.colorScheme.secondaryContainer.withOpacity(0.3),
         selected: widget.selected,
         selectedTileColor: Get.theme.colorScheme.primaryContainer,
-        contentPadding: const EdgeInsets.only(left: 16),
+        contentPadding: const EdgeInsets.only(left: 12),
         onTap: () {
           setState(() {
             hover = true;
@@ -136,7 +131,7 @@ class ListHeader extends GetView<ChatAppListController> {
         width: double.infinity,
         height: 60,
         alignment: Alignment.centerLeft,
-        padding: const EdgeInsets.only(left: 16, top: 8),
+        padding: const EdgeInsets.only(left: 12, top: 8),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [

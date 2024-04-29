@@ -19,7 +19,6 @@ class LLMList extends GetView<LLMController> {
     return ResizableSidebarWidget(
       child: Container(
         decoration: BoxDecoration(
-          // color: Get.theme.scaffoldBackgroundColor,
           border: Border(
             right: BorderSide(
               color: Get.theme.colorScheme.outlineVariant.withOpacity(0.5),
@@ -35,7 +34,7 @@ class LLMList extends GetView<LLMController> {
               child: Obx(() {
                 final currentId = controller.currentId.value;
                 return ListView.separated(
-                  padding: const EdgeInsets.only(right: 4),
+                  padding: const EdgeInsets.only(right: 8),
                   itemCount: controller.llmService.llmList.length,
                   itemBuilder: (context, index) {
                     final llm = controller.llmService.llmList[index];
@@ -60,7 +59,7 @@ class LLMList extends GetView<LLMController> {
       },
       selected: currentId == llm.llmId,
       selectedTileColor: Get.theme.colorScheme.primaryContainer,
-      contentPadding: const EdgeInsets.only(left: 16, right: 12),
+      contentPadding: const EdgeInsets.only(left: 12, right: 12),
       trailing: Text(
         llm.type.value,
         style: const TextStyle(
@@ -93,7 +92,7 @@ class ListHeader extends GetView<LLMController> {
         width: double.infinity,
         height: 60,
         alignment: Alignment.centerLeft,
-        padding: const EdgeInsets.only(left: 16, top: 8),
+        padding: const EdgeInsets.only(left: 12, top: 8),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,

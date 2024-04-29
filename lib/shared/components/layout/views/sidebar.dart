@@ -58,7 +58,7 @@ class Sidebar extends StatelessWidget {
     bool showBadge = false,
   }) {
     return Container(
-        padding: const EdgeInsets.only(left: 5, right: 4),
+        padding: const EdgeInsets.only(left: 8, right: 2),
         margin: const EdgeInsets.only(bottom: 4),
         child: Stack(
           children: [
@@ -67,11 +67,6 @@ class Sidebar extends StatelessWidget {
               height: 56,
               child: IconButton(
                 style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(
-                    type == currentMenu
-                        ? Get.theme.colorScheme.primaryContainer
-                        : Colors.transparent,
-                  ),
                   padding: MaterialStateProperty.all(EdgeInsets.zero),
                   alignment: Alignment.center,
                   shape: MaterialStateProperty.all(RoundedRectangleBorder(
