@@ -3,6 +3,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
 import '../../../shared/components/layout/models/layout_menu_type.dart';
+import '../../../shared/components/resizable_sidebar/resizable_sidebar_widget.dart';
 import '../../../shared/components/share/llm_share_import_dialog.dart';
 import '../../../shared/models/llm/llm_type.dart';
 import '../controllers/llm_controller.dart';
@@ -13,24 +14,28 @@ class LLMList extends GetView<LLMController> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        // color: Get.theme.scaffoldBackgroundColor,
-        border: Border(
-          right: BorderSide(
-            color: Get.theme.colorScheme.outlineVariant.withOpacity(0.5),
+    return ResizableSidebarWidget(
+      tag: 'llm_list',
+      minWidth: 150,
+      child: Container(
+        decoration: BoxDecoration(
+          // color: Get.theme.scaffoldBackgroundColor,
+          border: Border(
+            right: BorderSide(
+              color: Get.theme.colorScheme.outlineVariant.withOpacity(0.5),
+            ),
           ),
         ),
-      ),
-      width: 200,
-      height: double.infinity,
-      child: Column(
-        children: [
-          const ListHeader(),
-          Expanded(
-            child: Obx(() => ListView(children: getList())),
-          ),
-        ],
+        width: double.infinity,
+        height: double.infinity,
+        child: Column(
+          children: [
+            const ListHeader(),
+            Expanded(
+              child: Obx(() => ListView(children: getList())),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -106,7 +111,7 @@ class ListHeader extends GetView<LLMController> {
             children: [
               IconButton(
                 tooltip: '添加模型',
-                onPressed: (){
+                onPressed: () {
                   Get.find<LLMController>().addLLM(LLMType.openai);
                 },
                 style: ButtonStyle(
@@ -183,4 +188,3 @@ void addLLM() {
     ),
   );
 }
-

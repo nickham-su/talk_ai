@@ -14,7 +14,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:window_manager/window_manager.dart';
 
-import 'modules/setting/repositorys/setting_repository.dart';
+import 'shared/repositories/setting_repository.dart';
 import 'shared/utils/sqlite.dart';
 
 void main() async {

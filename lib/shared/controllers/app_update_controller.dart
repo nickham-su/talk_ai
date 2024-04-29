@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:get/get.dart';
 import 'package:package_info/package_info.dart';
 
-import '../../modules/setting/repositorys/setting_repository.dart';
+import '../repositories/setting_repository.dart';
 import '../apis/app_version.dart';
 
 class AppUpdateController extends GetxController {

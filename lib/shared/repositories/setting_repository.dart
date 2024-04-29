@@ -44,4 +44,16 @@ class SettingRepository {
     final box = Hive.box(_boxName);
     return box.get('check_update_time', defaultValue: 0);
   }
+
+  /// 设置侧边栏宽度
+  static setSidebarWidth(String tag, double width) {
+    final box = Hive.box(_boxName);
+    box.put('sidebar_width_$tag', width);
+  }
+
+  /// 获取侧边栏宽度
+  static double getSidebarWidth(String tag, double defaultValue) {
+    final box = Hive.box(_boxName);
+    return box.get('sidebar_width_$tag', defaultValue: defaultValue);
+  }
 }

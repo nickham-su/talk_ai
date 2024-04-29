@@ -52,7 +52,7 @@ class EditorWidget extends StatelessWidget {
                     contentPadding:
                         EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     border: InputBorder.none,
-                    hintText: '请输入问题。回车键发送，Alt/Opt+Enter换行。',
+                    hintText: '请输入问题。Enter发送，Opt/Alt+Enter换行。',
                     hintStyle: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w300,
