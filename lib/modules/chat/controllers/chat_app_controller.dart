@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:TalkAI/shared/models/message/message_model.dart';
+import 'package:diff_match_patch/diff_match_patch.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -286,7 +287,7 @@ class ChatAppController extends GetxController {
   }
 
   /// 发送消息
-  void sendMessage() async {
+  void sendMessage(String text) async {
     if (chatApp == null) {
       return;
     }
@@ -334,7 +335,7 @@ class ChatAppController extends GetxController {
       chatAppId: chatApp!.chatAppId,
       conversationId: conversationId,
       role: MessageRole.user,
-      content: inputController.text.trim(),
+      content: text,
       status: MessageStatus.completed,
     );
 
@@ -347,11 +348,6 @@ class ChatAppController extends GetxController {
       llm: llm,
       conversationId: conversationId,
     );
-
-    // 清空输入框，延迟是等待最后的回车键输入完成
-    Future.delayed(const Duration(milliseconds: 100), () {
-      inputController.clear();
-    });
 
     // 更新当前会话，如果会话控制器不在内存中，则滚动到底部加载会话。尝试3次。
     for (var i = 0; i < 3; i++) {
@@ -788,6 +784,7 @@ class ChatAppController extends GetxController {
     );
   }
 
+  /// 遍历子元素
   List<Element> _getChild(Element element, int current, int maxLevel) {
     if (current > maxLevel) {
       return [];
@@ -804,6 +801,23 @@ class ChatAppController extends GetxController {
       list.addAll(children);
     });
     return list;
+  }
+
+  /// 输入Enter键
+  void onEnterKey() {
+    final text1 = inputController.text; // 按Enter键前的文本
+    Future.delayed(const Duration(milliseconds: 16), () {
+      final text2 = inputController.text; // 按Enter键后的文本
+      // 比较按Enter键前后的文本，如果是插入换行，则发送消息
+      final dmp = DiffMatchPatch();
+      List<Diff> diffs = dmp.diff(text1, text2);
+      if ((diffs.length == 2 || diffs.length == 3) && diffs[1].text == '\n') {
+        // 清空输入框
+        inputController.text = '';
+        // 发送消息，用text1是因为text2包含换行
+        sendMessage(text1.trim());
+      }
+    });
   }
 }
 

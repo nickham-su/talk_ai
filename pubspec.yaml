@@ -61,6 +61,7 @@ dependencies:
   window_manager: ^0.3.8
   # 剪贴板
   clipboard: ^0.1.3
+  diff_match_patch: ^0.4.1
 
 dev_dependencies:
   flutter_test:
