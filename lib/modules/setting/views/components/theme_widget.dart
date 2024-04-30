@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../repositorys/setting_repository.dart';
+import '../../../../shared/repositories/setting_repository.dart';
 
 class ThemeWidget extends StatelessWidget {
   const ThemeWidget({super.key});

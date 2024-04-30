@@ -44,4 +44,35 @@ class SettingRepository {
     final box = Hive.box(_boxName);
     return box.get('check_update_time', defaultValue: 0);
   }
+
+  /// 设置侧边栏宽度
+  static setSidebarWidth(double width) {
+    final box = Hive.box(_boxName);
+    box.put('sidebar_width', width);
+  }
+
+  /// 获取侧边栏宽度
+  static double getSidebarWidth(double defaultValue) {
+    final box = Hive.box(_boxName);
+    return box.get('sidebar_width', defaultValue: defaultValue);
+  }
+
+  /// 设置窗口大小
+  static setWindowSize(Size size) {
+    final box = Hive.box(_boxName);
+    box.put('window_size', {
+      'width': size.width,
+      'height': size.height,
+    });
+  }
+
+  /// 获取窗口大小
+  static Future<Size?> getWindowSize() async {
+    final box = await Hive.openBox(_boxName);
+    final size = box.get('window_size');
+    if (size != null) {
+      return Size(size['width'], size['height']);
+    }
+    return null;
+  }
 }

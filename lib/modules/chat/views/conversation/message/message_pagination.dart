@@ -20,7 +20,7 @@ class MessagePagination extends StatelessWidget {
         return Container(
           width: double.infinity,
           height: 30,
-          margin: const EdgeInsets.only(top: 8,left: 12),
+          margin: const EdgeInsets.only(top: 16,left: 12),
           child: ListView.builder(
             itemCount: controller.indexList.length,
             scrollDirection: Axis.horizontal,
@@ -49,12 +49,11 @@ Widget paginationButton({
   void Function()? onPressed,
 }) {
   return Container(
-    width: 30,
-    height: 30,
     alignment: Alignment.center,
     margin: const EdgeInsets.only(right: 4),
-    child: TextButton(
+    child: IconButton(
       style: ButtonStyle(
+        minimumSize: MaterialStateProperty.all(Size(24, 24)),
         padding: MaterialStateProperty.all(EdgeInsets.zero),
         backgroundColor: selected
             ? MaterialStateProperty.all(Get.theme.colorScheme.primaryContainer)
@@ -67,10 +66,11 @@ Widget paginationButton({
         ),
       ),
       onPressed: onPressed,
-      child: child ??
+      icon: child ??
           Text(
             text ?? '',
             style: TextStyle(
+              height: 1,
               fontWeight: FontWeight.w300,
               color: selected
                   ? Get.theme.colorScheme.primary

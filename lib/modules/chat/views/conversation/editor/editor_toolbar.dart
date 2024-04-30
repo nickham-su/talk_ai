@@ -29,7 +29,7 @@ class EditorToolbar extends StatelessWidget {
         }
 
         return Container(
-          padding: const EdgeInsets.only(left: 4, top: 8),
+          padding: const EdgeInsets.only(left: 12, top: 6),
           decoration: BoxDecoration(
             border: Border(
               top: BorderSide(
@@ -51,9 +51,9 @@ class EditorToolbar extends StatelessWidget {
 Widget getDivider() {
   return Container(
     width: 1,
-    height: 24,
-    margin: const EdgeInsets.symmetric(horizontal: 8),
-    color: Get.theme.colorScheme.inverseSurface.withOpacity(0.3),
+    height: 20,
+    margin: const EdgeInsets.symmetric(horizontal: 12),
+    color: Get.theme.colorScheme.outlineVariant.withOpacity(0.5),
   );
 }
 
@@ -66,7 +66,15 @@ class AddButton extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 2),
       child: IconButton(
-        visualDensity: VisualDensity.compact,
+        padding: const EdgeInsets.all(0),
+        style: ButtonStyle(
+          minimumSize: MaterialStateProperty.all(const Size(36, 36)),
+          shape: MaterialStateProperty.all<OutlinedBorder>(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(6),
+            ),
+          ),
+        ),
         tooltip: '开始新会话',
         icon: SvgPicture.asset(
           'assets/icons/add.svg',
@@ -98,12 +106,20 @@ class SearchButton extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 2),
       child: IconButton(
-        visualDensity: VisualDensity.compact,
+        padding: const EdgeInsets.all(0),
+        style: ButtonStyle(
+          minimumSize: MaterialStateProperty.all(const Size(36, 36)),
+          shape: MaterialStateProperty.all<OutlinedBorder>(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(6),
+            ),
+          ),
+        ),
         tooltip: '搜索',
         icon: SvgPicture.asset(
           'assets/icons/search.svg',
-          width: 18,
-          height: 18,
+          width: 17,
+          height: 17,
           theme: SvgTheme(
             currentColor: Get.theme.colorScheme.inverseSurface,
           ),
@@ -126,13 +142,21 @@ class StopButton extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 2),
       child: IconButton(
-        visualDensity: VisualDensity.compact,
+        padding: const EdgeInsets.all(0),
+        style: ButtonStyle(
+          minimumSize: MaterialStateProperty.all(const Size(36, 36)),
+          shape: MaterialStateProperty.all<OutlinedBorder>(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(6),
+            ),
+          ),
+        ),
         tooltip: '停止',
         icon: ClipRRect(
           borderRadius: BorderRadius.circular(2),
           child: Container(
-            width: 16,
-            height: 16,
+            width: 14,
+            height: 14,
             color: Colors.red,
           ),
         ),
@@ -159,15 +183,23 @@ class UpButton extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 2),
       child: IconButton(
-        visualDensity: VisualDensity.compact,
+        padding: const EdgeInsets.all(0),
+        style: ButtonStyle(
+          minimumSize: MaterialStateProperty.all(const Size(36, 36)),
+          shape: MaterialStateProperty.all<OutlinedBorder>(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(6),
+            ),
+          ),
+        ),
         tooltip: '上一个会话',
         icon: Transform(
           alignment: Alignment.center,
           transform: Matrix4.rotationZ(pi),
           child: SvgPicture.asset(
             'assets/icons/arrow/down.svg',
-            width: 18,
-            height: 18,
+            width: 20,
+            height: 20,
             theme: SvgTheme(
               currentColor: Get.theme.colorScheme.inverseSurface,
             ),
@@ -192,7 +224,15 @@ class BottomButton extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 2),
       child: IconButton(
-        visualDensity: VisualDensity.compact,
+        padding: const EdgeInsets.all(0),
+        style: ButtonStyle(
+          minimumSize: MaterialStateProperty.all(const Size(36, 36)),
+          shape: MaterialStateProperty.all<OutlinedBorder>(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(6),
+            ),
+          ),
+        ),
         tooltip: '到底部',
         icon: SvgPicture.asset(
           'assets/icons/arrow/bottom.svg',

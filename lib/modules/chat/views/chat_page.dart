@@ -14,17 +14,12 @@ class ChatPage extends GetView<ChatAppListController> {
   Widget build(BuildContext context) {
     return Layout(
       currentMenu: LayoutMenuType.chat,
-      child: Row(
-        children: [
-          AppList(),
-          Obx(() => Expanded(
-              child: Container(
-                  color: Get.theme.colorScheme.background,
-                  child: controller.currentChatApp == null
-                      ? const EmptyPage()
-                      : const ConversationPage()))),
-        ],
-      ),
+      secondMenu: const AppList(),
+      child: Obx(() => Container(
+          color: Get.theme.colorScheme.background,
+          child: controller.currentChatApp == null
+              ? const EmptyPage()
+              : const ConversationPage())),
     );
   }
 }

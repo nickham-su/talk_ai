@@ -148,55 +148,49 @@ class MessageContent extends StatelessWidget {
         children: [
           TextButton(
             style: TextButton.styleFrom(
-              minimumSize: const Size(0, 32),
-              padding:
-                  const EdgeInsets.only(left: 8, right: 4, top: 0, bottom: 0),
-              backgroundColor: isMarkdown
-                  ? Get.theme.colorScheme.secondaryContainer.withOpacity(0.6)
-                  : Get.theme.colorScheme.secondaryContainer.withOpacity(0.2),
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  bottomLeft: Radius.circular(16),
-                ),
+              minimumSize: const Size(0, 30),
+              padding: const EdgeInsets.symmetric(horizontal: 0),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(0),
               ),
+              backgroundColor: null,
             ),
             onPressed: onMarkdown,
             child: Text(
-              'Markdown',
+              'MARKDOWN',
               style: TextStyle(
                 color: isMarkdown
-                    ? Get.theme.textTheme.bodyMedium?.color?.withOpacity(0.7)
-                    : Get.theme.textTheme.bodyMedium?.color?.withOpacity(0.35),
-                fontSize: 11,
+                    ? Get.theme.textTheme.bodyMedium?.color
+                    : Get.theme.textTheme.bodyMedium?.color?.withOpacity(0.5),
+                fontSize: 13,
                 height: 1,
                 fontWeight: FontWeight.w300,
               ),
             ),
           ),
+          Container(
+            width: 1,
+            height: 14,
+            color: Get.theme.textTheme.bodyMedium?.color?.withOpacity(0.5),
+            margin: const EdgeInsets.symmetric(horizontal: 4),
+          ),
           TextButton(
             style: TextButton.styleFrom(
-              minimumSize: const Size(0, 32),
-              padding:
-                  const EdgeInsets.only(left: 4, right: 8, top: 0, bottom: 0),
-              backgroundColor: isMarkdown
-                  ? Get.theme.colorScheme.secondaryContainer.withOpacity(0.2)
-                  : Get.theme.colorScheme.secondaryContainer.withOpacity(0.6),
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.only(
-                  topRight: Radius.circular(16),
-                  bottomRight: Radius.circular(16),
-                ),
+              minimumSize: const Size(0, 30),
+              padding: const EdgeInsets.symmetric(horizontal: 0),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(0),
               ),
+              backgroundColor: null,
             ),
             onPressed: onOriginal,
             child: Text(
               '原文',
               style: TextStyle(
                 color: isMarkdown
-                    ? Get.theme.textTheme.bodyMedium?.color?.withOpacity(0.35)
-                    : Get.theme.textTheme.bodyMedium?.color?.withOpacity(0.7),
-                fontSize: 11,
+                    ? Get.theme.textTheme.bodyMedium?.color?.withOpacity(0.5)
+                    : Get.theme.textTheme.bodyMedium?.color,
+                fontSize: 13,
                 height: 1,
                 fontWeight: FontWeight.w300,
               ),

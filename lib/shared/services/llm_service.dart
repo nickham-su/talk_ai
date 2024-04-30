@@ -2,6 +2,8 @@ import 'package:get/get.dart';
 
 import '../components/snackbar.dart';
 import '../models/llm/llm_model.dart';
+import '../models/llm/llm_type.dart';
+import '../models/llm/openai/openai_model.dart';
 import '../repositories/llm_repository.dart';
 
 class LLMService extends GetxService {
@@ -21,14 +23,33 @@ class LLMService extends GetxService {
   }
 
   /// 添加模型,并返回模型ID
-  int addLLM(LLM llm) {
+  int? addLLM(Map<String, dynamic> data) {
+    final type = data['type'];
+    final name = data['name'];
+    if (type == null || name == null) {
+      return null;
+    }
+    late LLM llm;
+    if (type == LLMType.openai.value) {
+      llm = OpenaiModel.fromJson(data);
+    } else {
+      return null;
+    }
     final id = LLMRepository.insert(llm: llm);
     refreshLLMList();
     return id;
   }
 
   /// 更新模型
-  void updateLLM(LLM llm) {
+  void updateLLM(int llmId, Map<String, String> data) {
+    final type = data['type'];
+    late LLM llm;
+    if (type == LLMType.openai.value) {
+      llm = OpenaiModel.fromJson(data);
+    } else {
+      return;
+    }
+    llm.llmId = llmId;
     LLMRepository.update(llm);
     refreshLLMList();
   }
@@ -41,7 +62,7 @@ class LLMService extends GetxService {
 
   /// 删除模型
   void deleteLLM(LLM llm) {
-    LLMRepository.delete(llm);
+    LLMRepository.delete(llm.llmId);
     llmList.removeWhere((element) => element.llmId == llm.llmId);
   }
 

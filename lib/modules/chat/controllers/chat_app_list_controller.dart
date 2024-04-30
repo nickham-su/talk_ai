@@ -30,7 +30,15 @@ class ChatAppListController extends GetxController {
     super.onInit();
     refreshChatApps();
     if (chatAppList.isNotEmpty) {
-      selectChatApp(chatAppList.first.chatAppId);
+      /// 获取最后一次使用的聊天App
+      ChatAppModel? lastUseChatApp;
+      for (final chatApp in chatAppList) {
+        if (lastUseChatApp == null ||
+            chatApp.lastUseTime.isAfter(lastUseChatApp.lastUseTime)) {
+          lastUseChatApp = chatApp;
+        }
+      }
+      selectChatApp(lastUseChatApp!.chatAppId);
     }
   }
 
@@ -130,6 +138,18 @@ class ChatAppListController extends GetxController {
   /// 记录聊天App的最后一次使用时间
   void recordLastUseTime(int chatAppId) {
     ChatAppRepository.recordLastUseTime(chatAppId);
+    refreshChatApps();
+  }
+
+  /// 切换置顶状态
+  void toggleTop(int chatAppId) {
+    final chatApp = getChatApp(chatAppId);
+    if (chatApp == null) return;
+    if (chatApp.toppingTime.millisecondsSinceEpoch == 0) {
+      ChatAppRepository.top(chatAppId);
+    } else {
+      ChatAppRepository.unTop(chatAppId);
+    }
     refreshChatApps();
   }
 }

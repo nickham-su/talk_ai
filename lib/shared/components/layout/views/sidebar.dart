@@ -15,35 +15,41 @@ class Sidebar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<LayoutController>(builder: (LayoutController controller) {
-      return Column(
-        children: [
-          Expanded(
-              child: ListView(
-            padding: EdgeInsets.zero,
-            children: <Widget>[
-              getListTile(
-                controller: controller,
-                type: LayoutMenuType.chat,
-                routePath: Routes.chat,
-              ),
-              getListTile(
-                controller: controller,
-                type: LayoutMenuType.llm,
-                routePath: Routes.llm,
-              ),
-              GetBuilder<AppUpdateController>(
-                builder: (AppUpdateController appUpdateController) {
-                  return getListTile(
-                    controller: controller,
-                    type: LayoutMenuType.setting,
-                    routePath: Routes.setting,
-                    showBadge: appUpdateController.needUpdate,
-                  );
-                },
-              ),
-            ],
-          )),
-        ],
+      return Container(
+        padding: const EdgeInsets.only(left: 4, right: 1),
+        color: Get.theme.colorScheme.secondaryContainer.withOpacity(0.3),
+        width: 54,
+        child: Column(
+          children: [
+            const SizedBox(height: 60),
+            Expanded(
+                child: ListView(
+              padding: EdgeInsets.zero,
+              children: <Widget>[
+                getListTile(
+                  controller: controller,
+                  type: LayoutMenuType.chat,
+                  routePath: Routes.chat,
+                ),
+                getListTile(
+                  controller: controller,
+                  type: LayoutMenuType.llm,
+                  routePath: Routes.llm,
+                ),
+                GetBuilder<AppUpdateController>(
+                  builder: (AppUpdateController appUpdateController) {
+                    return getListTile(
+                      controller: controller,
+                      type: LayoutMenuType.setting,
+                      routePath: Routes.setting,
+                      showBadge: appUpdateController.needUpdate,
+                    );
+                  },
+                ),
+              ],
+            )),
+          ],
+        ),
       );
     });
   }
@@ -55,55 +61,59 @@ class Sidebar extends StatelessWidget {
     required String routePath,
     bool showBadge = false,
   }) {
-    return SizedBox(
-        width: 50,
-        height: 50,
-        child: Tooltip(
-          message: type.value,
-          waitDuration: const Duration(milliseconds: 500),
-          showDuration: Duration.zero,
-          child: Stack(
-            children: [
-              SizedBox(
-                width: 50,
-                height: 50,
-                child: IconButton(
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all(
-                      type == currentMenu
-                          ? Get.theme.colorScheme.primaryContainer
-                          : Colors.transparent,
+    return Container(
+        child: Stack(
+          children: [
+            SizedBox(
+              width: double.infinity,
+              height: 54,
+              child: IconButton(
+                hoverColor: Get.theme.colorScheme.secondaryContainer.withOpacity(0.4),
+                style: ButtonStyle(
+                  padding: MaterialStateProperty.all(EdgeInsets.zero),
+                  alignment: Alignment.center,
+                  shape: MaterialStateProperty.all(RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  )),
+                ),
+                icon: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    getIcon(type, currentMenu),
+                    Text(
+                      type.value,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w300,
+                        fontSize: 10,
+                        color: type == currentMenu
+                            ? Get.theme.colorScheme.primary
+                            : Get.theme.textTheme.bodyMedium?.color
+                                ?.withOpacity(0.5),
+                      ),
                     ),
-                    padding: MaterialStateProperty.all(EdgeInsets.zero),
-                    alignment: Alignment.center,
-                    shape:
-                        MaterialStateProperty.all(const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.zero,
-                    )),
+                  ],
+                ),
+                onPressed: () {
+                  Get.offNamed(routePath);
+                },
+              ),
+            ),
+            if (showBadge)
+              Positioned(
+                right: 8,
+                top: 8,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(4),
                   ),
-                  icon: getIcon(type, currentMenu),
-                  onPressed: () {
-                    Get.offNamed(routePath);
-                  },
+                  constraints: const BoxConstraints(
+                    minWidth: 8,
+                    minHeight: 8,
+                  ),
                 ),
               ),
-              if (showBadge)
-                Positioned(
-                  right: 8,
-                  top: 8,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    constraints: const BoxConstraints(
-                      minWidth: 8,
-                      minHeight: 8,
-                    ),
-                  ),
-                ),
-            ],
-          ),
+          ],
         ));
   }
 
@@ -132,6 +142,6 @@ class Sidebar extends StatelessWidget {
       default:
         throw '未知的菜单类型';
     }
-    return SvgPicture.asset(iconFile, width: 24, height: 24);
+    return SvgPicture.asset(iconFile, width: 28, height: 28);
   }
 }

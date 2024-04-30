@@ -38,14 +38,6 @@ class OpenaiModel extends LLM {
     );
   }
 
-  factory OpenaiModel.fromFormData(List<FormDataItem> data) {
-    Map<String, String> map = {};
-    for (var item in data) {
-      map[item.key] = item.value;
-    }
-    return OpenaiModel.fromJson(map);
-  }
-
   /// 将llmId、name、type之外的数据转换为json
   @override
   Map<String, dynamic> toJson() {

@@ -24,10 +24,10 @@ class MessageWidget extends StatelessWidget {
         late Color iconColor; // icon颜色
         if (controller.message?.role == MessageRole.user) {
           iconFile = 'assets/icons/user.svg';
-          iconColor = Get.theme.colorScheme.primaryContainer;
+          iconColor = Get.theme.colorScheme.tertiaryContainer;
         } else if (controller.message?.role == MessageRole.assistant) {
           iconFile = 'assets/icons/assistant.svg';
-          iconColor = Get.theme.colorScheme.tertiaryContainer;
+          iconColor = Get.theme.colorScheme.primaryContainer;
         } else {
           iconFile = 'assets/icons/build.svg';
           iconColor = Get.theme.colorScheme.outlineVariant;

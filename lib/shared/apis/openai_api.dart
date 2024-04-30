@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import '../../modules/setting/repositorys/setting_repository.dart';
+import '../repositories/setting_repository.dart';
 import '../models/llm/openai/chat_completions_response.dart';
 import '../models/message/message_model.dart';
 

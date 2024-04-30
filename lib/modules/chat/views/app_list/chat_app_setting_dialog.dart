@@ -182,7 +182,7 @@ class ChatAppSettingDialog extends GetView<ChatAppSettingController> {
   }
 
   /// 添加聊天助理
-  void addChatApp() {
+  void addChatApp() async {
     if (_formKey.currentState!.validate()) {
       try {
         chatAppController.addChatApp(
@@ -193,6 +193,7 @@ class ChatAppSettingDialog extends GetView<ChatAppSettingController> {
           topP: controller.topP,
         );
         Get.back();
+        await Future.delayed(const Duration(milliseconds: 200));
         snackbar('添加成功', '助理已添加');
       } catch (e) {
         snackbar('添加失败', '助理添加失败，请检查助理名称是否重复');
@@ -201,7 +202,7 @@ class ChatAppSettingDialog extends GetView<ChatAppSettingController> {
   }
 
   /// 编辑聊天助理
-  void editChatApp() {
+  void editChatApp() async {
     if (_formKey.currentState!.validate()) {
       try {
         chatAppController.updateChatApp(
@@ -213,6 +214,7 @@ class ChatAppSettingDialog extends GetView<ChatAppSettingController> {
           topP: controller.topP,
         );
         Get.back();
+        await Future.delayed(const Duration(milliseconds: 200));
         snackbar('保存成功', '助理设置已保存');
       } catch (e) {
         snackbar('保存失败', '助理设置失败，请检查助理名称是否重复');
@@ -227,10 +229,12 @@ class ChatAppSettingDialog extends GetView<ChatAppSettingController> {
       middleText: '确定要删除当前助理吗？',
       confirm: DangerButton(
         text: '删除',
-        onPressed: () {
+        onPressed: () async {
           Get.back(); // 关闭确认对话框
           chatAppController.deleteChatApp(controller.chatAppId);
+          await Future.delayed(const Duration(milliseconds: 200));
           Get.back(); // 关闭设置窗口
+          await Future.delayed(const Duration(milliseconds: 200));
           snackbar('删除成功', '助理已删除');
         },
       ),

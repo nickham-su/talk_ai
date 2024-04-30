@@ -28,7 +28,12 @@ class EditorWidget extends StatelessWidget {
                       !event.isControlPressed &&
                       !event.isMetaPressed &&
                       !event.isShiftPressed) {
-                    controller.sendMessage();
+                    Future.delayed(const Duration(milliseconds: 30), () {
+                      final text = controller.inputController.text;
+                      if (text[text.length - 1] == '\n') {
+                        controller.sendMessage();
+                      }
+                    });
                   }
 
                   // 判断是macos系统，同时按下了command键和enter键时，输入换行
@@ -52,7 +57,7 @@ class EditorWidget extends StatelessWidget {
                     contentPadding:
                         EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     border: InputBorder.none,
-                    hintText: '请输入问题。回车键发送，Alt/Opt+Enter换行。',
+                    hintText: '请输入问题。Enter发送，Opt/Alt+Enter换行。',
                     hintStyle: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w300,

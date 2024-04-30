@@ -60,6 +60,13 @@ class ChatAppController extends GetxController {
   /// 发送中状态
   get isSending => generateMessageService.isGenerating;
 
+  @override
+  void onClose() {
+    inputController.dispose();
+    inputFocusNode.dispose();
+    super.onClose();
+  }
+
   /// 设置当前聊天App
   void setChatApp(ChatAppModel? chatApp) async {
     final oldChatApp = this.chatApp;

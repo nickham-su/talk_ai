@@ -76,7 +76,7 @@ class LLMSetting extends GetView<LLMController> {
           if (_formKey.currentState!.validate()) {
             try {
               controller.saveLLM();
-              if(controller.isCreate) {
+              if (controller.isCreate) {
                 snackbar('恭喜您', '模型添加成功');
               } else {
                 snackbar('恭喜您', '模型设置成功');
@@ -100,9 +100,10 @@ class LLMSetting extends GetView<LLMController> {
             middleText: '确定要删除该模型吗？',
             confirm: DangerButton(
               text: '删除',
-              onPressed: () {
+              onPressed: () async {
                 controller.deleteLLM();
                 Get.back();
+                await Future.delayed(const Duration(milliseconds: 200));
                 snackbar('提示', '模型已删除');
               },
             ),

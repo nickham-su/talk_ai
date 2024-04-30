@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import '../../../shared/repositories/create_tables.dart';
 import '../../../shared/services/llm_service.dart';
 import '../../../shared/utils/sqlite.dart';
-import '../repositorys/setting_repository.dart';
+import '../../../shared/repositories/setting_repository.dart';
 
 class SettingController extends GetxController {
   /// 清空数据
