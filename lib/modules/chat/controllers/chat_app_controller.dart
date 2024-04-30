@@ -811,7 +811,8 @@ class ChatAppController extends GetxController {
       // 比较按Enter键前后的文本，如果是插入换行，则发送消息
       final dmp = DiffMatchPatch();
       List<Diff> diffs = dmp.diff(text1, text2);
-      if ((diffs.length == 2 || diffs.length == 3) && diffs[1].text == '\n') {
+      if ((diffs.length == 2 || diffs.length == 3) &&
+          (diffs[0].text == '\n' || diffs[1].text == '\n')) {
         // 清空输入框
         inputController.text = '';
         // 发送消息，用text1是因为text2包含换行
