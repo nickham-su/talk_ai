@@ -15,14 +15,12 @@ class LLMPage extends GetView<LLMController> {
     return Layout(
       currentMenu: LayoutMenuType.llm,
       secondMenu: const LLMList(),
-      child: Obx(() => Expanded(
-            child: Container(
-              color: Get.theme.colorScheme.background,
-              child: controller.isCreate || controller.isEdit
-                  ? LLMSetting()
-                  : const EmptyPage(),
-            ),
-          )),
+      child: Obx(() => Container(
+        color: Get.theme.colorScheme.background,
+        child: controller.isCreate || controller.isEdit
+            ? LLMSetting()
+            : const EmptyPage(),
+      )),
     );
   }
 }

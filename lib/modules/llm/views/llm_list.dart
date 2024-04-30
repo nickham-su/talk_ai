@@ -158,6 +158,11 @@ class ListHeader extends GetView<LLMController> {
                   padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
                     const EdgeInsets.all(0),
                   ),
+                  shape: MaterialStateProperty.all<OutlinedBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
                 ),
                 icon: SvgPicture.asset(
                   'assets/icons/add.svg',
@@ -182,11 +187,16 @@ class ListHeader extends GetView<LLMController> {
                   padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
                     const EdgeInsets.all(0),
                   ),
+                  shape: MaterialStateProperty.all<OutlinedBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
                 ),
                 icon: SvgPicture.asset(
                   'assets/icons/share.svg',
-                  width: 17,
-                  height: 17,
+                  width: 16,
+                  height: 16,
                   theme: SvgTheme(
                     currentColor: Get.theme.colorScheme.secondary,
                   ),

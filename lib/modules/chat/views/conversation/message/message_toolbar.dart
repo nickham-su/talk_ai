@@ -161,14 +161,15 @@ class ToolbarIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      visualDensity: VisualDensity.compact,
       tooltip: tooltip,
+      visualDensity: VisualDensity.compact,
+      hoverColor: Get.theme.colorScheme.secondaryContainer.withOpacity(0.2),
       icon: SvgPicture.asset(
         icon,
         width: 14,
         height: 14,
         theme: SvgTheme(
-          currentColor: Get.theme.colorScheme.inverseSurface.withOpacity(0.35),
+          currentColor: Get.theme.colorScheme.inverseSurface.withOpacity(0.5),
         ),
       ),
       onPressed: () async {

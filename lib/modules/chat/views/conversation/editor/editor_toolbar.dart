@@ -69,6 +69,11 @@ class AddButton extends StatelessWidget {
         padding: const EdgeInsets.all(0),
         style: ButtonStyle(
           minimumSize: MaterialStateProperty.all(const Size(36, 36)),
+          shape: MaterialStateProperty.all<OutlinedBorder>(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(6),
+            ),
+          ),
         ),
         tooltip: '开始新会话',
         icon: SvgPicture.asset(
@@ -104,6 +109,11 @@ class SearchButton extends StatelessWidget {
         padding: const EdgeInsets.all(0),
         style: ButtonStyle(
           minimumSize: MaterialStateProperty.all(const Size(36, 36)),
+          shape: MaterialStateProperty.all<OutlinedBorder>(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(6),
+            ),
+          ),
         ),
         tooltip: '搜索',
         icon: SvgPicture.asset(
@@ -135,6 +145,11 @@ class StopButton extends StatelessWidget {
         padding: const EdgeInsets.all(0),
         style: ButtonStyle(
           minimumSize: MaterialStateProperty.all(const Size(36, 36)),
+          shape: MaterialStateProperty.all<OutlinedBorder>(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(6),
+            ),
+          ),
         ),
         tooltip: '停止',
         icon: ClipRRect(
@@ -171,6 +186,11 @@ class UpButton extends StatelessWidget {
         padding: const EdgeInsets.all(0),
         style: ButtonStyle(
           minimumSize: MaterialStateProperty.all(const Size(36, 36)),
+          shape: MaterialStateProperty.all<OutlinedBorder>(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(6),
+            ),
+          ),
         ),
         tooltip: '上一个会话',
         icon: Transform(
@@ -207,6 +227,11 @@ class BottomButton extends StatelessWidget {
         padding: const EdgeInsets.all(0),
         style: ButtonStyle(
           minimumSize: MaterialStateProperty.all(const Size(36, 36)),
+          shape: MaterialStateProperty.all<OutlinedBorder>(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(6),
+            ),
+          ),
         ),
         tooltip: '到底部',
         icon: SvgPicture.asset(

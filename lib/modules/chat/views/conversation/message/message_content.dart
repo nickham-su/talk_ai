@@ -146,23 +146,25 @@ class MessageContent extends StatelessWidget {
       margin: const EdgeInsets.only(right: 12),
       child: Row(
         children: [
-          TextButton(
+          IconButton(
             style: TextButton.styleFrom(
-              minimumSize: const Size(0, 32),
+              minimumSize: const Size(0, 24),
               padding:
-                  const EdgeInsets.only(left: 8, right: 4, top: 0, bottom: 0),
+                  const EdgeInsets.only(left: 8, right: 8, top: 0, bottom: 0),
               backgroundColor: isMarkdown
-                  ? Get.theme.colorScheme.secondaryContainer.withOpacity(0.5)
+                  ? Get.theme.colorScheme.secondaryContainer.withOpacity(0.6)
                   : Get.theme.colorScheme.secondaryContainer.withOpacity(0.2),
               shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  bottomLeft: Radius.circular(16),
+                  topLeft: Radius.circular(4),
+                  bottomLeft: Radius.circular(4),
                 ),
               ),
             ),
+            hoverColor:
+                Get.theme.colorScheme.secondaryContainer.withOpacity(0.2),
             onPressed: onMarkdown,
-            child: Text(
+            icon: Text(
               'Markdown',
               style: TextStyle(
                 color: isMarkdown
@@ -174,23 +176,25 @@ class MessageContent extends StatelessWidget {
               ),
             ),
           ),
-          TextButton(
+          IconButton(
             style: TextButton.styleFrom(
-              minimumSize: const Size(0, 32),
+              minimumSize: const Size(0, 24),
               padding:
-                  const EdgeInsets.only(left: 4, right: 8, top: 0, bottom: 0),
+                  const EdgeInsets.only(left: 8, right: 8, top: 0, bottom: 0),
               backgroundColor: isMarkdown
                   ? Get.theme.colorScheme.secondaryContainer.withOpacity(0.2)
-                  : Get.theme.colorScheme.secondaryContainer.withOpacity(0.5),
+                  : Get.theme.colorScheme.secondaryContainer.withOpacity(0.6),
               shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.only(
-                  topRight: Radius.circular(16),
-                  bottomRight: Radius.circular(16),
+                  topRight: Radius.circular(4),
+                  bottomRight: Radius.circular(4),
                 ),
               ),
             ),
+            hoverColor:
+                Get.theme.colorScheme.secondaryContainer.withOpacity(0.2),
             onPressed: onOriginal,
-            child: Text(
+            icon: Text(
               '原文',
               style: TextStyle(
                 color: isMarkdown
