@@ -16,8 +16,9 @@ class Sidebar extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder<LayoutController>(builder: (LayoutController controller) {
       return Container(
+        padding: const EdgeInsets.only(left: 4, right: 1),
         color: Get.theme.colorScheme.secondaryContainer.withOpacity(0.3),
-        width: 64,
+        width: 54,
         child: Column(
           children: [
             const SizedBox(height: 60),
@@ -61,14 +62,13 @@ class Sidebar extends StatelessWidget {
     bool showBadge = false,
   }) {
     return Container(
-        padding: const EdgeInsets.only(left: 8, right: 2),
-        margin: const EdgeInsets.only(bottom: 4),
         child: Stack(
           children: [
             SizedBox(
               width: double.infinity,
-              height: 56,
+              height: 54,
               child: IconButton(
+                hoverColor: Get.theme.colorScheme.secondaryContainer.withOpacity(0.4),
                 style: ButtonStyle(
                   padding: MaterialStateProperty.all(EdgeInsets.zero),
                   alignment: Alignment.center,
@@ -83,6 +83,7 @@ class Sidebar extends StatelessWidget {
                     Text(
                       type.value,
                       style: TextStyle(
+                        fontWeight: FontWeight.w300,
                         fontSize: 10,
                         color: type == currentMenu
                             ? Get.theme.colorScheme.primary

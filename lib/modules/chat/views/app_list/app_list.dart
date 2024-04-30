@@ -17,20 +17,25 @@ class AppList extends GetView<ChatAppListController> {
       children: [
         const ListHeader(),
         Expanded(
-          child: Obx(() => ListView.builder(
-                itemCount: controller.chatAppList.length,
-                itemBuilder: (context, index) {
-                  final app = controller.chatAppList[index];
-                  return ListItem(
-                      key: ValueKey('key_chat_app_${app.chatAppId}'),
-                      app: app,
-                      selected: app.chatAppId ==
-                          controller.currentChatAppId.value,
-                      onTap: () {
-                        controller.selectChatApp(app.chatAppId);
-                      });
-                },
-              )),
+          child: Obx(
+            () => ListView.separated(
+              itemCount: controller.chatAppList.length,
+              itemBuilder: (context, index) {
+                final app = controller.chatAppList[index];
+                return ListItem(
+                    key: ValueKey('key_chat_app_${app.chatAppId}'),
+                    app: app,
+                    selected:
+                        app.chatAppId == controller.currentChatAppId.value,
+                    onTap: () {
+                      controller.selectChatApp(app.chatAppId);
+                    });
+              },
+              separatorBuilder: (context, index) {
+                return const SizedBox(height: 2);
+              },
+            ),
+          ),
         ),
       ],
     );
@@ -58,12 +63,8 @@ class _ListItemState extends State<ListItem> {
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
+      cursor: SystemMouseCursors.click,
       onEnter: (event) {
-        final chatAppListController = Get.find<ChatAppListController>();
-        if (chatAppListController.currentChatAppId.value !=
-            widget.app.chatAppId) {
-          return;
-        }
         setState(() {
           hover = true;
         });
@@ -74,27 +75,40 @@ class _ListItemState extends State<ListItem> {
           hover = false;
         });
       },
-      child: ListTile(
-        title: Text(
-          widget.app.name,
-          style: const TextStyle(
-            fontSize: 14,
-          ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        trailing: hover == false ? null : getButtons(widget.app),
-        selected: widget.selected,
-        selectedTileColor: Get.theme.colorScheme.primaryContainer,
-        contentPadding: const EdgeInsets.only(left: 12),
+      child: GestureDetector(
         onTap: () {
-          setState(() {
-            hover = true;
-          });
           widget.onTap();
         },
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(8)),
+        child: Container(
+          padding: const EdgeInsets.only(left: 12),
+          height: 40,
+          decoration: BoxDecoration(
+            color: widget.selected
+                ? Get.theme.colorScheme.primaryContainer
+                : hover
+                    ? Get.theme.colorScheme.secondaryContainer.withOpacity(0.4)
+                    : null,
+            borderRadius: const BorderRadius.all(Radius.circular(8)),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Text(
+                  widget.app.name,
+                  style: TextStyle(
+                    fontWeight:
+                        widget.selected ? FontWeight.w500 : FontWeight.w300,
+                    fontSize: 14,
+                    height: 1,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              if (hover && widget.selected) getButtons(widget.app)
+            ],
+          ),
         ),
       ),
     );

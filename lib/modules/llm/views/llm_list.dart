@@ -19,11 +19,21 @@ class LLMList extends GetView<LLMController> {
         Expanded(
           child: Obx(() {
             final currentId = controller.currentId.value;
-            return ListView.builder(
+            return ListView.separated(
               itemCount: controller.llmService.llmList.length,
               itemBuilder: (context, index) {
                 final llm = controller.llmService.llmList[index];
-                return getItem(llm, currentId);
+                return ListItem(
+                  onTap: () {
+                    controller.changeIndex(llm.llmId);
+                  },
+                  selected: currentId == llm.llmId,
+                  trailing: llm.type.value,
+                  title: llm.name,
+                );
+              },
+              separatorBuilder: (context, index) {
+                return const SizedBox(height: 2);
               },
             );
           }),
@@ -31,31 +41,84 @@ class LLMList extends GetView<LLMController> {
       ],
     );
   }
+}
 
-  Widget getItem(LLM llm, int currentId) {
-    return ListTile(
-      onTap: () {
-        controller.changeIndex(llm.llmId);
+class ListItem extends StatefulWidget {
+  final String title;
+  final String trailing;
+  final bool selected;
+  final Function() onTap;
+
+  const ListItem({
+    super.key,
+    required this.title,
+    required this.trailing,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  State<ListItem> createState() => _ListItemState();
+}
+
+class _ListItemState extends State<ListItem> {
+  bool hover = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (event) {
+        setState(() {
+          hover = true;
+        });
       },
-      selected: currentId == llm.llmId,
-      selectedTileColor: Get.theme.colorScheme.primaryContainer,
-      contentPadding: const EdgeInsets.only(left: 12, right: 12),
-      trailing: Text(
-        llm.type.value,
-        style: const TextStyle(
-          fontSize: 12,
+      onExit: (event) async {
+        await Future.delayed(const Duration(milliseconds: 100));
+        setState(() {
+          hover = false;
+        });
+      },
+      child: GestureDetector(
+        onTap: () {
+          widget.onTap();
+        },
+        child: Container(
+          padding: const EdgeInsets.only(left: 12, right: 12),
+          height: 40,
+          decoration: BoxDecoration(
+            color: widget.selected
+                ? Get.theme.colorScheme.primaryContainer
+                : hover
+                    ? Get.theme.colorScheme.secondaryContainer.withOpacity(0.4)
+                    : null,
+            borderRadius: const BorderRadius.all(Radius.circular(8)),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Text(
+                  widget.title,
+                  style: TextStyle(
+                    fontWeight:
+                        widget.selected ? FontWeight.w500 : FontWeight.w300,
+                    fontSize: 14,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Text(
+                widget.trailing,
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w300,
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
-      title: Text(
-        llm.name,
-        style: const TextStyle(
-          fontSize: 14,
-        ),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(8)),
       ),
     );
   }

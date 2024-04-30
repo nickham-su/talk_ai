@@ -62,7 +62,7 @@ class Layout extends StatelessWidget {
       );
     }
     return Container(
-      width: 5,
+      width: 3,
       decoration: BoxDecoration(
         color: Get.theme.colorScheme.secondaryContainer.withOpacity(0.3),
         border: Border(
