@@ -39,6 +39,11 @@ class ResizableSidebarWidget extends StatelessWidget {
                   SettingRepository.setSidebarWidth(width);
                   controller.setWidth(width);
                 },
+                onPanEnd: (DragEndDetails details) {
+                  final width = max(controller.width, minWidth);
+                  SettingRepository.setSidebarWidth(width);
+                  controller.setWidth(width);
+                },
                 child: const MouseRegion(
                   cursor: SystemMouseCursors.resizeColumn,
                   child: SizedBox(
