@@ -28,7 +28,12 @@ class EditorWidget extends StatelessWidget {
                       !event.isControlPressed &&
                       !event.isMetaPressed &&
                       !event.isShiftPressed) {
-                    controller.sendMessage();
+                    Future.delayed(const Duration(milliseconds: 30), () {
+                      final text = controller.inputController.text;
+                      if (text[text.length - 1] == '\n') {
+                        controller.sendMessage();
+                      }
+                    });
                   }
 
                   // 判断是macos系统，同时按下了command键和enter键时，输入换行
