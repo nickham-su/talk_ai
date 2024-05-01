@@ -18,7 +18,7 @@ class Sidebar extends StatelessWidget {
       return Container(
         padding: const EdgeInsets.only(left: 4, right: 1),
         color: Get.theme.colorScheme.secondaryContainer.withOpacity(0.3),
-        width: 54,
+        width: 48,
         child: Column(
           children: [
             const SizedBox(height: 60),
@@ -66,7 +66,7 @@ class Sidebar extends StatelessWidget {
           children: [
             SizedBox(
               width: double.infinity,
-              height: 54,
+              height: 50,
               child: IconButton(
                 hoverColor: Get.theme.colorScheme.secondaryContainer.withOpacity(0.4),
                 style: ButtonStyle(
@@ -142,6 +142,6 @@ class Sidebar extends StatelessWidget {
       default:
         throw '未知的菜单类型';
     }
-    return SvgPicture.asset(iconFile, width: 28, height: 28);
+    return SvgPicture.asset(iconFile, width: 22, height: 22);
   }
 }
