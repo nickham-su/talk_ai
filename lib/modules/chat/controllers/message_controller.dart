@@ -3,12 +3,16 @@ import 'package:get/get.dart';
 
 import '../../../shared/models/message/generated_message.dart';
 import '../../../shared/services/generate_message_service.dart';
+import '../../../shared/services/message_service.dart';
 import '../models/conversation_message_model.dart';
 import '../repositorys/message_repository.dart';
 
 class MessageController extends GetxController {
   /// 生成消息服务
-  final service = Get.find<GenerateMessageService>();
+  final generateService = Get.find<GenerateMessageService>();
+
+  /// 消息服务
+  final messageService = Get.find<MessageService>();
 
   /// 消息ID
   final int msgId;
@@ -22,7 +26,7 @@ class MessageController extends GetxController {
   /// 监听生成列表更新ID
   int updateGenerateListListenerId = 0;
 
-  List<GeneratedMessage> get generateMessages => service.getMessages(msgId);
+  List<GeneratedMessage> get generateMessages => generateService.getMessages(msgId);
 
   MessageController(this.msgId);
 
@@ -30,12 +34,12 @@ class MessageController extends GetxController {
   void onInit() {
     super.onInit();
     // 监听消息更新
-    updateMessageListenerId = service.listenUpdateMessage(msgId, () {
+    updateMessageListenerId = generateService.listenUpdateMessage(msgId, () {
       refreshMessage();
     });
     // 监听生成列表更新
     updateGenerateListListenerId =
-        service.listenUpdateGenerateList(msgId, (messages) {
+        generateService.listenUpdateGenerateList(msgId, (messages) {
       refreshMessage();
     });
     // 刷新消息
@@ -45,8 +49,8 @@ class MessageController extends GetxController {
   @override
   void dispose() {
     // 移除监听
-    service.removeListenUpdateMessage(msgId, updateMessageListenerId);
-    service.removeListenUpdateGenerateList(msgId, updateGenerateListListenerId);
+    generateService.removeListenUpdateMessage(msgId, updateMessageListenerId);
+    generateService.removeListenUpdateGenerateList(msgId, updateGenerateListListenerId);
     super.dispose();
   }
 
@@ -55,14 +59,17 @@ class MessageController extends GetxController {
 
   /// 刷新消息
   void refreshMessage({bool init = false}) {
-    final newMessage = MessageRepository.getMessage(msgId);
+    final newMessage = messageService.getMessage(msgId);
+    if (newMessage == null) {
+      return;
+    }
 
     // 如果generateId改变，则添加监听
-    if (service.isGenerating &&
-        newMessage.generateId == service.currentGenerateId &&
+    if (generateService.isGenerating &&
+        newMessage.generateId == generateService.currentGenerateId &&
         newMessage.generateId != listenGenerateId) {
       listenGenerateId = newMessage.generateId;
-      service.listenGenerate(
+      generateService.listenGenerate(
         generateId: newMessage.generateId,
         onGenerate: (content) {
           refreshMessage();

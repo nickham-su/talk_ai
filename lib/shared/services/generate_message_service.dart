@@ -206,6 +206,7 @@ class GenerateMessageService extends GetxService {
     if (generatedMessage == null) {
       return;
     }
+    // TODO:需要修改保存逻辑
     MessageRepository.updateMessage(
       msgId: generatedMessage.msgId,
       content: generatedMessage.content,

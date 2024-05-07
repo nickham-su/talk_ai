@@ -37,28 +37,6 @@ class ConversationRepository {
     return result.map((e) => e[0] as int).toList().reversed.toList();
   }
 
-  /// 获取最后一个会话
-  static ConversationModel? getLastConversation(int chatAppId) {
-    final result = Sqlite.db.select('''
-      SELECT * FROM $tableName
-      WHERE chat_app_id = ?
-      ORDER BY updated_time DESC
-      LIMIT 1
-    ''', [chatAppId]);
-    if (result.isEmpty) {
-      return null;
-    }
-    final conversation = result[0];
-    final messages = MessageRepository.getMessageList(conversation[0] as int);
-    return ConversationModel(
-      conversationId: conversation[0] as int,
-      chatAppId: conversation[1] as int,
-      createdTime: DateTime.fromMillisecondsSinceEpoch(conversation[2] as int),
-      updatedTime: DateTime.fromMillisecondsSinceEpoch(conversation[3] as int),
-      messages: messages,
-    );
-  }
-
   /// 获取会话
   static ConversationModel? getConversation(int conversationId) {
     final result = Sqlite.db.select('''
@@ -70,6 +48,7 @@ class ConversationRepository {
       return null;
     }
     final conversation = result[0];
+    // TODO: 这样的调用要去掉
     final messages = MessageRepository.getMessageList(conversationId);
     return ConversationModel(
       conversationId: conversation[0] as int,
@@ -81,15 +60,13 @@ class ConversationRepository {
   }
 
   /// 插入会话
-  static int insertConversation({
-    required int chatAppId,
-  }) {
+  static ConversationModel insertConversation(int chatAppId) {
     final createdTime = DateTime.now().millisecondsSinceEpoch;
     Sqlite.db.execute('''
       INSERT INTO $tableName (chat_app_id, created_time, updated_time)
       VALUES (?, ?, ?)
     ''', [chatAppId, createdTime, createdTime]);
-    return Sqlite.db.lastInsertRowId;
+    return getConversation(Sqlite.db.lastInsertRowId)!;
   }
 
   /// 删除会话

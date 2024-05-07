@@ -11,8 +11,10 @@ import '../../../shared/components/snackbar.dart';
 import '../../../shared/models/llm/llm_model.dart';
 import '../../../shared/models/message/message_status.dart';
 import '../../../shared/models/message/generated_message.dart';
+import '../../../shared/services/conversation_service.dart';
 import '../../../shared/services/generate_message_service.dart';
 import '../../../shared/services/llm_service.dart';
+import '../../../shared/services/message_service.dart';
 import '../../../shared/utils/sqlite.dart';
 import '../models/chat_app_model.dart';
 import '../models/conversation_message_model.dart';
@@ -57,6 +59,12 @@ class ChatAppController extends GetxController {
 
   /// 生成消息服务
   final generateMessageService = Get.find<GenerateMessageService>();
+
+  /// 会话服务
+  final conversationService = Get.find<ConversationService>();
+
+  /// 消息服务
+  final messageService = Get.find<MessageService>();
 
   /// 发送中状态
   get isSending => generateMessageService.isGenerating;
@@ -131,12 +139,13 @@ class ChatAppController extends GetxController {
 
   /// 获取会话列表
   fetchConversationList(int chatAppId) async {
-    final results = await _asyncConversationList(chatAppId, null);
-    topConversationIds = results[0];
-    bottomConversationIds = results[1];
+    final all = await conversationService.getAllConversationIds(chatAppId);
+    const int n = 2;
+    topConversationIds = all.sublist(0, max(0, all.length - n));
+    bottomConversationIds = all.sublist(max(0, all.length - n));
 
     // 如果会话列表为空，则创建新会话
-    if (topConversationIds.isEmpty && bottomConversationIds.isEmpty) {
+    if (all.isEmpty) {
       createConversation();
     }
 
@@ -175,22 +184,21 @@ class ChatAppController extends GetxController {
     // 如果会话列表最后一个会话中，没有任何用户消息，则当前就是新会话，不再创建
     if (bottomConversationIds.isNotEmpty) {
       final messages =
-          MessageRepository.getMessageList(bottomConversationIds.last);
+          messageService.getMessageList(bottomConversationIds.last);
       if (messages.every((element) => element.role != MessageRole.user)) {
         return;
       }
     }
 
     // 创建新会话
-    final conversationId = ConversationRepository.insertConversation(
-      chatAppId: chatApp!.chatAppId,
-    );
-    bottomConversationIds.add(conversationId);
+    final conversation =
+        conversationService.insertConversation(chatApp!.chatAppId);
+    bottomConversationIds.add(conversation.conversationId);
 
     // 插入系统消息
-    MessageRepository.insertMessage(
+    messageService.insertMessage(
       chatAppId: chatApp!.chatAppId,
-      conversationId: conversationId,
+      conversationId: conversation.conversationId,
       role: MessageRole.system,
       content: chatApp!.prompt,
       status: MessageStatus.completed,
@@ -203,13 +211,14 @@ class ChatAppController extends GetxController {
   }
 
   /// 删除会话
-  void removeConversation(int conversationId) {
+  void removeConversation(int conversationId) async {
     // 删除会话
-    ConversationRepository.deleteConversation(conversationId: conversationId);
+    await conversationService.deleteConversation(
+        conversationId: conversationId);
     // 删除消息和生成记录
-    final messages = MessageRepository.getMessageList(conversationId);
+    final messages = messageService.getMessageList(conversationId);
     for (var m in messages) {
-      MessageRepository.deleteMessage(msgId: m.msgId);
+      messageService.deleteMessage(msgId: m.msgId);
       generateMessageService.removeMessages(m.msgId);
     }
     // 从会话列表中删除
@@ -304,7 +313,7 @@ class ChatAppController extends GetxController {
 
     // 查询历史消息
     List<ConversationMessageModel> messages =
-        MessageRepository.getMessageList(conversationId);
+        messageService.getMessageList(conversationId);
 
     // 最新的助理消息
     ConversationMessageModel? lastAssistantMsg;
@@ -328,10 +337,10 @@ class ChatAppController extends GetxController {
     // 记录使用chatApp
     useChatApp();
     // 更新会话时间
-    ConversationRepository.updateConversationTime(conversationId);
+    conversationService.updateConversationTime(conversationId);
 
     // 插入用户消息
-    MessageRepository.insertMessage(
+    messageService.insertMessage(
       chatAppId: chatApp!.chatAppId,
       conversationId: conversationId,
       role: MessageRole.user,
@@ -340,7 +349,7 @@ class ChatAppController extends GetxController {
     );
 
     // 查询历史消息
-    messages = MessageRepository.getMessageList(conversationId);
+    messages = messageService.getMessageList(conversationId);
 
     // 生成消息
     _generateMessage(
@@ -384,7 +393,11 @@ class ChatAppController extends GetxController {
       return;
     }
 
-    final message = MessageRepository.getMessage(msgId);
+    final message = messageService.getMessage(msgId);
+    if (message == null) {
+      snackbar('提示', '消息不存在');
+      return;
+    }
     if (message.role != MessageRole.assistant) {
       throw Exception('只能再次生成机器人消息');
     }
@@ -409,7 +422,7 @@ class ChatAppController extends GetxController {
     useChatApp();
 
     // 查询历史消息
-    final messages = MessageRepository.getMessageList(message.conversationId);
+    final messages = messageService.getMessageList(message.conversationId);
     // 当前消息是否为最后一条消息，如果是，则需要自动滚动到底部
     final isLast = messages.last.msgId == message.msgId &&
         bottomConversationIds.last == message.conversationId;
@@ -444,7 +457,7 @@ class ChatAppController extends GetxController {
 
     if (assistantMsgId == null) {
       // 插入机器人消息
-      assistantMsgId = MessageRepository.insertMessage(
+      final assistantMsg = messageService.insertMessage(
         chatAppId: chatApp!.chatAppId,
         conversationId: conversationId,
         role: MessageRole.assistant,
@@ -453,9 +466,10 @@ class ChatAppController extends GetxController {
         llmId: llm.llmId,
         llmName: llm.name,
       );
+      assistantMsgId = assistantMsg.msgId;
     } else {
       // 更新消息状态
-      MessageRepository.updateMessage(
+      messageService.updateMessage(
         msgId: assistantMsgId,
         status: MessageStatus.unsent,
         content: '',
@@ -471,7 +485,7 @@ class ChatAppController extends GetxController {
       msgId: assistantMsgId,
       messages: msgList,
       onGenerate: (content) {
-        MessageRepository.updateMessage(
+        messageService.updateMessage(
           msgId: assistantMsgId!,
           content: content,
           status: MessageStatus.sending,
@@ -479,7 +493,7 @@ class ChatAppController extends GetxController {
         if (autoScroll) _attachToBottom();
       },
       onDone: () {
-        MessageRepository.updateMessage(
+        messageService.updateMessage(
           msgId: assistantMsgId!,
           status: MessageStatus.completed,
         );
@@ -487,7 +501,7 @@ class ChatAppController extends GetxController {
         if (autoScroll) _attachToBottom(always: true);
       },
       onError: (e) {
-        MessageRepository.updateMessage(
+        messageService.updateMessage(
           msgId: assistantMsgId!,
           status: MessageStatus.failed,
         );
@@ -495,7 +509,7 @@ class ChatAppController extends GetxController {
         if (autoScroll) _attachToBottom(always: true);
       },
       onCancel: () {
-        MessageRepository.updateMessage(
+        messageService.updateMessage(
           msgId: assistantMsgId!,
           status: MessageStatus.cancel,
         );
@@ -505,7 +519,7 @@ class ChatAppController extends GetxController {
     );
 
     // 更新generateId
-    MessageRepository.updateMessage(
+    messageService.updateMessage(
       msgId: assistantMsgId,
       generateId: generateId,
     );
@@ -521,13 +535,13 @@ class ChatAppController extends GetxController {
   /// 删除引用消息之后的消息
   bool _removeMessagesAfterQuote(ConversationMessageModel quoteMsg) {
     bool isDeleted = false;
-    final messages = MessageRepository.getMessageList(quoteMsg.conversationId);
+    final messages = messageService.getMessageList(quoteMsg.conversationId);
     if (quoteMsg.role == MessageRole.user) {
       // 修改消息，删除引用消息之后的消息，包括引用消息
       for (var message in messages) {
         if (message.msgId >= quoteMsg.msgId) {
           isDeleted = true;
-          MessageRepository.deleteMessage(msgId: message.msgId);
+          messageService.deleteMessage(msgId: message.msgId);
           generateMessageService.removeMessages(message.msgId);
         }
       }
@@ -536,7 +550,7 @@ class ChatAppController extends GetxController {
       for (var message in messages) {
         if (message.msgId > quoteMsg.msgId) {
           isDeleted = true;
-          MessageRepository.deleteMessage(msgId: message.msgId);
+          messageService.deleteMessage(msgId: message.msgId);
           generateMessageService.removeMessages(message.msgId);
         }
       }
@@ -546,11 +560,15 @@ class ChatAppController extends GetxController {
 
   /// 删除当前消息以及之后的所有消息
   void removeMessage(int msgId) async {
-    final message = MessageRepository.getMessage(msgId);
-    final messages = MessageRepository.getMessageList(message.conversationId);
+    final message = messageService.getMessage(msgId);
+    if (message == null) {
+      snackbar('提示', '消息不存在');
+      return;
+    }
+    final messages = messageService.getMessageList(message.conversationId);
     for (var m in messages) {
       if (m.msgId >= msgId) {
-        MessageRepository.deleteMessage(msgId: m.msgId);
+        messageService.deleteMessage(msgId: m.msgId);
         // 删除生成记录
         generateMessageService.removeMessages(m.msgId);
       }
@@ -568,15 +586,14 @@ class ChatAppController extends GetxController {
 
   /// 引用消息
   void quote(int msgId) async {
-    late ConversationMessageModel quoteMessage;
-    try {
-      quoteMessage = MessageRepository.getMessage(msgId);
-    } catch (e) {
+    final quoteMessage = messageService.getMessage(msgId);
+    if (quoteMessage == null) {
       snackbar('提示', '引用的消息不存在');
       return;
     }
+
     // 更新会话时间
-    ConversationRepository.updateConversationTime(quoteMessage!.conversationId);
+    conversationService.updateConversationTime(quoteMessage!.conversationId);
 
     // 删除引用消息之后的消息
     if (_removeMessagesAfterQuote(quoteMessage!)) {
@@ -653,7 +670,7 @@ class ChatAppController extends GetxController {
     }
 
     // 搜索消息
-    final result = MessageRepository.search(
+    final result = messageService.search(
       chatAppId: chatApp!.chatAppId,
       keyword: keyword,
       startMsgId: startMsgId,
@@ -682,6 +699,14 @@ class ChatAppController extends GetxController {
     );
     topConversationIds = results[0];
     bottomConversationIds = results[1];
+
+    // 重新加载列表，将搜索结果放在bottomConversationIds的第一条
+    // final all =
+    //     await conversationService.getAllConversationIds(chatApp!.chatAppId);
+    // final index = all.indexOf(currentMessage!.conversationId);
+    // topConversationIds = all.sublist(0, index);
+    // bottomConversationIds = all.sublist(index);
+
     update();
 
     // 滚动到当前消息
@@ -702,7 +727,10 @@ class ChatAppController extends GetxController {
   /// 是否为最后一条消息
   bool isLastMessage({required int msgId, int? conversationId}) {
     if (conversationId == null) {
-      final message = MessageRepository.getMessage(msgId);
+      final message = messageService.getMessage(msgId);
+      if (message == null) {
+        return false;
+      }
       conversationId = message.conversationId;
     }
 
@@ -710,7 +738,7 @@ class ChatAppController extends GetxController {
       return false;
     }
 
-    final lastMessage = MessageRepository.getLastMessage(conversationId);
+    final lastMessage = messageService.getLastMessage(conversationId);
     return msgId == lastMessage?.msgId;
   }
 
