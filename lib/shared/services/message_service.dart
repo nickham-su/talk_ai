@@ -9,13 +9,13 @@ class MessageService extends GetxService {
   /// 缓存消息, key: msgId
   late Map<int, ConversationMessageModel> _cachedMessages;
 
-  /// 消息列表缓存, key: conversationId
-  late Map<int, List<ConversationMessageModel>> _cachedMessageList;
+  /// 消息id列表缓存, key: conversationId
+  late Map<int, List<int>> _cachedMessageIds;
 
   @override
   void onInit() {
     _cachedMessages = {};
-    _cachedMessageList = {};
+    _cachedMessageIds = {};
     super.onInit();
   }
 
@@ -26,20 +26,33 @@ class MessageService extends GetxService {
 
   /// 清除消息列表缓存
   void clearMessageListCache(int conversationId) {
-    _cachedMessageList.remove(conversationId);
+    _cachedMessageIds.remove(conversationId);
   }
 
   /// 获取消息列表
   List<ConversationMessageModel> getMessageList(int conversationId) {
-    if (_cachedMessageList.containsKey(conversationId)) {
-      return _cachedMessageList[conversationId]!;
+    if (!_cachedMessageIds.containsKey(conversationId)) {
+      _cachedMessageIds[conversationId] =
+          MessageRepository.getMessageIds(conversationId);
     }
-    final messages = MessageRepository.getMessageList(conversationId);
-    _cachedMessageList[conversationId] = messages;
-    for (final message in messages) {
-      _cachedMessages[message.msgId] = message;
+    return _cachedMessageIds[conversationId]!.map((msgId) {
+      if (!_cachedMessages.containsKey(msgId)) {
+        final message = MessageRepository.getMessage(msgId);
+        if (message != null) {
+          _cachedMessages[msgId] = message;
+        }
+      }
+      return _cachedMessages[msgId]!;
+    }).toList();
+  }
+
+  /// 获取消息id列表
+  List<int> getMessageIds(int conversationId) {
+    if (!_cachedMessageIds.containsKey(conversationId)) {
+      _cachedMessageIds[conversationId] =
+          MessageRepository.getMessageIds(conversationId);
     }
-    return messages;
+    return _cachedMessageIds[conversationId]!;
   }
 
   /// 获取消息
@@ -149,19 +162,24 @@ class MessageService extends GetxService {
       throw ArgumentError('msgId, conversationId, chatAppId不能同时为空');
     }
     if (msgId != null) {
+      final message = getMessage(msgId);
+      if (message != null) {
+        // 删除消息列表缓存
+        clearMessageListCache(message.conversationId);
+      }
       // 删除消息缓存
       clearMessageCache(msgId);
     } else if (conversationId != null) {
       final messages = getMessageList(conversationId);
       for (final message in messages) {
-        _cachedMessages.remove(message.msgId);
+        clearMessageCache(message.msgId);
       }
       // 删除消息列表缓存
       clearMessageListCache(conversationId);
     } else if (chatAppId != null) {
       // 删除全部缓存，重新获取
       _cachedMessages.clear();
-      _cachedMessageList.clear();
+      _cachedMessageIds.clear();
     }
     // 从数据库删除消息
     MessageRepository.deleteMessage(

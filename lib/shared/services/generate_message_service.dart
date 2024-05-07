@@ -10,12 +10,8 @@ import '../models/message/message_model.dart';
 import '../repositories/generated_message_repository.dart';
 import 'llm_service.dart';
 
-class Listener<T> {
-  final int listenerId; // 监听Id
-  final T handler; // 事件处理函数
-
-  Listener(this.handler, this.listenerId);
-}
+import '../models/event_listener/event_listener.dart';
+import 'message_service.dart';
 
 class GenerateMessageService extends GetxService {
   /// 当前生成的消息Id
@@ -37,10 +33,10 @@ class GenerateMessageService extends GetxService {
   final Map<int, List<void Function()>> _cancelHandlerMap = {};
 
   /// 消息更新事件处理函数缓存, key为msgId
-  final Map<int, List<Listener<void Function()>>> _updateMessageHandlerMap = {};
+  final Map<int, List<EventListener<void Function()>>> _updateMessageHandlerMap = {};
 
   /// 生成列表更新事件处理函数缓存
-  final Map<int, List<Listener<void Function(List<GeneratedMessage>)>>>
+  final Map<int, List<EventListener<void Function(List<GeneratedMessage>)>>>
       _updateGenerateListHandlerMap = {};
 
   /// 生成消息
@@ -206,8 +202,10 @@ class GenerateMessageService extends GetxService {
     if (generatedMessage == null) {
       return;
     }
-    // TODO:需要修改保存逻辑
-    MessageRepository.updateMessage(
+
+    /// 消息服务
+    final messageService = Get.find<MessageService>();
+    messageService.updateMessage(
       msgId: generatedMessage.msgId,
       content: generatedMessage.content,
       status: generatedMessage.status,
@@ -301,23 +299,24 @@ class GenerateMessageService extends GetxService {
     });
   }
 
-  /// listenerId索引
-  int _listenerId = 0;
+
 
   /// 监听消息更新
-  int listenUpdateMessage(int msgId, void Function() handler) {
+  EventListener<void Function()> listenUpdateMessage(int msgId, void Function() handler) {
     if (_updateMessageHandlerMap[msgId] == null) {
       _updateMessageHandlerMap[msgId] = [];
     }
-    final listenerId = _listenerId++;
-    _updateMessageHandlerMap[msgId]!.add(Listener(handler, listenerId));
-    return listenerId;
+
+    final listener = EventListener(handler);
+
+    _updateMessageHandlerMap[msgId]!.add(listener);
+    return listener;
   }
 
   /// 移除监听消息更新
-  void removeListenUpdateMessage(int msgId, int listenerId) {
+  void removeListenUpdateMessage(int msgId, EventListener<void Function()> listener) {
     _updateMessageHandlerMap[msgId]
-        ?.removeWhere((element) => element.listenerId == listenerId);
+        ?.removeWhere((element) => element.id == listener.id);
   }
 
   /// 更新消息
@@ -331,20 +330,20 @@ class GenerateMessageService extends GetxService {
   }
 
   /// 监听生成列表更新
-  int listenUpdateGenerateList(
+  EventListener<void Function(List<GeneratedMessage>)> listenUpdateGenerateList(
       int msgId, void Function(List<GeneratedMessage>) handler) {
     if (_updateGenerateListHandlerMap[msgId] == null) {
       _updateGenerateListHandlerMap[msgId] = [];
     }
-    final listenerId = _listenerId++;
-    _updateGenerateListHandlerMap[msgId]!.add(Listener(handler, listenerId));
-    return listenerId;
+    final listener = EventListener<void Function(List<GeneratedMessage>)>(handler);
+    _updateGenerateListHandlerMap[msgId]!.add(listener);
+    return listener;
   }
 
   /// 移除监听生成列表更新
-  void removeListenUpdateGenerateList(int msgId, int listenerId) {
+  void removeListenUpdateGenerateList(int msgId, EventListener<void Function(List<GeneratedMessage>)> listener) {
     _updateGenerateListHandlerMap[msgId]
-        ?.removeWhere((element) => element.listenerId == listenerId);
+        ?.removeWhere((element) => element.id == listener.id);
   }
 
   /// 更新生成列表

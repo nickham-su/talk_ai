@@ -1,6 +1,7 @@
 import 'package:TalkAI/shared/models/message/message_status.dart';
 import 'package:get/get.dart';
 
+import '../../../shared/models/event_listener/event_listener.dart';
 import '../../../shared/models/message/generated_message.dart';
 import '../../../shared/services/generate_message_service.dart';
 import '../../../shared/services/message_service.dart';
@@ -21,12 +22,14 @@ class MessageController extends GetxController {
   ConversationMessageModel? message;
 
   /// 监听消息更新ID
-  int updateMessageListenerId = 0;
+  late EventListener<void Function()> updateMessageListener;
 
   /// 监听生成列表更新ID
-  int updateGenerateListListenerId = 0;
+  late EventListener<void Function(List<GeneratedMessage>)>
+      updateGenerateListListener;
 
-  List<GeneratedMessage> get generateMessages => generateService.getMessages(msgId);
+  List<GeneratedMessage> get generateMessages =>
+      generateService.getMessages(msgId);
 
   MessageController(this.msgId);
 
@@ -34,11 +37,11 @@ class MessageController extends GetxController {
   void onInit() {
     super.onInit();
     // 监听消息更新
-    updateMessageListenerId = generateService.listenUpdateMessage(msgId, () {
+    updateMessageListener = generateService.listenUpdateMessage(msgId, () {
       refreshMessage();
     });
     // 监听生成列表更新
-    updateGenerateListListenerId =
+    updateGenerateListListener =
         generateService.listenUpdateGenerateList(msgId, (messages) {
       refreshMessage();
     });
@@ -49,8 +52,9 @@ class MessageController extends GetxController {
   @override
   void dispose() {
     // 移除监听
-    generateService.removeListenUpdateMessage(msgId, updateMessageListenerId);
-    generateService.removeListenUpdateGenerateList(msgId, updateGenerateListListenerId);
+    generateService.removeListenUpdateMessage(msgId, updateMessageListener);
+    generateService.removeListenUpdateGenerateList(
+        msgId, updateGenerateListListener);
     super.dispose();
   }
 
