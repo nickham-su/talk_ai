@@ -152,22 +152,6 @@ class ChatAppController extends GetxController {
     update();
   }
 
-  /// 异步获取会话列表，查询和分组都在后台线程运算
-  /// chatAppId：聊天App id
-  /// centerConversationId：中心会话id，如果为null，则bottomConversationIds保留最新的两条会话，其余的会话放在topConversationIds
-  /// 返回值：[topConversationIds, bottomConversationIds]
-  Future<List<List<int>>> _asyncConversationList(
-      int chatAppId, int? centerConversationId) {
-    return compute<Map<String, dynamic>, List<List<int>>>(
-      _threadGetConversationIds,
-      {
-        'dbDir': Sqlite.dbDir,
-        'chatAppId': chatAppId,
-        'centerConversationId': centerConversationId,
-      },
-    );
-  }
-
   /// 清空会话列表
   clearConversationList() {
     topConversationIds.clear();
@@ -693,19 +677,11 @@ class ChatAppController extends GetxController {
     currentMessageKey = GlobalKey();
 
     // 重新加载列表，将搜索结果放在bottomConversationIds的第一条
-    final results = await _asyncConversationList(
-      chatApp!.chatAppId,
-      currentMessage!.conversationId,
-    );
-    topConversationIds = results[0];
-    bottomConversationIds = results[1];
-
-    // 重新加载列表，将搜索结果放在bottomConversationIds的第一条
-    // final all =
-    //     await conversationService.getAllConversationIds(chatApp!.chatAppId);
-    // final index = all.indexOf(currentMessage!.conversationId);
-    // topConversationIds = all.sublist(0, index);
-    // bottomConversationIds = all.sublist(index);
+    final all =
+        await conversationService.getAllConversationIds(chatApp!.chatAppId);
+    final index = all.indexOf(currentMessage!.conversationId);
+    topConversationIds = all.sublist(0, index);
+    bottomConversationIds = all.sublist(index);
 
     update();
 
@@ -848,35 +824,4 @@ class ChatAppController extends GetxController {
       }
     });
   }
-}
-
-/// 使用线程获取会话id列表，查询和分组都在后台线程运算
-List<List<int>> _threadGetConversationIds(Map<String, dynamic> params) {
-  Sqlite.openDB(params['dbDir']);
-  final chatAppId = params['chatAppId'];
-  final centerConversationId = params['centerConversationId'];
-  if (chatAppId == null) {
-    return [[], []];
-  }
-
-  final allList = ConversationRepository.getAllConversationIds(chatAppId);
-  Sqlite.dispose();
-  if (allList.isEmpty) {
-    return [[], []];
-  }
-  if (centerConversationId == null) {
-    final n = min(2, allList.length);
-    return [
-      allList.sublist(0, allList.length - n),
-      allList.sublist(allList.length - n),
-    ];
-  }
-  final index = allList.indexOf(centerConversationId);
-  if (index == -1) {
-    return [[], []];
-  }
-  return [
-    allList.sublist(0, index),
-    allList.sublist(index),
-  ];
 }

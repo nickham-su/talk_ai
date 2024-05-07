@@ -48,14 +48,11 @@ class ConversationRepository {
       return null;
     }
     final conversation = result[0];
-    // TODO: 这样的调用要去掉
-    final messages = MessageRepository.getMessageList(conversationId);
     return ConversationModel(
       conversationId: conversation[0] as int,
       chatAppId: conversation[1] as int,
       createdTime: DateTime.fromMillisecondsSinceEpoch(conversation[2] as int),
       updatedTime: DateTime.fromMillisecondsSinceEpoch(conversation[3] as int),
-      messages: messages,
     );
   }
 

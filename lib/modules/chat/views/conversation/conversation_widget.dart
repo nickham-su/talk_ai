@@ -68,7 +68,7 @@ class ConversationWidget extends StatelessWidget {
                   ],
                 ),
               ),
-              ...(controller.conversation?.messages ?? []).map((e) {
+              ...controller.messages.map((e) {
                 late Key key;
                 if (chatAppController.currentMessage != null &&
                     chatAppController.currentMessage!.msgId == e.msgId &&
@@ -77,7 +77,6 @@ class ConversationWidget extends StatelessWidget {
                 } else {
                   key = ValueKey('key_message_${e.msgId}');
                 }
-
                 return MessageWidget(
                   key: key,
                   msgId: e.msgId,
