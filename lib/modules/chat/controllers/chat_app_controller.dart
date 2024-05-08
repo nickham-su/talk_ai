@@ -109,27 +109,29 @@ class ChatAppController extends GetxController {
       scrollToBottom(animate: false);
       // 聚焦输入框
       inputFocusNode.requestFocus();
-      // 如果正在生成消息，则添加监听，吸附到底部
+
+      final generateMessage =
+          generateMessageService.getCurrentGeneratedMessage();
+      // 判断是否正在生成，且生成的消息是当前chatApp的消息
       if (generateMessageService.isGenerating &&
-          generateMessageService.getCurrentGeneratedMessage()!.chatAppId ==
-              chatApp.chatAppId) {
-        generateMessageService.listenGenerate(
-          onGenerate: (content) {
+          generateMessage!.chatAppId == chatApp.chatAppId) {
+        // 判断是否是最后一个会话的最后一条消息
+        final lastConversationId =
+            await conversationService.getLastConversationId(chatApp.chatAppId);
+        if (lastConversationId == null) return;
+        final lastMessage = messageService.getLastMessage(lastConversationId);
+        if (lastMessage?.msgId != generateMessage.msgId) return;
+
+        // 监听生成消息
+        generateMessageService.listenGenerate2(generateMessage.generateId,
+            (event) {
+          if (event.type == GenerateEventType.generate) {
             _attachToBottom();
-          },
-          onDone: () {
+          } else {
             if (!isClosed) update(['editor_toolbar']);
             _attachToBottom(always: true);
-          },
-          onError: (e) {
-            if (!isClosed) update(['editor_toolbar']);
-            _attachToBottom(always: true);
-          },
-          onCancel: () {
-            if (!isClosed) update(['editor_toolbar']);
-            _attachToBottom(always: true);
-          },
-        );
+          }
+        });
       }
     } else {
       // 清空会话列表

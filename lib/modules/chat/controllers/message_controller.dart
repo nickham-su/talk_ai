@@ -1,7 +1,7 @@
 import 'package:TalkAI/shared/models/message/message_status.dart';
 import 'package:get/get.dart';
 
-import '../../../shared/models/event_listener/event_listener.dart';
+import '../../../shared/models/event_queue/event_listener.dart';
 import '../../../shared/models/message/generated_message.dart';
 import '../../../shared/services/generate_message_service.dart';
 import '../../../shared/services/message_service.dart';
@@ -22,11 +22,10 @@ class MessageController extends GetxController {
   ConversationMessageModel? message;
 
   /// 监听消息更新ID
-  late EventListener<void Function()> updateMessageListener;
+  late EventListener updateMessageListener;
 
   /// 监听生成列表更新ID
-  late EventListener<void Function(List<GeneratedMessage>)>
-      updateGenerateListListener;
+  late EventListener updateGenerateListListener;
 
   List<GeneratedMessage> get generateMessages =>
       generateService.getMessages(msgId);
@@ -37,9 +36,11 @@ class MessageController extends GetxController {
   void onInit() {
     super.onInit();
     // 监听消息更新
-    updateMessageListener = generateService.listenUpdateMessage(msgId, () {
+    updateMessageListener =
+        messageService.listenMessageChange(msgId, (message) {
       refreshMessage();
     });
+
     // 监听生成列表更新
     updateGenerateListListener =
         generateService.listenUpdateGenerateList(msgId, (messages) {
@@ -52,9 +53,8 @@ class MessageController extends GetxController {
   @override
   void dispose() {
     // 移除监听
-    generateService.removeListenUpdateMessage(msgId, updateMessageListener);
-    generateService.removeListenUpdateGenerateList(
-        msgId, updateGenerateListListener);
+    updateMessageListener.cancel();
+    updateGenerateListListener.cancel();
     super.dispose();
   }
 
@@ -73,24 +73,17 @@ class MessageController extends GetxController {
         newMessage.generateId == generateService.currentGenerateId &&
         newMessage.generateId != listenGenerateId) {
       listenGenerateId = newMessage.generateId;
-      generateService.listenGenerate(
-        generateId: newMessage.generateId,
-        onGenerate: (content) {
-          refreshMessage();
-        },
-        onDone: () {
-          listenGenerateId = 0;
-          refreshMessage();
-        },
-        onError: (e) {
-          listenGenerateId = 0;
-          refreshMessage();
-        },
-        onCancel: () {
-          listenGenerateId = 0;
-          refreshMessage();
-        },
-      );
+      generateService.listenGenerate2(listenGenerateId, (event) {
+        switch (event.type) {
+          case GenerateEventType.generate:
+            refreshMessage();
+            break;
+          default:
+            listenGenerateId = 0;
+            refreshMessage();
+            break;
+        }
+      });
     }
 
     message = newMessage;

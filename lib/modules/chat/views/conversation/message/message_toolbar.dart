@@ -7,6 +7,7 @@ import '../../../../../shared/models/llm/llm_model.dart';
 import '../../../../../shared/models/message/message_status.dart';
 import '../../../../../shared/models/message/message_model.dart';
 import '../../../../../shared/services/generate_message_service.dart';
+import '../../../../../shared/services/message_service.dart';
 import '../../../controllers/chat_app_controller.dart';
 import '../../../models/conversation_message_model.dart';
 
@@ -127,7 +128,24 @@ class AssistantMessageToolbar extends StatelessWidget {
             tooltip: '删除',
             onPressed: () {
               service.removeMessage(message.generateId);
-              service.saveMessage(genMsgList.last.generateId);
+              final list = service.getMessages(message.msgId);
+              if (list.isEmpty) {
+                return;
+              }
+
+              /// 最后一条生成的消息
+              final lastGenerateMessage = list.last;
+
+              /// 保存消息
+              final messageService = Get.find<MessageService>();
+              messageService.updateMessage(
+                msgId: lastGenerateMessage.msgId,
+                content: lastGenerateMessage.content,
+                status: lastGenerateMessage.status,
+                llmId: lastGenerateMessage.llmId,
+                llmName: lastGenerateMessage.llmName,
+                generateId: lastGenerateMessage.generateId,
+              );
             },
           ),
         ),
