@@ -3,11 +3,13 @@ import 'package:get/get.dart';
 
 class CancelButton extends StatelessWidget {
   final String text;
+  final Size? minimumSize;
   final void Function()? onPressed;
 
   const CancelButton({
     super.key,
     required this.text,
+    this.minimumSize,
     this.onPressed,
   });
 
@@ -17,6 +19,7 @@ class CancelButton extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         backgroundColor: Get.theme.colorScheme.secondaryContainer,
         foregroundColor: Get.theme.colorScheme.secondary,
+        minimumSize: minimumSize,
       ),
       onPressed: onPressed,
       child: Text(

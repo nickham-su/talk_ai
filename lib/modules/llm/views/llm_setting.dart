@@ -72,13 +72,15 @@ class LLMSetting extends GetView<LLMController> {
     if (controller.isCreate || controller.isEdit) {
       buttons.add(ConfirmButton(
         text: '保存',
+        minimumSize: const Size(120, 40),
         onPressed: () {
           if (_formKey.currentState!.validate()) {
             try {
-              controller.saveLLM();
               if (controller.isCreate) {
+                controller.createLLM();
                 snackbar('恭喜您', '模型添加成功');
               } else {
+                controller.editLLM();
                 snackbar('恭喜您', '模型设置成功');
               }
             } catch (e) {
@@ -90,6 +92,21 @@ class LLMSetting extends GetView<LLMController> {
     }
 
     if (controller.isEdit) {
+      buttons.add(const SizedBox(width: 16));
+
+      buttons.add(ConfirmButton(
+        text: '复制模型',
+        minimumSize: const Size(120, 40),
+        onPressed: () {
+          try {
+            controller.copyLLM();
+            snackbar('恭喜您', '模型已复制');
+          } catch (e) {
+            snackbar('保存失败', e.toString());
+          }
+        },
+      ));
+
       buttons.add(const SizedBox(width: 16));
 
       buttons.add(DangerButton(
