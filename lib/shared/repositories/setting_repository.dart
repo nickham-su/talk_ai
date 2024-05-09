@@ -57,6 +57,18 @@ class SettingRepository {
     return box.get('sidebar_width', defaultValue: defaultValue);
   }
 
+  /// 设置输入框高度
+  static setInputHeight(double height) {
+    final box = Hive.box(_boxName);
+    box.put('input_height', height);
+  }
+
+  /// 获取输入框高度
+  static double getInputHeight(double defaultValue) {
+    final box = Hive.box(_boxName);
+    return box.get('input_height', defaultValue: defaultValue);
+  }
+
   /// 设置窗口大小
   static setWindowSize(Size size) {
     final box = Hive.box(_boxName);

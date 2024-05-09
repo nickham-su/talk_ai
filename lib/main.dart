@@ -126,7 +126,6 @@ class MyWindowListener with WindowListener {
   void onWindowResized() async {
     /// 监听窗口大小变化，保存窗口大小
     final size = await windowManager.getSize();
-    print('window size: $size');
     SettingRepository.setWindowSize(size);
   }
 }
