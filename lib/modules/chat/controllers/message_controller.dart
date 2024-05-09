@@ -73,7 +73,7 @@ class MessageController extends GetxController {
         newMessage.generateId == generateService.currentGenerateId &&
         newMessage.generateId != listenGenerateId) {
       listenGenerateId = newMessage.generateId;
-      generateService.listenGenerate2(listenGenerateId, (event) {
+      generateService.listenGenerate(listenGenerateId, (event) {
         switch (event.type) {
           case GenerateEventType.generate:
             refreshMessage();

@@ -10,8 +10,7 @@ class EventQueue<T> {
   /// channel: 事件通道
   /// callback: 事件处理函数
   /// 返回值: 监听器
-  EventListener addListener(
-      dynamic channel, void Function(Event<T>) callback) {
+  EventListener addListener(dynamic channel, void Function(Event<T>) callback) {
     if (!channels.containsKey(channel)) {
       channels[channel] = [];
     }
@@ -37,6 +36,17 @@ class EventQueue<T> {
           listener.handler(event);
         } catch (e) {}
       });
+    });
+  }
+
+  /// 清除监听器
+  void clear({dynamic channel}) {
+    Future.delayed(Duration.zero, () {
+      if (channel == null) {
+        channels.clear();
+      } else if (channels.containsKey(channel)) {
+        channels.remove(channel);
+      }
     });
   }
 }

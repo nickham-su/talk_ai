@@ -26,11 +26,6 @@ class MessagePaginationController extends GetxController {
 
   /// 选择消息
   void selectMessage(int index) async {
-    if (generateService.isGenerating) {
-      //显示提示信息
-      snackbar('提示', '消息生成中，请稍后');
-      return;
-    }
     // 判断消息是否是最后一条消息
     final message = messages[index];
     final chatAppController = Get.find<ChatAppController>();
@@ -43,8 +38,6 @@ class MessagePaginationController extends GetxController {
       snackbar('提示', '操作失败');
       return;
     }
-
-    // TODO: 需要调整时间监听
     messageService.updateMessage(
       msgId: generatedMessage.msgId,
       content: generatedMessage.content,

@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../shared/components/snackbar.dart';
+import '../../../shared/models/event_queue/event_listener.dart';
 import '../../../shared/models/llm/llm_model.dart';
 import '../../../shared/models/message/message_status.dart';
 import '../../../shared/models/message/generated_message.dart';
@@ -70,6 +71,13 @@ class ChatAppController extends GetxController {
   get isSending => generateMessageService.isGenerating;
 
   @override
+  void onInit() {
+    // 监听消息生成更新editor_toolbar
+    _updateToolbarByGenerate();
+    super.onInit();
+  }
+
+  @override
   void onClose() {
     inputController.dispose();
     inputFocusNode.dispose();
@@ -110,29 +118,8 @@ class ChatAppController extends GetxController {
       // 聚焦输入框
       inputFocusNode.requestFocus();
 
-      final generateMessage =
-          generateMessageService.getCurrentGeneratedMessage();
-      // 判断是否正在生成，且生成的消息是当前chatApp的消息
-      if (generateMessageService.isGenerating &&
-          generateMessage!.chatAppId == chatApp.chatAppId) {
-        // 判断是否是最后一个会话的最后一条消息
-        final lastConversationId =
-            await conversationService.getLastConversationId(chatApp.chatAppId);
-        if (lastConversationId == null) return;
-        final lastMessage = messageService.getLastMessage(lastConversationId);
-        if (lastMessage?.msgId != generateMessage.msgId) return;
-
-        // 监听生成消息
-        generateMessageService.listenGenerate2(generateMessage.generateId,
-            (event) {
-          if (event.type == GenerateEventType.generate) {
-            _attachToBottom();
-          } else {
-            if (!isClosed) update(['editor_toolbar']);
-            _attachToBottom(always: true);
-          }
-        });
-      }
+      // 判断是否正在生成，且生成的消息是当前chatApp的消息，监听生成消息
+      _scrollToBottomByGenerate();
     } else {
       // 清空会话列表
       clearConversationList();
@@ -464,45 +451,54 @@ class ChatAppController extends GetxController {
       );
     }
 
+    // 生成消息
     generateId = generateMessageService.generateMessage(
       generateId: generateId,
       llmId: llm.llmId,
       chatAppId: chatApp!.chatAppId,
       msgId: assistantMsgId,
       messages: msgList,
-      onGenerate: (content) {
-        messageService.updateMessage(
-          msgId: assistantMsgId!,
-          content: content,
-          status: MessageStatus.sending,
-        );
-        if (autoScroll) _attachToBottom();
-      },
-      onDone: () {
-        messageService.updateMessage(
-          msgId: assistantMsgId!,
-          status: MessageStatus.completed,
-        );
-        if (!isClosed) update(['editor_toolbar']);
-        if (autoScroll) _attachToBottom(always: true);
-      },
-      onError: (e) {
-        messageService.updateMessage(
-          msgId: assistantMsgId!,
-          status: MessageStatus.failed,
-        );
-        if (!isClosed) update(['editor_toolbar']);
-        if (autoScroll) _attachToBottom(always: true);
-      },
-      onCancel: () {
-        messageService.updateMessage(
-          msgId: assistantMsgId!,
-          status: MessageStatus.cancel,
-        );
-        if (!isClosed) update(['editor_toolbar']);
-        if (autoScroll) _attachToBottom(always: true);
-      },
     );
+
+    // 监听事件，更新消息
+    generateMessageService.listenGenerate(generateId, (event) {
+      final message = messageService.getMessage(assistantMsgId!);
+      if (message?.generateId != generateId) {
+        return;
+      }
+      switch (event.type) {
+        case GenerateEventType.generate:
+          messageService.updateMessage(
+            msgId: assistantMsgId!,
+            content: event.data as String,
+            status: MessageStatus.sending,
+          );
+          break;
+        case GenerateEventType.done:
+          messageService.updateMessage(
+            msgId: assistantMsgId!,
+            status: MessageStatus.completed,
+          );
+          break;
+        case GenerateEventType.error:
+          messageService.updateMessage(
+            msgId: assistantMsgId!,
+            status: MessageStatus.failed,
+          );
+          break;
+        case GenerateEventType.cancel:
+          messageService.updateMessage(
+            msgId: assistantMsgId!,
+            status: MessageStatus.cancel,
+          );
+          break;
+      }
+    });
+
+    // 监听消息生成并滚动到底部
+    _scrollToBottomByGenerate();
+    // 更新工具栏
+    _updateToolbarByGenerate();
 
     // 更新generateId
     messageService.updateMessage(
@@ -511,6 +507,41 @@ class ChatAppController extends GetxController {
     );
 
     update(['editor_toolbar']);
+  }
+
+  /// 监听消息生成更新editor_toolbar，生成结束时，更新工具栏
+  void _updateToolbarByGenerate() {
+    final generateId = generateMessageService.currentGenerateId;
+    if (generateId == null) return;
+    generateMessageService.listenGenerate(generateId, (event) {
+      if (isClosed) return;
+      if (event.type != GenerateEventType.generate) {
+        update(['editor_toolbar']);
+      }
+    });
+  }
+
+  /// 滚动到底部监听
+  EventListener? _scrollToBottomByGenerateListener;
+
+  /// 监听消息生成并滚动到底部
+  void _scrollToBottomByGenerate() {
+    // 判断是否正在生成，且生成的消息是当前chatApp的消息，监听生成消息
+    if (!generateMessageService.isGenerating) return;
+    final genMsg = generateMessageService.getCurrentGeneratedMessage();
+    if (genMsg!.chatAppId != chatApp?.chatAppId) return;
+
+    // 先取消之前的监听
+    _scrollToBottomByGenerateListener?.cancel();
+    // 监听生成消息
+    _scrollToBottomByGenerateListener =
+        generateMessageService.listenGenerate(genMsg.generateId, (event) {
+      if (isClosed) return;
+      // 如果是最后一条消息，则滚动到底部
+      if (isLastMessage(msgId: genMsg.msgId)) {
+        _attachToBottom(always: event.type != GenerateEventType.generate);
+      }
+    });
   }
 
   /// 停止接收

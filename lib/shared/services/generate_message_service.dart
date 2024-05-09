@@ -36,22 +36,8 @@ class GenerateMessageService extends GetxService {
   /// 当前生成的消息Id
   int? currentGenerateId;
 
-  EventListener? _generateListener;
-
   /// 是否在生成中
   bool get isGenerating => currentGenerateId != null;
-
-  // /// 生成事件处理函数缓存, key为generateId
-  // final Map<int, List<void Function(String)>> _generateHandlerMap = {};
-  //
-  // /// 完成事件处理函数缓存, key为generateId
-  // final Map<int, List<void Function()>> _doneHandlerMap = {};
-  //
-  // /// 错误事件处理函数缓存, key为generateId
-  // final Map<int, List<void Function(dynamic)>> _errorHandlerMap = {};
-  //
-  // /// 用户取消事件处理函数缓存, key为generateId
-  // final Map<int, List<void Function()>> _cancelHandlerMap = {};
 
   /// 生成消息事件队列
   final _generateEventQueue = EventQueue<GenerateEvent>();
@@ -68,10 +54,6 @@ class GenerateMessageService extends GetxService {
     required int msgId,
     required List<MessageModel> messages,
     ConversationMessageModel? sourceMessage,
-    void Function(String)? onGenerate,
-    void Function()? onDone,
-    void Function(dynamic)? onError,
-    void Function()? onCancel,
   }) {
     // 去重
     if (isGenerating) {
@@ -106,24 +88,6 @@ class GenerateMessageService extends GetxService {
       currentGenerateId = generateId;
     }
 
-    // 监听事件
-    _generateListener = listenGenerate2(generateId, (event) {
-      switch (event.type) {
-        case GenerateEventType.generate:
-          onGenerate?.call(event.data);
-          break;
-        case GenerateEventType.done:
-          onDone?.call();
-          break;
-        case GenerateEventType.error:
-          onError?.call(event.data);
-          break;
-        case GenerateEventType.cancel:
-          onCancel?.call();
-          break;
-      }
-    });
-
     // 更新LLM使用时间
     llmService.updateLastUseTime(llmId);
 
@@ -157,7 +121,7 @@ class GenerateMessageService extends GetxService {
               generateId, Event(GenerateEvent(GenerateEventType.done, null)));
         }
         // 移除事件处理函数
-        _generateListener?.cancel();
+        _generateEventQueue.clear();
       },
       onError: (e) {
         if (isGenerating) {
@@ -171,7 +135,7 @@ class GenerateMessageService extends GetxService {
               generateId, Event(GenerateEvent(GenerateEventType.error, e)));
         }
         // 移除事件处理函数
-        _generateListener?.cancel();
+        _generateEventQueue.clear();
       },
     );
 
@@ -191,7 +155,7 @@ class GenerateMessageService extends GetxService {
     );
     _generateEventQueue.emit(generatedMessage.generateId,
         Event(GenerateEvent(GenerateEventType.cancel, null)));
-    _generateListener?.cancel();
+    _generateEventQueue.clear();
     final LLM? llm = Get.find<LLMService>().getLLM(generatedMessage.llmId);
     llm?.cancel();
   }
@@ -229,7 +193,8 @@ class GenerateMessageService extends GetxService {
     GeneratedMessageRepository.deleteByMsgId(msgId);
   }
 
-  EventListener listenGenerate2(
+  /// 监听生成消息
+  EventListener listenGenerate(
       int generateId, Function(GenerateEvent) callback) {
     return _generateEventQueue.addListener(generateId, (event) {
       callback(event.data);
