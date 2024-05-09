@@ -308,6 +308,9 @@ class ChatAppController extends GetxController {
     // 更新会话时间
     conversationService.updateConversationTime(conversationId);
 
+    // 清空输入框
+    inputController.clear();
+
     // 插入用户消息
     messageService.insertMessage(
       chatAppId: chatApp!.chatAppId,
@@ -326,26 +329,6 @@ class ChatAppController extends GetxController {
       llm: llm,
       conversationId: conversationId,
     );
-
-    // 更新当前会话，如果会话控制器不在内存中，则滚动到底部加载会话。尝试3次。
-    // for (var i = 0; i < 3; i++) {
-    //   try {
-    //     // 更新会话的消息
-    //     final conversationController = Get.find<ConversationController>(
-    //         tag: 'conversation_$conversationId');
-    //     conversationController.refreshConversation();
-    //     break;
-    //   } catch (e) {
-    //     // 滚动到底部
-    //     if (i == 1) {
-    //       // 第二次还是没有找到会话控制器，则清空会话列表，再加载会话
-    //       clearConversationList();
-    //       await WidgetsBinding.instance.endOfFrame;
-    //       await fetchConversationList(chatApp!.chatAppId);
-    //     }
-    //     await scrollToBottom();
-    //   }
-    // }
 
     // 滚动到底部
     await scrollToBottom();
@@ -834,10 +817,11 @@ class ChatAppController extends GetxController {
       List<Diff> diffs = dmp.diff(text1, text2);
       if ((diffs.length == 2 || diffs.length == 3) &&
           (diffs[0].text == '\n' || diffs[1].text == '\n')) {
-        // 清空输入框
-        inputController.text = '';
+        final inputText = text1.trim();
+        // 恢复文本
+        inputController.text = inputText;
         // 发送消息，用text1是因为text2包含换行
-        sendMessage(text1.trim());
+        sendMessage(inputText);
       }
     });
   }
