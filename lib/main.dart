@@ -127,5 +127,13 @@ class MyWindowListener with WindowListener {
     /// 监听窗口大小变化，保存窗口大小
     final size = await windowManager.getSize();
     SettingRepository.setWindowSize(size);
+    super.onWindowResized();
+  }
+
+  @override
+  void onWindowClose() {
+    /// 监听窗口关闭，退出程序
+    SystemNavigator.pop();
+    super.onWindowClose();
   }
 }
