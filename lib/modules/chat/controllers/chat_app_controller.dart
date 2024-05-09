@@ -101,13 +101,6 @@ class ChatAppController extends GetxController {
 
     closeSearch();
     if (chatApp != null) {
-      if (oldChatApp != null &&
-          chatApp.chatAppId == oldChatApp.chatAppId &&
-          chatApp.prompt != oldChatApp.prompt) {
-        // 更新了提示词可能会修改最后一条系统消息，先清空再加载，确保列表刷新
-        clearConversationList();
-        await WidgetsBinding.instance.endOfFrame;
-      }
       // 获取会话列表
       await fetchConversationList(chatApp.chatAppId);
       await WidgetsBinding.instance.endOfFrame;
@@ -197,7 +190,10 @@ class ChatAppController extends GetxController {
     // 从会话列表中删除
     topConversationIds.remove(conversationId);
     bottomConversationIds.remove(conversationId);
-
+    // bottomConversationIds删空了，则从topConversationIds中取一个
+    if (bottomConversationIds.isEmpty && topConversationIds.isNotEmpty) {
+      bottomConversationIds.add(topConversationIds.removeLast());
+    }
     update();
   }
 
@@ -332,24 +328,24 @@ class ChatAppController extends GetxController {
     );
 
     // 更新当前会话，如果会话控制器不在内存中，则滚动到底部加载会话。尝试3次。
-    for (var i = 0; i < 3; i++) {
-      try {
-        // 更新会话的消息
-        final conversationController = Get.find<ConversationController>(
-            tag: 'conversation_$conversationId');
-        conversationController.refreshConversation();
-        break;
-      } catch (e) {
-        // 滚动到底部
-        if (i == 1) {
-          // 第二次还是没有找到会话控制器，则清空会话列表，再加载会话
-          clearConversationList();
-          await WidgetsBinding.instance.endOfFrame;
-          await fetchConversationList(chatApp!.chatAppId);
-        }
-        await scrollToBottom();
-      }
-    }
+    // for (var i = 0; i < 3; i++) {
+    //   try {
+    //     // 更新会话的消息
+    //     final conversationController = Get.find<ConversationController>(
+    //         tag: 'conversation_$conversationId');
+    //     conversationController.refreshConversation();
+    //     break;
+    //   } catch (e) {
+    //     // 滚动到底部
+    //     if (i == 1) {
+    //       // 第二次还是没有找到会话控制器，则清空会话列表，再加载会话
+    //       clearConversationList();
+    //       await WidgetsBinding.instance.endOfFrame;
+    //       await fetchConversationList(chatApp!.chatAppId);
+    //     }
+    //     await scrollToBottom();
+    //   }
+    // }
 
     // 滚动到底部
     await scrollToBottom();
@@ -549,55 +545,23 @@ class ChatAppController extends GetxController {
     generateMessageService.stopGenerate();
   }
 
-  /// 删除引用消息之后的消息
-  bool _removeMessagesAfterQuote(ConversationMessageModel quoteMsg) {
-    bool isDeleted = false;
-    final messages = messageService.getMessageList(quoteMsg.conversationId);
-    if (quoteMsg.role == MessageRole.user) {
-      // 修改消息，删除引用消息之后的消息，包括引用消息
-      for (var message in messages) {
-        if (message.msgId >= quoteMsg.msgId) {
-          isDeleted = true;
-          messageService.deleteMessage(msgId: message.msgId);
-          generateMessageService.removeMessages(message.msgId);
-        }
-      }
-    } else {
-      // 回复消息，删除引用消息之后的消息
-      for (var message in messages) {
-        if (message.msgId > quoteMsg.msgId) {
-          isDeleted = true;
-          messageService.deleteMessage(msgId: message.msgId);
-          generateMessageService.removeMessages(message.msgId);
-        }
-      }
-    }
-    return isDeleted;
-  }
-
   /// 删除当前消息以及之后的所有消息
   void removeMessage(int msgId) async {
     final message = messageService.getMessage(msgId);
     if (message == null) {
-      snackbar('提示', '消息不存在');
+      await fetchConversationList(chatApp!.chatAppId);
+      await WidgetsBinding.instance.endOfFrame;
+      scrollToBottom(animate: false);
       return;
     }
     final messages = messageService.getMessageList(message.conversationId);
     for (var m in messages) {
       if (m.msgId >= msgId) {
+        // 删除消息
         messageService.deleteMessage(msgId: m.msgId);
         // 删除生成记录
         generateMessageService.removeMessages(m.msgId);
       }
-    }
-    try {
-      // 更新会话的消息
-      Get.find<ConversationController>(
-              tag: 'conversation_${message.conversationId}')
-          .refreshConversation();
-    } catch (e) {
-      await fetchConversationList(chatApp!.chatAppId);
-      scrollToBottom(animate: false);
     }
   }
 
@@ -608,22 +572,42 @@ class ChatAppController extends GetxController {
       snackbar('提示', '引用的消息不存在');
       return;
     }
-
     // 更新会话时间
-    conversationService.updateConversationTime(quoteMessage!.conversationId);
-
+    conversationService.updateConversationTime(quoteMessage.conversationId);
     // 删除引用消息之后的消息
-    if (_removeMessagesAfterQuote(quoteMessage!)) {
-      // 如果删除了消息，则清空会话列表，再加载会话
-      await clearConversationList();
-    }
+    _removeMessagesAfterQuote(quoteMessage);
+    // 获取会话列表
     await fetchConversationList(chatApp!.chatAppId);
     await WidgetsBinding.instance.endOfFrame;
+    // 滚动到底部
     await scrollToBottom();
+    // 如果是用户消息，则将消息内容放入输入框
     if (quoteMessage.role == MessageRole.user) {
       inputController.text = quoteMessage.content;
     }
     inputFocusNode.requestFocus();
+  }
+
+  /// 删除引用消息之后的消息
+  _removeMessagesAfterQuote(ConversationMessageModel quoteMsg) {
+    final messages = messageService.getMessageList(quoteMsg.conversationId);
+    if (quoteMsg.role == MessageRole.user) {
+      // 修改消息，删除引用消息之后的消息，包括引用消息
+      for (var message in messages) {
+        if (message.msgId >= quoteMsg.msgId) {
+          messageService.deleteMessage(msgId: message.msgId);
+          generateMessageService.removeMessages(message.msgId);
+        }
+      }
+    } else {
+      // 回复消息，删除引用消息之后的消息
+      for (var message in messages) {
+        if (message.msgId > quoteMsg.msgId) {
+          messageService.deleteMessage(msgId: message.msgId);
+          generateMessageService.removeMessages(message.msgId);
+        }
+      }
+    }
   }
 
   /// 使用chatApp

@@ -21,6 +21,7 @@ class ConversationWidget extends StatelessWidget {
       id: 'conversation_$conversationId',
       tag: 'conversation_$conversationId',
       init: ConversationController(conversationId),
+      autoRemove: false,
       builder: (controller) {
         return Container(
           padding: const EdgeInsets.only(bottom: 24),
@@ -36,7 +37,7 @@ class ConversationWidget extends StatelessWidget {
             children: [
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.only(top: 36 ,left: 24,right: 24),
+                padding: const EdgeInsets.only(top: 36, left: 24, right: 24),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [

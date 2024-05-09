@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 
+import '../../../shared/models/event_queue/event_listener.dart';
 import '../../../shared/services/conversation_service.dart';
 import '../../../shared/services/message_service.dart';
 import '../models/conversation_message_model.dart';
@@ -16,12 +17,27 @@ class ConversationController extends GetxController {
   /// 消息服务
   final messageService = Get.find<MessageService>();
 
+  /// 消息列表更新监听器
+  late EventListener updateMessageListListener;
+
   ConversationController(this.conversationId);
 
   @override
   void onInit() {
-    super.onInit();
     conversation = conversationService.getConversation(conversationId);
+    // 监听消息列表更新
+    updateMessageListListener =
+        messageService.listenMessageIdsChange(conversationId, () {
+      refreshConversation();
+    });
+    super.onInit();
+  }
+
+  @override
+  void onClose() {
+    // 移除监听
+    updateMessageListListener.cancel();
+    super.onClose();
   }
 
   /// 刷新会话
