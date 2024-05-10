@@ -58,19 +58,8 @@ class LLMController extends GetxController {
     }
   }
 
-  /// 保存LLM
-  void saveLLM() {
-    if (currentId.value == -1) {
-      createLLM(); // 新建
-    } else {
-      editLLM(); // 编辑
-    }
-  }
-
   /// 创建LLM
   void createLLM() {
-    LLMType? type;
-    String? name;
     Map<String, String> data = {};
     for (var item in formData) {
       data[item.key] = item.value;
@@ -96,6 +85,25 @@ class LLMController extends GetxController {
       map[item.key] = item.value;
     }
     llmService.updateLLM(llm.llmId, map);
+  }
+
+  /// 复制LLM
+  void copyLLM() {
+    Map<String, String> data = {};
+    for (var item in formData) {
+      data[item.key] = item.value;
+      if (item.key == 'name') {
+        data[item.key] = '${item.value}-副本';
+      }
+    }
+
+    // 添加LLM
+    final id = llmService.addLLM(data);
+    if (id == null) {
+      return;
+    }
+    // 选中新建的LLM
+    changeIndex(id);
   }
 
   /// 删除LLM

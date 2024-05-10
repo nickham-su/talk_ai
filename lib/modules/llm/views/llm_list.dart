@@ -134,7 +134,7 @@ class ListHeader extends GetView<LLMController> {
       width: double.infinity,
       height: 60,
       alignment: Alignment.centerLeft,
-      padding: const EdgeInsets.only(left: 12, top: 8),
+      padding: const EdgeInsets.only(left: 12, top: 20),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -142,7 +142,7 @@ class ListHeader extends GetView<LLMController> {
           Text(LayoutMenuType.llm.value,
               style: Get.textTheme.headlineSmall?.copyWith(
                 fontSize: 16,
-                fontWeight: FontWeight.w300,
+                fontWeight: FontWeight.w500,
               )),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,

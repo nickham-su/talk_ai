@@ -5,7 +5,9 @@ import 'package:get/get.dart';
 import '../../../routes.dart';
 import '../../../shared/components/snackbar.dart';
 import '../../../shared/repositories/generated_message_repository.dart';
+import '../../../shared/services/conversation_service.dart';
 import '../../../shared/services/llm_service.dart';
+import '../../../shared/services/message_service.dart';
 import '../models/chat_app_model.dart';
 import '../repositorys/conversation_repository.dart';
 import '../repositorys/message_repository.dart';
@@ -13,6 +15,12 @@ import '../views/app_list/chat_app_setting_dialog.dart';
 import 'chat_app_controller.dart';
 
 class ChatAppListController extends GetxController {
+  /// 会话服务
+  final conversationService = Get.find<ConversationService>();
+
+  /// 消息服务
+  final messageService = Get.find<MessageService>();
+
   /// 聊天App列表
   final chatAppList = RxList<ChatAppModel>([]);
 
@@ -95,7 +103,7 @@ class ChatAppListController extends GetxController {
     required int llmId,
     required double temperature,
     required double topP,
-  }) {
+  }) async {
     ChatAppRepository.update(
       chatAppId: chatAppId,
       name: name,
@@ -106,24 +114,28 @@ class ChatAppListController extends GetxController {
     );
     refreshChatApps();
     // 如果最后一个会话只有一条系统消息，则更新助理设定
-    final conversation = ConversationRepository.getLastConversation(chatAppId);
-    if (conversation != null &&
-        conversation.messages.length == 1 &&
-        conversation.messages.first.role == MessageRole.system) {
-      MessageRepository.updateMessage(
-        msgId: conversation.messages.first.msgId,
-        content: prompt,
-      );
+    final conversationService = Get.find<ConversationService>();
+    final messageService = Get.find<MessageService>();
+    final lastConversationId =
+        await conversationService.getLastConversationId(chatAppId);
+    if (lastConversationId != null) {
+      final lastMessage = messageService.getLastMessage(lastConversationId);
+      if (lastMessage != null && lastMessage.role == MessageRole.system) {
+        messageService.updateMessage(
+          msgId: lastMessage.msgId,
+          content: prompt,
+        );
+      }
     }
 
     selectChatApp(chatAppId);
   }
 
   /// 删除聊天App
-  void deleteChatApp(int id) {
+  void deleteChatApp(int id) async {
     ChatAppRepository.delete(id);
-    ConversationRepository.deleteConversation(chatAppId: id);
-    MessageRepository.deleteMessage(chatAppId: id);
+    await conversationService.deleteConversation(chatAppId: id);
+    messageService.deleteMessage(chatAppId: id);
     GeneratedMessageRepository.deleteByChatAppId(id);
     refreshChatApps();
     selectChatApp(-1);

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../repositories/setting_repository.dart';
 import '../../resizable_sidebar/resizable_sidebar_widget.dart';
 import '../controllers/layout_controller.dart';
 import '../models/layout_menu_type.dart';
@@ -47,6 +48,13 @@ class Layout extends StatelessWidget {
   Widget getSecondMenu() {
     if (secondMenu != null) {
       return ResizableSidebarWidget(
+        tag: 'second_menu',
+        resizeWidth: true,
+        minWidth: 150,
+        initWidth: SettingRepository.getSidebarWidth(200),
+        onWidthChanged: (double width) {
+          SettingRepository.setSidebarWidth(width);
+        },
         child: Container(
           padding: const EdgeInsets.only(right: 8),
           decoration: BoxDecoration(

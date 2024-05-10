@@ -62,32 +62,19 @@ class MessageRepository {
   }
 
   /// 获取历史消息列表
-  static List<ConversationMessageModel> getMessageList(int conversationId) {
+  static List<int> getMessageIds(int conversationId) {
     final result = Sqlite.db.select('''
-      SELECT * FROM $tableName WHERE conversation_id = ? 
+      SELECT msg_id FROM $tableName WHERE conversation_id = ? 
       ORDER BY msg_id ASC
     ''', [conversationId]);
-    return result.map((msg) => _selectResultToModel(msg)).toList();
+    return result.map((msg) => msg['msg_id'] as int).toList();
   }
 
   /// 获取消息
-  static ConversationMessageModel getMessage(int msgId) {
+  static ConversationMessageModel? getMessage(int msgId) {
     final result = Sqlite.db.select('''
-      SELECT * FROM $tableName WHERE msg_id = ? 
+      SELECT * FROM $tableName WHERE msg_id = ? LIMIT 1
     ''', [msgId]);
-    if (result.isEmpty) {
-      throw ArgumentError('未找到msgId为$msgId的消息');
-    }
-    return _selectResultToModel(result.first);
-  }
-
-  /// 获取最后一条消息
-  static ConversationMessageModel? getLastMessage(int conversationId) {
-    final result = Sqlite.db.select('''
-      SELECT * FROM $tableName WHERE conversation_id = ? 
-      ORDER BY msg_id DESC
-      LIMIT 1
-    ''', [conversationId]);
     if (result.isEmpty) {
       return null;
     }
@@ -171,7 +158,7 @@ class MessageRepository {
   }
 
   /// 插入消息
-  static int insertMessage({
+  static ConversationMessageModel insertMessage({
     required int chatAppId,
     required int conversationId,
     required MessageRole role,
@@ -195,7 +182,7 @@ class MessageRepository {
       generateId,
       llmId,
     ]);
-    return Sqlite.db.lastInsertRowId;
+    return getMessage(Sqlite.db.lastInsertRowId)!;
   }
 
   /// 更新消息

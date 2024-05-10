@@ -15,6 +15,8 @@ import 'package:path/path.dart' as path;
 import 'package:window_manager/window_manager.dart';
 
 import 'shared/repositories/setting_repository.dart';
+import 'shared/services/conversation_service.dart';
+import 'shared/services/message_service.dart';
 import 'shared/utils/sqlite.dart';
 
 void main() async {
@@ -36,8 +38,10 @@ void main() async {
 
   /// 注册全局控制器、服务
   Get.put(LayoutController(), permanent: true);
-  Get.put(GenerateMessageService(), permanent: true);
   Get.put(AppUpdateController(), permanent: true);
+  Get.put(GenerateMessageService(), permanent: true);
+  Get.put(MessageService(), permanent: true);
+  Get.put(ConversationService(), permanent: true);
   final llmService = LLMService();
   Get.put(llmService, permanent: true);
   final initialRoute =
@@ -123,5 +127,13 @@ class MyWindowListener with WindowListener {
     /// 监听窗口大小变化，保存窗口大小
     final size = await windowManager.getSize();
     SettingRepository.setWindowSize(size);
+    super.onWindowResized();
+  }
+
+  @override
+  void onWindowClose() {
+    /// 监听窗口关闭，退出程序
+    SystemNavigator.pop();
+    super.onWindowClose();
   }
 }

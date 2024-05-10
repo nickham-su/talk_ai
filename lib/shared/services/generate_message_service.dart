@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 
 import '../../modules/chat/models/conversation_message_model.dart';
 import '../../modules/chat/repositorys/message_repository.dart';
+import '../models/event_queue/event.dart';
+import '../models/event_queue/event_queue.dart';
 import '../models/message/message_status.dart';
 import '../models/message/generated_message.dart';
 import '../models/llm/llm_model.dart';
@@ -10,13 +12,26 @@ import '../models/message/message_model.dart';
 import '../repositories/generated_message_repository.dart';
 import 'llm_service.dart';
 
-class Listener<T> {
-  final int listenerId; // 监听Id
-  final T handler; // 事件处理函数
+import '../models/event_queue/event_listener.dart';
+import 'message_service.dart';
 
-  Listener(this.handler, this.listenerId);
+/// 生成消息事件类型
+enum GenerateEventType {
+  generate, // 生成中
+  done, // 完成
+  error, // 错误
+  cancel, // 取消
 }
 
+/// 生成消息事件
+class GenerateEvent {
+  final GenerateEventType type;
+  final dynamic data;
+
+  GenerateEvent(this.type, this.data);
+}
+
+/// 生成消息服务
 class GenerateMessageService extends GetxService {
   /// 当前生成的消息Id
   int? currentGenerateId;
@@ -24,24 +39,11 @@ class GenerateMessageService extends GetxService {
   /// 是否在生成中
   bool get isGenerating => currentGenerateId != null;
 
-  /// 生成事件处理函数缓存, key为generateId
-  final Map<int, List<void Function(String)>> _generateHandlerMap = {};
+  /// 生成消息事件队列
+  final _generateEventQueue = EventQueue<GenerateEvent>();
 
-  /// 完成事件处理函数缓存, key为generateId
-  final Map<int, List<void Function()>> _doneHandlerMap = {};
-
-  /// 错误事件处理函数缓存, key为generateId
-  final Map<int, List<void Function(dynamic)>> _errorHandlerMap = {};
-
-  /// 用户取消事件处理函数缓存, key为generateId
-  final Map<int, List<void Function()>> _cancelHandlerMap = {};
-
-  /// 消息更新事件处理函数缓存, key为msgId
-  final Map<int, List<Listener<void Function()>>> _updateMessageHandlerMap = {};
-
-  /// 生成列表更新事件处理函数缓存
-  final Map<int, List<Listener<void Function(List<GeneratedMessage>)>>>
-      _updateGenerateListHandlerMap = {};
+  /// 生成列表更新事件队列
+  final _updateGenerateListEventQueue = EventQueue<List<GeneratedMessage>>();
 
   /// 生成消息
   /// 返回generateId生成消息Id
@@ -52,10 +54,6 @@ class GenerateMessageService extends GetxService {
     required int msgId,
     required List<MessageModel> messages,
     ConversationMessageModel? sourceMessage,
-    void Function(String)? onGenerate,
-    void Function()? onDone,
-    void Function(dynamic)? onError,
-    void Function()? onCancel,
   }) {
     // 去重
     if (isGenerating) {
@@ -90,15 +88,6 @@ class GenerateMessageService extends GetxService {
       currentGenerateId = generateId;
     }
 
-    // 监听事件
-    listenGenerate(
-      generateId: generateId,
-      onGenerate: onGenerate,
-      onDone: onDone,
-      onError: onError,
-      onCancel: onCancel,
-    );
-
     // 更新LLM使用时间
     llmService.updateLastUseTime(llmId);
 
@@ -118,7 +107,8 @@ class GenerateMessageService extends GetxService {
           status: MessageStatus.sending,
           content: content,
         );
-        _handleGenerate(generateId, content);
+        _generateEventQueue.emit(generateId,
+            Event(GenerateEvent(GenerateEventType.generate, content)));
       },
       onDone: () {
         if (isGenerating) {
@@ -127,10 +117,11 @@ class GenerateMessageService extends GetxService {
             status: MessageStatus.completed,
           );
           currentGenerateId = null;
-          _handleDone(generateId);
+          _generateEventQueue.emit(
+              generateId, Event(GenerateEvent(GenerateEventType.done, null)));
         }
         // 移除事件处理函数
-        _removeGenerateListen(generateId!);
+        _generateEventQueue.clear();
       },
       onError: (e) {
         if (isGenerating) {
@@ -140,10 +131,11 @@ class GenerateMessageService extends GetxService {
             error: e.toString(),
           );
           currentGenerateId = null;
-          _handleError(generateId, e);
+          _generateEventQueue.emit(
+              generateId, Event(GenerateEvent(GenerateEventType.error, e)));
         }
         // 移除事件处理函数
-        _removeGenerateListen(generateId!);
+        _generateEventQueue.clear();
       },
     );
 
@@ -161,8 +153,9 @@ class GenerateMessageService extends GetxService {
       generateId: generatedMessage.generateId,
       status: MessageStatus.cancel,
     );
-    _handleCancel(generatedMessage.generateId);
-    _removeGenerateListen(generatedMessage.generateId);
+    _generateEventQueue.emit(generatedMessage.generateId,
+        Event(GenerateEvent(GenerateEventType.cancel, null)));
+    _generateEventQueue.clear();
     final LLM? llm = Get.find<LLMService>().getLLM(generatedMessage.llmId);
     llm?.cancel();
   }
@@ -200,159 +193,26 @@ class GenerateMessageService extends GetxService {
     GeneratedMessageRepository.deleteByMsgId(msgId);
   }
 
-  /// 保存消息
-  void saveMessage(int generateId) {
-    final generatedMessage = getMessage(generateId);
-    if (generatedMessage == null) {
-      return;
-    }
-    MessageRepository.updateMessage(
-      msgId: generatedMessage.msgId,
-      content: generatedMessage.content,
-      status: generatedMessage.status,
-      llmId: generatedMessage.llmId,
-      llmName: generatedMessage.llmName,
-      generateId: generatedMessage.generateId,
-    );
-    _handleUpdateMessage(generatedMessage.msgId);
-  }
-
   /// 监听生成消息
-  void listenGenerate({
-    int? generateId,
-    void Function(String)? onGenerate,
-    void Function()? onDone,
-    void Function(dynamic)? onError,
-    void Function()? onCancel,
-  }) {
-    if (generateId == null && currentGenerateId == null) {
-      return;
-    }
-    generateId ??= currentGenerateId;
-
-    if (onGenerate != null) {
-      if (_generateHandlerMap[generateId] == null) {
-        _generateHandlerMap[generateId!] = [];
-      }
-      _generateHandlerMap[generateId]!.add(onGenerate);
-    }
-    if (onDone != null) {
-      if (_doneHandlerMap[generateId] == null) {
-        _doneHandlerMap[generateId!] = [];
-      }
-      _doneHandlerMap[generateId]!.add(onDone);
-    }
-    if (onError != null) {
-      if (_errorHandlerMap[generateId] == null) {
-        _errorHandlerMap[generateId!] = [];
-      }
-      _errorHandlerMap[generateId]!.add(onError);
-    }
-    if (onCancel != null) {
-      if (_cancelHandlerMap[generateId] == null) {
-        _cancelHandlerMap[generateId!] = [];
-      }
-      _cancelHandlerMap[generateId]!.add(onCancel);
-    }
-  }
-
-  /// 移除监听生成消息
-  void _removeGenerateListen(int generateId) {
-    _generateHandlerMap.remove(generateId);
-    _doneHandlerMap.remove(generateId);
-    _errorHandlerMap.remove(generateId);
-    _cancelHandlerMap.remove(generateId);
-  }
-
-  /// 处理生成事件
-  void _handleGenerate(int generateId, String content) {
-    _generateHandlerMap[generateId]?.forEach((handler) {
-      try {
-        handler(content);
-      } catch (e) {}
-    });
-  }
-
-  /// 处理完成事件
-  void _handleDone(int generateId) {
-    _doneHandlerMap[generateId]?.forEach((handler) {
-      try {
-        handler();
-      } catch (e) {}
-    });
-  }
-
-  /// 处理错误事件
-  void _handleError(int generateId, dynamic error) {
-    _errorHandlerMap[generateId]?.forEach((handler) {
-      try {
-        handler(error);
-      } catch (e) {}
-    });
-  }
-
-  /// 处理取消事件
-  void _handleCancel(int generateId) {
-    _cancelHandlerMap[generateId]?.forEach((handler) {
-      try {
-        handler();
-      } catch (e) {}
-    });
-  }
-
-  /// listenerId索引
-  int _listenerId = 0;
-
-  /// 监听消息更新
-  int listenUpdateMessage(int msgId, void Function() handler) {
-    if (_updateMessageHandlerMap[msgId] == null) {
-      _updateMessageHandlerMap[msgId] = [];
-    }
-    final listenerId = _listenerId++;
-    _updateMessageHandlerMap[msgId]!.add(Listener(handler, listenerId));
-    return listenerId;
-  }
-
-  /// 移除监听消息更新
-  void removeListenUpdateMessage(int msgId, int listenerId) {
-    _updateMessageHandlerMap[msgId]
-        ?.removeWhere((element) => element.listenerId == listenerId);
-  }
-
-  /// 更新消息
-  void _handleUpdateMessage(int msgId) async {
-    await WidgetsBinding.instance.endOfFrame;
-    _updateMessageHandlerMap[msgId]?.forEach((listener) {
-      try {
-        listener.handler();
-      } catch (e) {}
+  EventListener listenGenerate(
+      int generateId, Function(GenerateEvent) callback) {
+    return _generateEventQueue.addListener(generateId, (event) {
+      callback(event.data);
     });
   }
 
   /// 监听生成列表更新
-  int listenUpdateGenerateList(
-      int msgId, void Function(List<GeneratedMessage>) handler) {
-    if (_updateGenerateListHandlerMap[msgId] == null) {
-      _updateGenerateListHandlerMap[msgId] = [];
-    }
-    final listenerId = _listenerId++;
-    _updateGenerateListHandlerMap[msgId]!.add(Listener(handler, listenerId));
-    return listenerId;
-  }
-
-  /// 移除监听生成列表更新
-  void removeListenUpdateGenerateList(int msgId, int listenerId) {
-    _updateGenerateListHandlerMap[msgId]
-        ?.removeWhere((element) => element.listenerId == listenerId);
+  EventListener listenUpdateGenerateList(
+      int msgId, Function(List<GeneratedMessage>) handler) {
+    final listener = _updateGenerateListEventQueue.addListener(msgId, (event) {
+      handler(event.data);
+    });
+    return listener;
   }
 
   /// 更新生成列表
   void _handleUpdateGenerateList(int msgId) async {
-    await WidgetsBinding.instance.endOfFrame;
-    _updateGenerateListHandlerMap[msgId]?.forEach((listener) {
-      try {
-        listener.handler(getMessages(msgId));
-      } catch (e) {}
-    });
+    final messages = getMessages(msgId);
+    _updateGenerateListEventQueue.emit(msgId, Event(messages));
   }
 }
