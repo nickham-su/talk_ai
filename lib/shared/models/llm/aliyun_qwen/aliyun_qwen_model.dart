@@ -102,10 +102,11 @@ class ALiYunQwenModel extends LLM {
 
   /// 聊天
   @override
-  Stream<String> chatCompletions(
-      {required List<MessageModel> messages,
-      double temperature = 0.8,
-      double topP = 0.95}) {
+  Stream<String> chatCompletions({
+    required List<MessageModel> messages,
+    double temperature = 1,
+    double topP = 0.95,
+  }) {
     if (messages.isEmpty) {
       throw 'messages is empty';
     }

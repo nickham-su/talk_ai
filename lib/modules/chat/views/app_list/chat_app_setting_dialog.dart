@@ -99,16 +99,16 @@ class ChatAppSettingDialog extends GetView<ChatAppSettingController> {
 当temperature接近1时,模型会变得更加随机和富有创造力,生成的文本更加多样化但相关性可能降低。''',
                           labelWidth: 120,
                           initialValue: controller.temperature,
-                          max: 1,
+                          max: 2,
                           min: 0.1,
-                          divisions: 18,
+                          divisions: 19,
                           onChanged: (value) {
                             controller.temperature = value;
                           },
                           format: (value) {
-                            if (value <= 0.65) {
+                            if (value < 0.75) {
                               return '${value.toStringAsFixed(2)} 严谨';
-                            } else if (value <= 0.85) {
+                            } else if (value < 1.25) {
                               return '${value.toStringAsFixed(2)} 均衡';
                             } else {
                               return '${value.toStringAsFixed(2)} 创意';
@@ -173,7 +173,6 @@ class ChatAppSettingDialog extends GetView<ChatAppSettingController> {
           name: controller.name,
           prompt: controller.prompt,
           temperature: controller.temperature,
-          topP: controller.topP,
         );
         Get.back();
         await Future.delayed(const Duration(milliseconds: 200));
@@ -193,7 +192,6 @@ class ChatAppSettingDialog extends GetView<ChatAppSettingController> {
           name: controller.name,
           prompt: controller.prompt,
           temperature: controller.temperature,
-          topP: controller.topP,
         );
         Get.back();
         await Future.delayed(const Duration(milliseconds: 200));

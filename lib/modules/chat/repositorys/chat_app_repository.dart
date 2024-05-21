@@ -88,19 +88,17 @@ class ChatAppRepository {
     required String name,
     required String prompt,
     required double temperature,
-    required double topP,
   }) {
     final lastUseTime = DateTime.now();
     Sqlite.db.execute('''
       UPDATE $tableName
-      SET name = ?, prompt = ?, last_use_time = ?, temperature = ?, top_p = ?
+      SET name = ?, prompt = ?, last_use_time = ?, temperature = ?
       WHERE chat_app_id = ?
     ''', [
       name,
       prompt,
       lastUseTime.millisecondsSinceEpoch,
       temperature,
-      topP,
       chatAppId
     ]);
   }

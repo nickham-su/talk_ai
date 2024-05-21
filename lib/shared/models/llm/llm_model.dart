@@ -19,7 +19,7 @@ abstract class LLM {
   /// 聊天
   Stream<String> chatCompletions({
     required List<MessageModel> messages,
-    double temperature = 0.8,
+    double temperature = 1,
     double topP = 0.95,
   });
 
