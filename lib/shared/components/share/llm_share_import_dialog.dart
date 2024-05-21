@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:TalkAI/modules/llm/controllers/llm_share_controller.dart';
 import 'package:TalkAI/shared/components/snackbar.dart';
 import 'package:TalkAI/shared/utils/compress.dart';
-import 'package:clipboard/clipboard.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -137,7 +136,6 @@ class LLMShareImportDialog extends StatelessWidget {
           ChatAppRepository.insert(
             name: app['name'],
             prompt: app['prompt'],
-            llmId: -1,
             temperature: app['temperature'],
           );
         } catch (e) {

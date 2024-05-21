@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:TalkAI/modules/chat/views/conversation/editor/llm_picker.dart';
 import 'package:TalkAI/shared/models/message/message_model.dart';
 import 'package:diff_match_patch/diff_match_patch.dart';
 import 'package:flutter/foundation.dart';
@@ -16,13 +17,9 @@ import '../../../shared/services/conversation_service.dart';
 import '../../../shared/services/generate_message_service.dart';
 import '../../../shared/services/llm_service.dart';
 import '../../../shared/services/message_service.dart';
-import '../../../shared/utils/sqlite.dart';
 import '../models/chat_app_model.dart';
 import '../models/conversation_message_model.dart';
-import '../repositorys/conversation_repository.dart';
-import '../repositorys/message_repository.dart';
 import 'chat_app_list_controller.dart';
-import 'conversation_controller.dart';
 
 class ChatAppController extends GetxController {
   /// 当前聊天App
@@ -67,6 +64,9 @@ class ChatAppController extends GetxController {
   /// 消息服务
   final messageService = Get.find<MessageService>();
 
+  /// llm服务
+  final llmService = Get.find<LLMService>();
+
   /// 发送中状态
   get isSending => generateMessageService.isGenerating;
 
@@ -104,13 +104,14 @@ class ChatAppController extends GetxController {
       // 获取会话列表
       await fetchConversationList(chatApp.chatAppId);
       await WidgetsBinding.instance.endOfFrame;
+      // 切换模型
+      changeLLM();
       // 滚动到底部
       scrollToBottom(animate: false);
       await Future.delayed(const Duration(milliseconds: 100));
       scrollToBottom(animate: false);
       // 聚焦输入框
       inputFocusNode.requestFocus();
-
       // 判断是否正在生成，且生成的消息是当前chatApp的消息，监听生成消息
       _scrollToBottomByGenerate();
     } else {
@@ -194,6 +195,8 @@ class ChatAppController extends GetxController {
     if (bottomConversationIds.isEmpty && topConversationIds.isNotEmpty) {
       bottomConversationIds.add(topConversationIds.removeLast());
     }
+    // 切换模型
+    changeLLM();
     update();
   }
 
@@ -277,31 +280,15 @@ class ChatAppController extends GetxController {
       return;
     }
 
-    // 会话id
-    int conversationId = bottomConversationIds.last;
-
-    // 查询历史消息
-    List<ConversationMessageModel> messages =
-        messageService.getMessageList(conversationId);
-
-    // 最新的助理消息
-    ConversationMessageModel? lastAssistantMsg;
-    for (final msg in messages.reversed) {
-      if (msg.role == MessageRole.assistant) {
-        lastAssistantMsg = msg;
-        break;
-      }
-    }
-
     // 获取模型
-    int llmId = lastAssistantMsg != null && lastAssistantMsg.llmId != 0
-        ? lastAssistantMsg.llmId
-        : chatApp!.llmId;
-    final LLM? llm = Get.find<LLMService>().getLLM(llmId);
+    final LLM? llm = Get.find<LLMPickerController>().currentLLM;
     if (llm == null) {
       snackbar('提示', '模型设置错误，请检查！');
       return;
     }
+
+    // 会话id
+    int conversationId = bottomConversationIds.last;
 
     // 记录使用chatApp
     useChatApp();
@@ -321,7 +308,7 @@ class ChatAppController extends GetxController {
     );
 
     // 查询历史消息
-    messages = messageService.getMessageList(conversationId);
+    final messages = messageService.getMessageList(conversationId);
 
     // 生成消息
     _generateMessage(
@@ -337,7 +324,7 @@ class ChatAppController extends GetxController {
   /// 重新生成消息
   void regenerateMessage({
     required int msgId,
-    int? llmId, // 指定llmId重新生成消息，否则为原llmId或chatApp的llmId
+    required int llmId, // 指定llmId重新生成消息
     int? generateId, // 指定generateId重新生成消息，否则为新生成
   }) {
     if (isSending) {
@@ -360,11 +347,7 @@ class ChatAppController extends GetxController {
       genMsg = generateMessageService.getMessage(generateId);
     }
 
-    // 获取模型, 优先使用llmId，其次使用genMsg的llmId，再次使用chatApp的llmId
-    final LLMService llmService = Get.find<LLMService>();
-    LLM? llm = llmId != null ? llmService.getLLM(llmId) : null;
-    llm = llm ?? (genMsg != null ? llmService.getLLM(genMsg.llmId) : null);
-    llm = llm ?? (chatApp != null ? llmService.getLLM(chatApp!.llmId) : null);
+    LLM? llm = llmService.getLLM(llmId);
     if (llm == null) {
       snackbar('提示', '模型设置错误，请检查！');
       return;
@@ -562,6 +545,8 @@ class ChatAppController extends GetxController {
     // 获取会话列表
     await fetchConversationList(chatApp!.chatAppId);
     await WidgetsBinding.instance.endOfFrame;
+    // 切换模型
+    changeLLM();
     // 滚动到底部
     await scrollToBottom();
     // 如果是用户消息，则将消息内容放入输入框
@@ -569,6 +554,27 @@ class ChatAppController extends GetxController {
       inputController.text = quoteMessage.content;
     }
     inputFocusNode.requestFocus();
+  }
+
+  /// 切换模型
+  void changeLLM() {
+    final lastConversationId = bottomConversationIds.last;
+    final messages = messageService.getMessageList(lastConversationId);
+    ConversationMessageModel? lastAssistantMsg; // 最新的助理消息
+    for (final msg in messages.reversed) {
+      if (msg.role == MessageRole.assistant) {
+        lastAssistantMsg = msg;
+        break;
+      }
+    }
+    if (lastAssistantMsg != null) {
+      final generateMessage =
+          generateMessageService.getMessage(lastAssistantMsg.generateId);
+      if (generateMessage != null &&
+          llmService.getLLM(generateMessage.llmId) != null) {
+        Get.find<LLMPickerController>().setLLM(generateMessage.llmId);
+      }
+    }
   }
 
   /// 删除引用消息之后的消息

@@ -6,7 +6,6 @@ class ChatAppSettingController extends GetxController {
   int chatAppId = 0;
   String name = '';
   String prompt = '';
-  int llmId = 0;
   double temperature = 0.8;
   double topP = 0.95;
 
@@ -14,7 +13,6 @@ class ChatAppSettingController extends GetxController {
     chatAppId = chatAppModel.chatAppId;
     name = chatAppModel.name;
     prompt = chatAppModel.prompt;
-    llmId = chatAppModel.llmId;
     temperature = chatAppModel.temperature;
     topP = chatAppModel.topP;
   }
@@ -23,7 +21,6 @@ class ChatAppSettingController extends GetxController {
     chatAppId = 0;
     name = '';
     prompt = '';
-    llmId = 0;
     temperature = 0.8;
     topP = 0.95;
   }

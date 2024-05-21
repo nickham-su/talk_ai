@@ -45,7 +45,7 @@ class ChatAppSettingDialog extends GetView<ChatAppSettingController> {
             ),
           ),
           width: 700,
-          height: 520,
+          height: 500,
           child: Column(
             children: [
               Container(
@@ -86,28 +86,12 @@ class ChatAppSettingDialog extends GetView<ChatAppSettingController> {
                           labelText: '角色设定/提示词（选填）',
                           hintText: '请输入助理角色设定/提示词',
                           initialValue: controller.prompt,
-                          maxLines: 4,
+                          maxLines: 8,
                           isRequired: false,
                           onChanged: (value) {
                             controller.prompt = value;
                           },
                         ),
-                        Obx(() => DropdownWidget<int>(
-                              labelText: '模型',
-                              isRequired: true,
-                              initialValue: controller.llmId,
-                              items: llmService.llmList
-                                  .map((e) => DropdownOption<int>(
-                                        label: e.name,
-                                        value: e.llmId,
-                                      ))
-                                  .toList(),
-                              onChanged: (int? value) {
-                                if (value != null) {
-                                  controller.llmId = value;
-                                }
-                              },
-                            )),
                         SliderWidget(
                           labelText: 'Temperature',
                           tooltip: '''控制生成文本的随机性，它是一个0到1之间的浮点数。
@@ -188,7 +172,6 @@ class ChatAppSettingDialog extends GetView<ChatAppSettingController> {
         chatAppController.addChatApp(
           name: controller.name,
           prompt: controller.prompt,
-          llmId: controller.llmId,
           temperature: controller.temperature,
           topP: controller.topP,
         );
@@ -209,7 +192,6 @@ class ChatAppSettingDialog extends GetView<ChatAppSettingController> {
           chatAppId: controller.chatAppId,
           name: controller.name,
           prompt: controller.prompt,
-          llmId: controller.llmId,
           temperature: controller.temperature,
           topP: controller.topP,
         );

@@ -5,6 +5,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
 import '../../../controllers/chat_app_controller.dart';
+import 'llm_picker.dart';
 
 /// 编辑器工具栏
 class EditorToolbar extends StatelessWidget {
@@ -16,6 +17,8 @@ class EditorToolbar extends StatelessWidget {
       id: 'editor_toolbar',
       builder: (controller) {
         List<Widget> tools = [
+          const LLMPicker(),
+          const SizedBox(width: 8),
           const AddButton(),
           const SearchButton(),
           getDivider(),
@@ -29,7 +32,7 @@ class EditorToolbar extends StatelessWidget {
         }
 
         return Container(
-          padding: const EdgeInsets.only(left: 12, top: 6),
+          padding: const EdgeInsets.only(left: 10, top: 10, bottom: 4),
           decoration: BoxDecoration(
             border: Border(
               top: BorderSide(
@@ -64,11 +67,11 @@ class AddButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 4),
       child: IconButton(
         padding: const EdgeInsets.all(0),
         style: ButtonStyle(
-          minimumSize: MaterialStateProperty.all(const Size(36, 36)),
+          minimumSize: MaterialStateProperty.all(const Size(32, 32)),
           shape: MaterialStateProperty.all<OutlinedBorder>(
             RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(6),
@@ -104,11 +107,11 @@ class SearchButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 4),
       child: IconButton(
         padding: const EdgeInsets.all(0),
         style: ButtonStyle(
-          minimumSize: MaterialStateProperty.all(const Size(36, 36)),
+          minimumSize: MaterialStateProperty.all(const Size(32, 32)),
           shape: MaterialStateProperty.all<OutlinedBorder>(
             RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(6),
@@ -140,11 +143,11 @@ class StopButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 4),
       child: IconButton(
         padding: const EdgeInsets.all(0),
         style: ButtonStyle(
-          minimumSize: MaterialStateProperty.all(const Size(36, 36)),
+          minimumSize: MaterialStateProperty.all(const Size(32, 32)),
           shape: MaterialStateProperty.all<OutlinedBorder>(
             RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(6),
@@ -181,11 +184,11 @@ class UpButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 4),
       child: IconButton(
         padding: const EdgeInsets.all(0),
         style: ButtonStyle(
-          minimumSize: MaterialStateProperty.all(const Size(36, 36)),
+          minimumSize: MaterialStateProperty.all(const Size(32, 32)),
           shape: MaterialStateProperty.all<OutlinedBorder>(
             RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(6),
@@ -222,11 +225,11 @@ class BottomButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 4),
       child: IconButton(
         padding: const EdgeInsets.all(0),
         style: ButtonStyle(
-          minimumSize: MaterialStateProperty.all(const Size(36, 36)),
+          minimumSize: MaterialStateProperty.all(const Size(32, 32)),
           shape: MaterialStateProperty.all<OutlinedBorder>(
             RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(6),

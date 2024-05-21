@@ -80,14 +80,12 @@ class ChatAppListController extends GetxController {
   void addChatApp({
     required String name,
     required String prompt,
-    required int llmId,
     required double temperature,
     required double topP,
   }) {
     final app = ChatAppRepository.insert(
       name: name,
       prompt: prompt,
-      llmId: llmId,
       temperature: temperature,
       topP: topP,
     );
@@ -100,7 +98,6 @@ class ChatAppListController extends GetxController {
     required int chatAppId,
     required String name,
     required String prompt,
-    required int llmId,
     required double temperature,
     required double topP,
   }) async {
@@ -108,7 +105,6 @@ class ChatAppListController extends GetxController {
       chatAppId: chatAppId,
       name: name,
       prompt: prompt,
-      llmId: llmId,
       temperature: temperature,
       topP: topP,
     );

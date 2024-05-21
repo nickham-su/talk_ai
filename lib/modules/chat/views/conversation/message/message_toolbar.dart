@@ -1,15 +1,14 @@
-import 'package:TalkAI/shared/services/llm_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
-import '../../../../../shared/models/llm/llm_model.dart';
 import '../../../../../shared/models/message/message_status.dart';
 import '../../../../../shared/models/message/message_model.dart';
 import '../../../../../shared/services/generate_message_service.dart';
 import '../../../../../shared/services/message_service.dart';
 import '../../../controllers/chat_app_controller.dart';
 import '../../../models/conversation_message_model.dart';
+import '../editor/llm_picker.dart';
 
 /// 工具栏
 class MessageToolbar extends StatelessWidget {
@@ -200,37 +199,16 @@ class ToolbarIcon extends StatelessWidget {
 }
 
 /// 再次生成消息
-void regenerateMessage(ConversationMessageModel message) {
-  List<LLM> llmList = Get.find<LLMService>().getLLMList();
-  // llmList按照最后使用时间排序
-  llmList.sort((a, b) => b.lastUseTime.compareTo(a.lastUseTime));
+void regenerateMessage(ConversationMessageModel message) async {
+  final llmPickerController = Get.find<LLMPickerController>();
+  final llmId = await llmPickerController.selectLLM();
 
-  Get.dialog(
-    AlertDialog(
-      title: const Text('选择模型'),
-      content: SizedBox(
-        width: Get.width / 2, // or whatever you need
-        height: 200, // or whatever you need
-        child: ListView.builder(
-          itemCount: llmList.length,
-          itemBuilder: (context, index) {
-            return ListTile(
-              title: Text(llmList[index].name),
-              onTap: () {
-                Get.find<ChatAppController>().regenerateMessage(
-                  msgId: message.msgId,
-                  llmId: llmList[index].llmId,
-                  generateId: message.status == MessageStatus.failed ||
-                          message.status == MessageStatus.cancel
-                      ? message.generateId
-                      : null,
-                );
-                Get.back();
-              },
-            );
-          },
-        ),
-      ),
-    ),
+  Get.find<ChatAppController>().regenerateMessage(
+    msgId: message.msgId,
+    llmId: llmId,
+    generateId: message.status == MessageStatus.failed ||
+            message.status == MessageStatus.cancel
+        ? message.generateId
+        : null,
   );
 }

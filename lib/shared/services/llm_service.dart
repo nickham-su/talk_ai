@@ -68,11 +68,7 @@ class LLMService extends GetxService {
 
   /// 获取模型
   LLM? getLLM(int llmId) {
-    final llm = llmList.firstWhereOrNull((element) => element.llmId == llmId);
-    if (llm == null) {
-      snackbar('提示', '模型设置错误，请检查！');
-    }
-    return llm;
+    return llmList.firstWhereOrNull((element) => element.llmId == llmId);
   }
 
   /// 获取模型列表
