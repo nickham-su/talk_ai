@@ -1,10 +1,9 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:dio/dio.dart';
-import '../repositories/setting_repository.dart';
-import '../models/llm/openai/chat_completions_response.dart';
-import '../models/message/message_model.dart';
+import '../../../repositories/setting_repository.dart';
+import 'chat_completions_response.dart';
+import '../../message/message_model.dart';
 
 class OpenaiApi {
   static const completionPath = '/v1/chat/completions';

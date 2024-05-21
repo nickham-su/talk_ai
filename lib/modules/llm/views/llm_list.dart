@@ -149,9 +149,7 @@ class ListHeader extends GetView<LLMController> {
             children: [
               IconButton(
                 tooltip: '添加模型',
-                onPressed: () {
-                  Get.find<LLMController>().addLLM(LLMType.openai);
-                },
+                onPressed: addLLM,
                 style: ButtonStyle(
                   minimumSize:
                       MaterialStateProperty.all<Size>(const Size(28, 28)),
@@ -216,7 +214,25 @@ void addLLM() {
   List<LLMType> items = LLMType.values;
   Get.dialog(
     AlertDialog(
-      title: const Text('选择添加的类型'),
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Text('选择模型类型'),
+          IconButton(
+            onPressed: () {
+              Get.back();
+            },
+            icon: SvgPicture.asset(
+              'assets/icons/close.svg',
+              width: 24,
+              height: 24,
+              theme: SvgTheme(
+                currentColor: Get.theme.colorScheme.inverseSurface,
+              ),
+            ),
+          ),
+        ],
+      ),
       content: SizedBox(
         width: Get.width / 2, // or whatever you need
         height: 200, // or whatever you need
@@ -224,7 +240,7 @@ void addLLM() {
           itemCount: items.length,
           itemBuilder: (context, index) {
             return ListTile(
-              title: Text(items[index].value),
+              title: Text(items[index].description),
               onTap: () {
                 Get.find<LLMController>().addLLM(items[index]);
                 Get.back();

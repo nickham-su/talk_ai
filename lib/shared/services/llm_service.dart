@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 
 import '../components/snackbar.dart';
+import '../models/llm/aliyun_qwen/aliyun_qwen_model.dart';
 import '../models/llm/llm_model.dart';
 import '../models/llm/llm_type.dart';
 import '../models/llm/openai/openai_model.dart';
@@ -32,6 +33,8 @@ class LLMService extends GetxService {
     late LLM llm;
     if (type == LLMType.openai.value) {
       llm = OpenaiModel.fromJson(data);
+    } else if (type == LLMType.aliyunQwen.value) {
+      llm = ALiYunQwenModel.fromJson(data);
     } else {
       return null;
     }
@@ -46,6 +49,8 @@ class LLMService extends GetxService {
     late LLM llm;
     if (type == LLMType.openai.value) {
       llm = OpenaiModel.fromJson(data);
+    } else if (type == LLMType.aliyunQwen.value) {
+      llm = ALiYunQwenModel.fromJson(data);
     } else {
       return;
     }

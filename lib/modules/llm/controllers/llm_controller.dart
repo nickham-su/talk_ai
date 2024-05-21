@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
+import '../../../shared/models/llm/aliyun_qwen/aliyun_qwen_model.dart';
 import '../../../shared/models/llm/llm_model.dart';
 import '../../../shared/models/llm/llm_type.dart';
 import '../../../shared/models/llm/openai/openai_model.dart';
@@ -26,11 +27,6 @@ class LLMController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    if (llmService.getLLMList().isEmpty) {
-      Future.delayed(Duration.zero, () {
-        addLLM(LLMType.openai);
-      });
-    }
   }
 
   /// 改变index
@@ -51,9 +47,10 @@ class LLMController extends GetxController {
     formData.clear();
     switch (type) {
       case LLMType.openai:
-        Timer(const Duration(milliseconds: 16), () {
-          formData.assignAll(OpenaiModel.getInitFormData());
-        });
+        formData.assignAll(OpenaiModel.getInitFormData());
+        break;
+      case LLMType.aliyunQwen:
+        formData.assignAll(ALiYunQwenModel.getInitFormData());
         break;
     }
   }
