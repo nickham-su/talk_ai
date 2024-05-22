@@ -6,7 +6,6 @@ import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../../shared/components/layout/models/layout_menu_type.dart';
-import '../../../shared/models/llm/llm_model.dart';
 import '../../../shared/models/llm/llm_type.dart';
 import '../controllers/llm_controller.dart';
 import 'llm_share_dialog.dart';
@@ -247,31 +246,15 @@ void addLLM() {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    items[index].value,
-                    style: TextStyle(fontSize: 24),
+                    items[index].info.description,
+                    style: TextStyle(fontSize: 16),
                   ),
                   Row(
-                    children: [
-                      Text(
-                        items[index].description,
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w300,
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          launchUrlString(items[index].docUrl);
-                        },
-                        child: Text(
-                          '查看文档',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w300,
-                          ),
-                        ),
-                      )
-                    ],
+                    children: items[index]
+                        .info
+                        .docList
+                        .map((doc) => DocLink(doc: doc))
+                        .toList(),
                   )
                 ],
               ),
@@ -285,4 +268,42 @@ void addLLM() {
       ),
     ),
   );
+}
+
+/// 文档链接
+class DocLink extends StatelessWidget {
+  final Doc doc;
+
+  const DocLink({super.key, required this.doc});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(right: 8, top: 4),
+      child: TextButton(
+        style: ButtonStyle(
+          minimumSize: MaterialStateProperty.all<Size>(const Size(0, 32)),
+          padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+              const EdgeInsets.symmetric(horizontal: 2)),
+          shape: MaterialStateProperty.all<OutlinedBorder>(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+        ),
+        onPressed: () {
+          launchUrlString(doc.url);
+        },
+        child: Text(
+          doc.title,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w200,
+            color: Get.theme.textTheme.bodyMedium?.color?.withOpacity(0.7),
+            decoration: TextDecoration.underline,
+          ),
+        ),
+      ),
+    );
+  }
 }

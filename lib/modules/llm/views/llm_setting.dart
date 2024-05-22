@@ -6,7 +6,8 @@ import '../../../shared/components/buttons/danger_button.dart';
 import '../../../shared/components/dialog.dart';
 import '../../../shared/components/form_widget/text_widget.dart';
 import '../../../shared/components/snackbar.dart';
-import '../../../shared/models/llm/llm_model.dart';
+import '../../../shared/models/llm/llm_form_data_item.dart';
+import '../../../shared/models/llm/llm.dart';
 import '../controllers/llm_controller.dart';
 
 class LLMSetting extends GetView<LLMController> {
@@ -134,7 +135,7 @@ class LLMSetting extends GetView<LLMController> {
 }
 
 class FormItem extends StatelessWidget {
-  final FormDataItem data;
+  final LLMFormDataItem data;
 
   const FormItem({
     Key? key,

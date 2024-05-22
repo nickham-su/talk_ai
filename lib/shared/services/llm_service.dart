@@ -2,8 +2,9 @@ import 'package:get/get.dart';
 
 import '../components/snackbar.dart';
 import '../models/llm/aliyun_qwen/aliyun_qwen_model.dart';
-import '../models/llm/llm_model.dart';
+import '../models/llm/llm.dart';
 import '../models/llm/llm_type.dart';
+import '../models/llm/llms.dart';
 import '../models/llm/openai/openai_model.dart';
 import '../repositories/llm_repository.dart';
 
@@ -30,15 +31,11 @@ class LLMService extends GetxService {
     if (type == null || name == null) {
       return null;
     }
-    late LLM llm;
-    if (type == LLMType.openai.value) {
-      llm = OpenaiModel.fromJson(data);
-    } else if (type == LLMType.aliyunQwen.value) {
-      llm = ALiYunQwenModel.fromJson(data);
-    } else {
-      return null;
-    }
-    final id = LLMRepository.insert(llm: llm);
+
+    final llmType =
+        LLMType.values.firstWhere((element) => element.value == type);
+
+    final id = LLMRepository.insert(llm: LLMs.fromJson(llmType, data));
     refreshLLMList();
     return id;
   }
@@ -46,14 +43,9 @@ class LLMService extends GetxService {
   /// 更新模型
   void updateLLM(int llmId, Map<String, String> data) {
     final type = data['type'];
-    late LLM llm;
-    if (type == LLMType.openai.value) {
-      llm = OpenaiModel.fromJson(data);
-    } else if (type == LLMType.aliyunQwen.value) {
-      llm = ALiYunQwenModel.fromJson(data);
-    } else {
-      return;
-    }
+    final llmType =
+        LLMType.values.firstWhere((element) => element.value == type);
+    final llm = LLMs.fromJson(llmType, data);
     llm.llmId = llmId;
     LLMRepository.update(llm);
     refreshLLMList();

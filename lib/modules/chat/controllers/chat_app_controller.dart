@@ -10,7 +10,7 @@ import 'package:get/get.dart';
 
 import '../../../shared/components/snackbar.dart';
 import '../../../shared/models/event_queue/event_listener.dart';
-import '../../../shared/models/llm/llm_model.dart';
+import '../../../shared/models/llm/llm.dart';
 import '../../../shared/models/message/message_status.dart';
 import '../../../shared/models/message/generated_message.dart';
 import '../../../shared/services/conversation_service.dart';

@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 
-import '../../../../../shared/models/llm/llm_model.dart';
+import '../../../../../shared/models/llm/llm.dart';
 import '../../../../../shared/repositories/setting_repository.dart';
 import '../../../../../shared/services/llm_service.dart';
 

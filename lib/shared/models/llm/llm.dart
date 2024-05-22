@@ -1,4 +1,5 @@
 import '../message/message_model.dart';
+import 'llm_form_data_item.dart';
 import 'llm_type.dart';
 
 abstract class LLM {
@@ -30,21 +31,5 @@ abstract class LLM {
   Map<String, dynamic> toJson();
 
   /// 获取表单数据
-  List<FormDataItem> getFormData();
-}
-
-class FormDataItem {
-  String label;
-  String key;
-  String value;
-  bool? isRequired;
-  bool? isDisabled;
-
-  FormDataItem({
-    required this.label,
-    required this.key,
-    required this.value,
-    this.isRequired,
-    this.isDisabled,
-  });
+  List<LLMFormDataItem> getFormData();
 }

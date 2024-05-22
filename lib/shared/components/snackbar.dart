@@ -10,8 +10,11 @@ void snackbar(
   Duration duration = const Duration(seconds: 3),
   double maxWidth = 400,
   EdgeInsets margin = const EdgeInsets.only(top: 20),
-}) {
-  _snackbarController?.close(withAnimations: false);
+}) async {
+  try {
+    await _snackbarController?.close(withAnimations: false);
+  } catch (e) {}
+
   _snackbarController = Get.snackbar(
     title,
     content,

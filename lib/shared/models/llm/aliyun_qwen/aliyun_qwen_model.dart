@@ -2,13 +2,14 @@ import 'package:TalkAI/shared/models/llm/llm_type.dart';
 
 import 'package:TalkAI/shared/models/message/message_model.dart';
 
-import '../llm_model.dart';
+import '../llm_form_data_item.dart';
+import '../llm.dart';
 import 'aliyun_qwen_api.dart';
 
 /// 阿里云通义千问模型
 class ALiYunQwenModel extends LLM {
   @override
-  final LLMType type = LLMType.aliyunQwen;
+  final LLMType type = LLMType.dash_scope;
 
   final String apiKey; // API 密钥
   final String model; // 模型名称
@@ -40,27 +41,27 @@ class ALiYunQwenModel extends LLM {
   }
 
   /// 获取初始化表单数据
-  static List<FormDataItem> getInitFormData() {
+  static List<LLMFormDataItem> getInitFormData() {
     return [
-      FormDataItem(
+      LLMFormDataItem(
         label: '类型',
         key: 'type',
-        value: LLMType.aliyunQwen.value,
+        value: LLMType.dash_scope.value,
         isDisabled: true,
       ),
-      FormDataItem(
+      LLMFormDataItem(
         label: '自定义名称',
         key: 'name',
         value: '',
         isRequired: true,
       ),
-      FormDataItem(
+      LLMFormDataItem(
         label: 'API Key',
         key: 'api_key',
         value: '',
         isRequired: true,
       ),
-      FormDataItem(
+      LLMFormDataItem(
         label: '模型名称',
         key: 'model',
         value: '',
@@ -71,27 +72,27 @@ class ALiYunQwenModel extends LLM {
 
   /// 获取表单数据
   @override
-  List<FormDataItem> getFormData() {
+  List<LLMFormDataItem> getFormData() {
     return [
-      FormDataItem(
+      LLMFormDataItem(
         label: '类型',
         key: 'type',
         value: type.value,
         isDisabled: true,
       ),
-      FormDataItem(
+      LLMFormDataItem(
         label: '自定义名称',
         key: 'name',
         value: name,
         isRequired: true,
       ),
-      FormDataItem(
+      LLMFormDataItem(
         label: 'API Key',
         key: 'api_key',
         value: apiKey,
         isRequired: true,
       ),
-      FormDataItem(
+      LLMFormDataItem(
         label: '模型名称',
         key: 'model',
         value: model,
