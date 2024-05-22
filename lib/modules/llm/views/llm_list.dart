@@ -267,6 +267,7 @@ void addLLM() {
         ),
       ),
     ),
+    barrierDismissible: false,
   );
 }
 

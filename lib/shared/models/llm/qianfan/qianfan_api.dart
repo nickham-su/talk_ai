@@ -1,14 +1,12 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
+
 import '../../../repositories/setting_repository.dart';
 import '../../message/message_model.dart';
 
-/// 阿里云DashScope API
-class DashScopeApi {
-  static const url =
-      "https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation";
-
+class QianFanApi {
   /// Dio 实例
   static Dio? _dio;
 
@@ -20,8 +18,8 @@ class DashScopeApi {
 
   /// 聊天
   static Stream<String> chatCompletions({
-    required String apiKey, // 请求密钥
-    required String model, // 请求模型
+    required String url,
+    required String accessToken, // 请求密钥
     required List<MessageModel> messages, // 聊天信息
     required double temperature, // 温度
   }) async* {
@@ -39,31 +37,46 @@ class DashScopeApi {
     messages.removeWhere((m) => m.content == '');
 
     Map<String, dynamic> data = {
-      'model': model,
-      'input': {
-        'messages': messages.map((e) => e.toJson()).toList(),
-      },
-      'parameters': {
-        'incremental_output': true,
-        'temperature': temperature,
-      },
+      'messages': messages.map((e) => e.toJson()).toList(),
+      'temperature': temperature,
+      'stream': true,
     };
 
     Response<ResponseBody> response = await _dio!.post<ResponseBody>(
       url,
       data: data,
+      queryParameters: {
+        'access_token': accessToken,
+      },
       options: Options(
         headers: {
-          'Authorization': 'Bearer $apiKey',
           'Content-Type': 'application/json',
-          'X-DashScope-SSE': 'enable',
+          'x-bce-date': DateTime.now().toUtc().toIso8601String(),
         },
         responseType: ResponseType.stream, // 设置为流式响应
       ),
     );
 
+    // 未完成的数据
+    Uint8List? uncompletedData;
+
     await for (var data in response.data!.stream) {
-      final resStr = utf8.decode(data);
+      if (uncompletedData != null) {
+        // 如果有未完成的数据，拼接数据
+        final Uint8List temp = Uint8List(uncompletedData.length + data.length);
+        temp.setAll(0, uncompletedData);
+        temp.setAll(uncompletedData.length, data);
+        data = temp;
+      }
+      late String resStr;
+      try {
+        resStr = utf8.decode(data);
+      } catch (e) {
+        // 如果解析失败，说明数据不完整
+        uncompletedData = data;
+        continue;
+      }
+
       // 匹配所有 data: 开头的字符串
       final regex = RegExp(r'data:(.*)[\n$]');
       final matchArr = regex.allMatches(resStr);
@@ -79,7 +92,7 @@ class DashScopeApi {
         // 解析 json 字符串
         final Map<String, dynamic> resJson = json.decode(jsonStr);
         ResponseModel rsp = ResponseModel.fromJson(resJson);
-        yield rsp.output.text;
+        yield rsp.result;
       }
     }
   }
@@ -87,74 +100,65 @@ class DashScopeApi {
 
 /// 响应
 class ResponseModel {
-  Output output;
+  String id;
+  String object;
+  bool isEnd;
+  String result;
   Usage usage;
-  String requestId;
 
-  ResponseModel(
-      {required this.output, required this.usage, required this.requestId});
+  ResponseModel({
+    required this.id,
+    required this.object,
+    required this.isEnd,
+    required this.result,
+    required this.usage,
+  });
 
   factory ResponseModel.fromJson(Map<String, dynamic> json) {
     return ResponseModel(
-      output: Output.fromJson(json['output']),
+      id: json['id'],
+      object: json['object'],
+      isEnd: json['is_end'],
+      result: json['result'],
       usage: Usage.fromJson(json['usage']),
-      requestId: json['request_id'],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'output': output.toJson(),
+      'id': id,
+      'object': object,
+      'is_end': isEnd,
+      'result': result,
       'usage': usage.toJson(),
-      'request_id': requestId,
-    };
-  }
-}
-
-class Output {
-  String finishReason;
-  String text;
-
-  Output({required this.finishReason, required this.text});
-
-  factory Output.fromJson(Map<String, dynamic> json) {
-    return Output(
-      finishReason: json['finish_reason'],
-      text: json['text'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'finish_reason': finishReason,
-      'text': text,
     };
   }
 }
 
 class Usage {
+  int promptTokens;
+  int completionTokens;
   int totalTokens;
-  int inputTokens;
-  int outputTokens;
 
-  Usage(
-      {required this.totalTokens,
-      required this.inputTokens,
-      required this.outputTokens});
+  Usage({
+    required this.promptTokens,
+    required this.completionTokens,
+    required this.totalTokens,
+  });
 
   factory Usage.fromJson(Map<String, dynamic> json) {
     return Usage(
+      promptTokens: json['prompt_tokens'],
+      completionTokens: json['completion_tokens'],
       totalTokens: json['total_tokens'],
-      inputTokens: json['input_tokens'],
-      outputTokens: json['output_tokens'],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
+      'prompt_tokens': promptTokens,
+      'completion_tokens': completionTokens,
       'total_tokens': totalTokens,
-      'input_tokens': inputTokens,
-      'output_tokens': outputTokens,
     };
   }
 }

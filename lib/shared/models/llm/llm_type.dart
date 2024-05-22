@@ -1,7 +1,8 @@
 /// 大语言模型类型
 enum LLMType {
   openai('openai'), // OpenAI API
-  dash_scope('dash_scope'); // 阿里云-DashScope
+  dash_scope('dash_scope'), // 阿里云-DashScope
+  qianfan('qianfan'); // 百度云-千帆
 
   final String value;
 
@@ -19,7 +20,7 @@ const Map<LLMType, ModelInfo> modelInfoMap = {
       url: 'https://openai.apifox.cn/api-55352401',
     )
   ]),
-  LLMType.dash_scope: ModelInfo(description: '阿里云-DashScope灵积模型服务', docList: [
+  LLMType.dash_scope: ModelInfo(description: '阿里云-DashScope', docList: [
     Doc(
       title: '通义千问',
       url:
@@ -33,6 +34,20 @@ const Map<LLMType, ModelInfo> modelInfoMap = {
     Doc(
       title: '更多模型',
       url: 'https://dashscope.console.aliyun.com/model',
+    ),
+  ]),
+  LLMType.qianfan: ModelInfo(description: '百度云-千帆', docList: [
+    Doc(
+      title: '平台说明',
+      url: 'https://cloud.baidu.com/doc/WENXINWORKSHOP/index.html',
+    ),
+    Doc(
+      title: '模型及费用',
+      url: 'https://cloud.baidu.com/doc/WENXINWORKSHOP/s/hlrk4akp7',
+    ),
+    Doc(
+      title: '获取access_token',
+      url: 'https://cloud.baidu.com/doc/WENXINWORKSHOP/s/Dlkm79mnx',
     ),
   ]),
 };
