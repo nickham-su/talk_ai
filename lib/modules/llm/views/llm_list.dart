@@ -1,6 +1,9 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../../shared/components/layout/models/layout_menu_type.dart';
 import '../../../shared/models/llm/llm_model.dart';
@@ -234,13 +237,44 @@ void addLLM() {
         ],
       ),
       content: SizedBox(
-        width: Get.width / 2, // or whatever you need
-        height: 200, // or whatever you need
+        width: min(Get.width / 2, 600), // or whatever you need
+        height: 250, // or whatever you need
         child: ListView.builder(
           itemCount: items.length,
           itemBuilder: (context, index) {
             return ListTile(
-              title: Text(items[index].description),
+              title: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    items[index].value,
+                    style: TextStyle(fontSize: 24),
+                  ),
+                  Row(
+                    children: [
+                      Text(
+                        items[index].description,
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w300,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          launchUrlString(items[index].docUrl);
+                        },
+                        child: Text(
+                          '查看文档',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w300,
+                          ),
+                        ),
+                      )
+                    ],
+                  )
+                ],
+              ),
               onTap: () {
                 Get.find<LLMController>().addLLM(items[index]);
                 Get.back();

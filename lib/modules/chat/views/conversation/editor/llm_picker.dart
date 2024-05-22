@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:TalkAI/shared/components/snackbar.dart';
 import 'package:flutter/material.dart';
@@ -108,8 +109,8 @@ class LLMPickerController extends GetxController {
           ],
         ),
         content: SizedBox(
-          width: Get.width / 2, // or whatever you need
-          height: 200, // or whatever you need
+          width: min(Get.width / 2, 500), // or whatever you need
+          height: 250, // or whatever you need
           child: ListView.builder(
             itemCount: llmList.length,
             itemBuilder: (context, index) {
