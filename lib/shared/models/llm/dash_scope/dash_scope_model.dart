@@ -4,17 +4,17 @@ import 'package:TalkAI/shared/models/message/message_model.dart';
 
 import '../llm_form_data_item.dart';
 import '../llm.dart';
-import 'aliyun_qwen_api.dart';
+import 'dash_scope_api.dart';
 
-/// 阿里云通义千问模型
-class ALiYunQwenModel extends LLM {
+/// 阿里云DashScope模型
+class DashScopeModel extends LLM {
   @override
   final LLMType type = LLMType.dash_scope;
 
   final String apiKey; // API 密钥
   final String model; // 模型名称
 
-  ALiYunQwenModel({
+  DashScopeModel({
     required super.llmId,
     required super.name,
     required super.lastUseTime,
@@ -22,8 +22,8 @@ class ALiYunQwenModel extends LLM {
     required this.model,
   });
 
-  factory ALiYunQwenModel.fromJson(dynamic json) {
-    return ALiYunQwenModel(
+  factory DashScopeModel.fromJson(dynamic json) {
+    return DashScopeModel(
       llmId: json['llm_id'] ?? -1,
       name: json['name'],
       lastUseTime: json['last_use_time'] ?? 0,
@@ -112,7 +112,7 @@ class ALiYunQwenModel extends LLM {
       throw 'messages is empty';
     }
 
-    return ALiYunQwenApi.chatCompletions(
+    return DashScopeApi.chatCompletions(
       apiKey: apiKey,
       model: model,
       messages: messages,
@@ -123,6 +123,6 @@ class ALiYunQwenModel extends LLM {
   /// 停止聊天
   @override
   cancel() {
-    ALiYunQwenApi.cancel();
+    DashScopeApi.cancel();
   }
 }

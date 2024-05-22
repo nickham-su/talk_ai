@@ -4,8 +4,8 @@ import 'package:dio/dio.dart';
 import '../../../repositories/setting_repository.dart';
 import '../../message/message_model.dart';
 
-/// 阿里云通义千问API
-class ALiYunQwenApi {
+/// 阿里云DashScope API
+class DashScopeApi {
   static const url =
       "https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation";
 

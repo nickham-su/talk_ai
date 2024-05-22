@@ -2,11 +2,10 @@ import 'dart:convert';
 
 import 'package:get/get.dart';
 
-import '../models/llm/aliyun_qwen/aliyun_qwen_model.dart';
+
 import '../models/llm/llm.dart';
 import '../models/llm/llm_type.dart';
 import '../models/llm/llms.dart';
-import '../models/llm/openai/openai_model.dart';
 import '../utils/sqlite.dart';
 
 class LLMRepository {

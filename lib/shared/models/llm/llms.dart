@@ -1,4 +1,5 @@
-import 'aliyun_qwen/aliyun_qwen_model.dart';
+
+import 'dash_scope/dash_scope_model.dart';
 import 'llm_form_data_item.dart';
 import 'llm.dart';
 import 'llm_type.dart';
@@ -11,7 +12,7 @@ class LLMs {
       case LLMType.openai:
         return OpenaiModel.getInitFormData();
       case LLMType.dash_scope:
-        return ALiYunQwenModel.getInitFormData();
+        return DashScopeModel.getInitFormData();
     }
   }
 
@@ -21,7 +22,7 @@ class LLMs {
       case LLMType.openai:
         return OpenaiModel.fromJson(json);
       case LLMType.dash_scope:
-        return ALiYunQwenModel.fromJson(json);
+        return DashScopeModel.fromJson(json);
     }
   }
 }
