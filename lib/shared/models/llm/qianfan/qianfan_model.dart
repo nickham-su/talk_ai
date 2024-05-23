@@ -111,7 +111,7 @@ class QianFanModel extends LLM {
 
     // 将system角色的消息，合并到第一条user角色的消息中
     final systemContent =
-    messages.first.role == MessageRole.system ? messages.first.content : '';
+        messages.first.role == MessageRole.system ? messages.first.content : '';
     messages.removeWhere((element) => element.role == MessageRole.system);
     if (messages.isNotEmpty &&
         systemContent.isNotEmpty &&
@@ -123,7 +123,7 @@ class QianFanModel extends LLM {
       url: url,
       accessToken: accessToken,
       messages: messages,
-      temperature: temperature,
+      temperature: temperature / 2, // 千帆平台的取值范围是0-1
     );
   }
 
