@@ -7,15 +7,15 @@
         <item>
             <title>Version 1.2.2</title>
             <sparkle:shortVersionString>1.2.2</sparkle:shortVersionString>
-            <sparkle:version>24</sparkle:version>
+            <sparkle:version>25</sparkle:version>
             <sparkle:releaseNotesLink>
                 https://github.com/nickham-su/talk_ai/releases/latest/download/release_notes.html
             </sparkle:releaseNotesLink>
             <pubDate>Wed, 23 May 2024 00:00:00 +0800</pubDate>
-            <enclosure url="https://github.com/nickham-su/talk_ai/releases/latest/download/TalkAI-1.2.2+24-macos.zip"
-                sparkle:edSignature="08vgNJiSIBIitfzsPPE48HYnbHZKpx8AgMMUM3eWWhmgcO9KRep6+6+edELu1LhZM7P4JVzPNEWiiShy329aAA=="
+            <enclosure url="https://github.com/nickham-su/talk_ai/releases/latest/download/TalkAI-1.2.2+25-macos.zip"
+                sparkle:edSignature="RBJWWaLGaSLJZzBXC2xLHybKDNALdaYcIMR4YEyZVIn1iG36oT4AtcBJh2bW3F0ZG6qAcV9PA2mvZqJRp1z2Ag=="
                 sparkle:os="macos"
-                length="23675164"
+                length="23664990"
                 type="application/octet-stream" />
         </item>
         <item>
