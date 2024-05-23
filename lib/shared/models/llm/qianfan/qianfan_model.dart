@@ -8,19 +8,17 @@ class QianFanModel extends LLM {
   @override
   final LLMType type = LLMType.qianfan;
 
-  final String url; // 请求地址
-  final String accessKey; // AKSK鉴权
-  final String secretKey; // AKSK鉴权
-  final String accessToken; // AccessToken鉴权
+  final String url;
+  final String apiKey;
+  final String secretKey;
 
   QianFanModel({
     required super.llmId,
     required super.name,
     required super.lastUseTime,
     required this.url,
-    required this.accessKey,
+    required this.apiKey,
     required this.secretKey,
-    required this.accessToken,
   });
 
   factory QianFanModel.fromJson(dynamic json) {
@@ -29,9 +27,8 @@ class QianFanModel extends LLM {
       name: json['name'],
       lastUseTime: json['last_use_time'] ?? 0,
       url: json['url'] ?? '',
-      accessKey: json['access_key'] ?? '',
+      apiKey: json['api_key'] ?? '',
       secretKey: json['secret_key'] ?? '',
-      accessToken: json['access_token'] ?? '',
     );
   }
 
@@ -39,9 +36,8 @@ class QianFanModel extends LLM {
   Map<String, dynamic> toJson() {
     return {
       'url': url,
-      'access_key': accessKey,
+      'api_key': apiKey,
       'secret_key': secretKey,
-      'access_token': accessToken,
     };
   }
 
@@ -67,19 +63,16 @@ class QianFanModel extends LLM {
         isRequired: true,
       ),
       LLMFormDataItem(
-        label: 'Access Token（AccessToken鉴权，两种方式二选一）',
-        key: 'access_token',
+        label: 'API Key',
+        key: 'api_key',
         value: '',
+        isRequired: true,
       ),
       LLMFormDataItem(
-        label: 'Access Key（AK/SK鉴权，两种方式二选一）',
-        key: 'access_key',
-        value: '',
-      ),
-      LLMFormDataItem(
-        label: 'Secret Key（AK/SK鉴权，两种方式二选一）',
+        label: 'Secret Key',
         key: 'secret_key',
         value: '',
+        isRequired: true,
       ),
     ];
   }
@@ -107,19 +100,16 @@ class QianFanModel extends LLM {
         isRequired: true,
       ),
       LLMFormDataItem(
-        label: 'Access Token（AccessToken鉴权，两种方式二选一）',
-        key: 'access_token',
-        value: accessToken,
+        label: 'API Key',
+        key: 'api_key',
+        value: apiKey,
+        isRequired: true,
       ),
       LLMFormDataItem(
-        label: 'Access Key（AK/SK鉴权，两种方式二选一）',
-        key: 'access_key',
-        value: accessKey,
-      ),
-      LLMFormDataItem(
-        label: 'Secret Key（AK/SK鉴权，两种方式二选一）',
+        label: 'Secret Key',
         key: 'secret_key',
         value: secretKey,
+        isRequired: true,
       ),
     ];
   }
@@ -147,9 +137,8 @@ class QianFanModel extends LLM {
 
     return QianFanApi.chatCompletions(
       url: url,
-      accessKey: accessKey,
+      apiKey: apiKey,
       secretKey: secretKey,
-      accessToken: accessToken,
       messages: messages,
       temperature: temperature / 2, // 千帆平台的取值范围是0-1
     );

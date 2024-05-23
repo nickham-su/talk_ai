@@ -126,6 +126,7 @@ Future initWindowPosition() async {
     size: size,
     titleBarStyle: TitleBarStyle.hidden,
   );
+  windowManager.waitUntilReadyToShow(windowOptions);
 
   /// 监听窗口事件
   windowManager.addListener(MyWindowListener());

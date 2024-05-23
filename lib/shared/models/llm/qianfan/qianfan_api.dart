@@ -1,8 +1,18 @@
+import 'package:dio/dio.dart';
+
 import '../../message/message_model.dart';
 import '../request/request.dart';
-import 'signature.dart';
 
 class QianFanApi {
+  /// 获取token地址
+  static const tokenUrl = 'https://aip.baidubce.com/oauth/2.0/token';
+
+  /// AccessToken
+  static AccessToken? _token;
+
+  /// token过期时间
+  static DateTime? _expireTime;
+
   /// Dio 实例
   static Request? _request;
 
@@ -11,17 +21,43 @@ class QianFanApi {
     _request?.cancel();
   }
 
+  /// 获取AccessToken
+  static _getAccessToken({
+    required String apiKey,
+    required String secretKey,
+  }) async {
+    final dio = Dio(
+      BaseOptions(
+        connectTimeout: const Duration(seconds: 10), // 连接超时
+        sendTimeout: const Duration(seconds: 10), // 发送超时
+        receiveTimeout: const Duration(seconds: 10), // 接收超时
+      ),
+    );
+
+    Response response = await dio.post(
+      tokenUrl,
+      queryParameters: {
+        'grant_type': 'client_credentials',
+        'client_id': apiKey,
+        'client_secret': secretKey,
+      },
+    );
+    _token = AccessToken.fromJson(response.data);
+    _expireTime = DateTime.now().add(Duration(seconds: _token!.expiresIn));
+  }
+
   /// 聊天
   static Stream<String> chatCompletions({
     required String url,
     required List<MessageModel> messages, // 聊天信息
     required double temperature, // 温度
-    required String accessKey, // AKSK鉴权
-    required String secretKey, // AKSK鉴权
-    required String accessToken, // AccessToken鉴权
+    required String apiKey,
+    required String secretKey,
   }) async* {
-    if (accessToken == '' && (accessKey == '' || secretKey == '')) {
-      throw 'AK/SK 或 AccessToken 不能同时为空';
+    if (_token == null ||
+        _expireTime == null ||
+        _expireTime!.isBefore(DateTime.now())) {
+      await _getAccessToken(apiKey: apiKey, secretKey: secretKey);
     }
 
     // 过滤空消息
@@ -33,40 +69,16 @@ class QianFanApi {
     final DateTime now = DateTime.now().toUtc();
     String timestamp = '${now.toIso8601String().split('.').first}Z';
 
-    // 解析url
-    final uri = Uri.parse(url);
-
-    // 请求头
-    Map<String, dynamic> headers = {
-      'Host': uri.host,
-      'Content-Type': 'application/json',
-      'x-bce-date': timestamp,
-    };
-
-    // 请求参数，默认为空
-    Map<String, dynamic>? queryParameters;
-
-    // 鉴权
-    if (accessKey != '' && secretKey != '') {
-      headers['Authorization'] = signature(
-        accessKeyId: accessKey,
-        secretAccessKey: secretKey,
-        path: uri.path,
-        method: 'POST',
-        timestamp: timestamp,
-        headers: headers,
-      );
-    } else {
-      queryParameters = {
-        'access_token': accessToken,
-      };
-    }
-
     // 发送请求
     final stream = _request!.stream(
       url: url,
-      queryParameters: queryParameters,
-      headers: headers,
+      queryParameters: {
+        'access_token': _token!.accessToken,
+      },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-bce-date': timestamp,
+      },
       data: {
         'messages': messages.map((e) => e.toJson()).toList(),
         'temperature': temperature,
@@ -143,5 +155,35 @@ class Usage {
       'completion_tokens': completionTokens,
       'total_tokens': totalTokens,
     };
+  }
+}
+
+/// AccessToken响应
+class AccessToken {
+  String refreshToken;
+  int expiresIn;
+  String sessionKey;
+  String accessToken;
+  String scope;
+  String sessionSecret;
+
+  AccessToken({
+    required this.refreshToken,
+    required this.expiresIn,
+    required this.sessionKey,
+    required this.accessToken,
+    required this.scope,
+    required this.sessionSecret,
+  });
+
+  factory AccessToken.fromJson(Map<String, dynamic> json) {
+    return AccessToken(
+      refreshToken: json['refresh_token'] as String,
+      expiresIn: json['expires_in'] as int,
+      sessionKey: json['session_key'] as String,
+      accessToken: json['access_token'] as String,
+      scope: json['scope'] as String,
+      sessionSecret: json['session_secret'] as String,
+    );
   }
 }

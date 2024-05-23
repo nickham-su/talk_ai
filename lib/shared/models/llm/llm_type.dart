@@ -40,10 +40,6 @@ const Map<LLMType, ModelInfo> modelInfoMap = {
       title: '费用说明',
       url: 'https://cloud.baidu.com/doc/WENXINWORKSHOP/s/hlrk4akp7',
     ),
-    Doc(
-      title: '鉴权',
-      url: 'https://cloud.baidu.com/doc/WENXINWORKSHOP/s/Dlkm79mnx',
-    ),
   ]),
 };
 
