@@ -5,7 +5,7 @@ import '../../../../shared/components/buttons/cancel_button.dart';
 import '../../../../shared/components/buttons/confirm_button.dart';
 import '../../../../shared/components/buttons/danger_button.dart';
 import '../../../../shared/components/dialog.dart';
-import '../../../../shared/components/form_widget/dropdown_widget.dart';
+import '../../../../shared/components/dialog_widget/dialog_widget.dart';
 import '../../../../shared/components/form_widget/slider_widget.dart';
 import '../../../../shared/components/form_widget/text_widget.dart';
 import '../../../../shared/components/snackbar.dart';
@@ -33,102 +33,76 @@ class ChatAppSettingDialog extends GetView<ChatAppSettingController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Center(
-        child: Container(
-          decoration: BoxDecoration(
-            color: Get.theme.scaffoldBackgroundColor,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: Get.theme.colorScheme.outlineVariant,
+    return DialogWidget(
+      width: 700,
+      height: 430,
+      title: isEditMode ? '编辑助理' : '新建助理',
+      child: Container(
+        height: double.infinity,
+        child: Column(
+          children: [
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      TextWidget(
+                        labelText: '助理名称',
+                        hintText: '请输入助理名称',
+                        initialValue: controller.name,
+                        isRequired: true,
+                        onChanged: (value) {
+                          controller.name = value;
+                        },
+                      ),
+                      TextWidget(
+                        labelText: '角色设定/提示词（选填）',
+                        hintText: '请输入助理角色设定/提示词',
+                        initialValue: controller.prompt,
+                        maxLines: 8,
+                        isRequired: false,
+                        onChanged: (value) {
+                          controller.prompt = value;
+                        },
+                      ),
+                      SliderWidget(
+                        labelText: 'Temperature',
+                        tooltip: '''控制生成文本的随机性，它是一个0到1之间的浮点数。
+                      当temperature接近0时,模型会变得更加确定和保守,倾向于选择概率最高的下一个词。这会导致输出更加确定但缺乏多样性。
+                      当temperature接近1时,模型会变得更加随机和富有创造力,生成的文本更加多样化但相关性可能降低。''',
+                        labelWidth: 120,
+                        initialValue: controller.temperature,
+                        max: 2,
+                        min: 0.1,
+                        divisions: 19,
+                        onChanged: (value) {
+                          controller.temperature = value;
+                        },
+                        format: (value) {
+                          if (value < 0.75) {
+                            return '${value.toStringAsFixed(2)} 严谨';
+                          } else if (value < 1.25) {
+                            return '${value.toStringAsFixed(2)} 均衡';
+                          } else {
+                            return '${value.toStringAsFixed(2)} 创意';
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
-          ),
-          width: 700,
-          height: 500,
-          child: Column(
-            children: [
-              Container(
-                width: double.infinity,
-                height: 48,
-                alignment: Alignment.centerLeft,
-                padding: const EdgeInsets.only(left: 16),
-                decoration: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(
-                      color:
-                          Get.theme.colorScheme.outlineVariant.withOpacity(0.5),
-                    ),
-                  ),
-                ),
-                child: Text(
-                  isEditMode ? '编辑助理' : '新建助理',
-                  style: const TextStyle(fontSize: 16),
-                ),
+            Container(
+              margin: EdgeInsets.only(top: 24, bottom: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: getButtons(),
               ),
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      children: [
-                        TextWidget(
-                          labelText: '助理名称',
-                          hintText: '请输入助理名称',
-                          initialValue: controller.name,
-                          isRequired: true,
-                          onChanged: (value) {
-                            controller.name = value;
-                          },
-                        ),
-                        TextWidget(
-                          labelText: '角色设定/提示词（选填）',
-                          hintText: '请输入助理角色设定/提示词',
-                          initialValue: controller.prompt,
-                          maxLines: 8,
-                          isRequired: false,
-                          onChanged: (value) {
-                            controller.prompt = value;
-                          },
-                        ),
-                        SliderWidget(
-                          labelText: 'Temperature',
-                          tooltip: '''控制生成文本的随机性，它是一个0到1之间的浮点数。
-当temperature接近0时,模型会变得更加确定和保守,倾向于选择概率最高的下一个词。这会导致输出更加确定但缺乏多样性。
-当temperature接近1时,模型会变得更加随机和富有创造力,生成的文本更加多样化但相关性可能降低。''',
-                          labelWidth: 120,
-                          initialValue: controller.temperature,
-                          max: 2,
-                          min: 0.1,
-                          divisions: 19,
-                          onChanged: (value) {
-                            controller.temperature = value;
-                          },
-                          format: (value) {
-                            if (value < 0.75) {
-                              return '${value.toStringAsFixed(2)} 严谨';
-                            } else if (value < 1.25) {
-                              return '${value.toStringAsFixed(2)} 均衡';
-                            } else {
-                              return '${value.toStringAsFixed(2)} 创意';
-                            }
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.symmetric(vertical: 24),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: getButtons(),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

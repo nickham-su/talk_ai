@@ -178,7 +178,7 @@ class ListHeader extends GetView<LLMController> {
                 onPressed: () {
                   Get.dialog(
                     const LLMShareDialog(),
-                    barrierDismissible: true,
+                    barrierDismissible: false,
                   );
                 },
                 style: ButtonStyle(

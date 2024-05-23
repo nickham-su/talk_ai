@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import '../../../repositories/setting_repository.dart';
 import '../../message/message_model.dart';
+import '../request/request.dart';
 
 /// 阿里云DashScope API
 class DashScopeApi {
@@ -10,12 +11,11 @@ class DashScopeApi {
       "https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation";
 
   /// Dio 实例
-  static Dio? _dio;
+  static Request? _request;
 
   /// 取消请求
   static cancel() {
-    _dio?.close(force: true);
-    _dio = null;
+    _request?.cancel();
   }
 
   /// 聊天
@@ -25,62 +25,33 @@ class DashScopeApi {
     required List<MessageModel> messages, // 聊天信息
     required double temperature, // 温度
   }) async* {
-    int timeout = SettingRepository.getNetworkTimeout();
-
-    _dio = Dio(
-      BaseOptions(
-        connectTimeout: Duration(seconds: timeout), // 连接超时
-        sendTimeout: Duration(seconds: timeout), // 发送超时
-        receiveTimeout: Duration(seconds: timeout), // 接收超时
-      ),
-    );
-
     // 过滤空消息
     messages.removeWhere((m) => m.content == '');
 
-    Map<String, dynamic> data = {
-      'model': model,
-      'input': {
-        'messages': messages.map((e) => e.toJson()).toList(),
-      },
-      'parameters': {
-        'incremental_output': true,
-        'temperature': temperature,
-      },
-    };
+    _request = Request();
 
-    Response<ResponseBody> response = await _dio!.post<ResponseBody>(
-      url,
-      data: data,
-      options: Options(
-        headers: {
-          'Authorization': 'Bearer $apiKey',
-          'Content-Type': 'application/json',
-          'X-DashScope-SSE': 'enable',
+    final stream = _request!.stream(
+      url: url,
+      data: {
+        'model': model,
+        'input': {
+          'messages': messages.map((e) => e.toJson()).toList(),
         },
-        responseType: ResponseType.stream, // 设置为流式响应
-      ),
+        'parameters': {
+          'incremental_output': true,
+          'temperature': temperature,
+        },
+      },
+      headers: {
+        'Authorization': 'Bearer $apiKey',
+        'Content-Type': 'application/json',
+        'X-DashScope-SSE': 'enable',
+      },
     );
 
-    await for (var data in response.data!.stream) {
-      final resStr = utf8.decode(data);
-      // 匹配所有 data: 开头的字符串
-      final regex = RegExp(r'data:(.*)[\n$]');
-      final matchArr = regex.allMatches(resStr);
-      if (matchArr.isEmpty) {
-        continue;
-      }
-      for (var match in matchArr) {
-        final data = match.group(1)!;
-        // 去掉 data: 开头的字符串, 保留 json 字符串
-        final regex = RegExp(r'^data:');
-        final jsonStr = data.replaceFirst(regex, '').trim();
-
-        // 解析 json 字符串
-        final Map<String, dynamic> resJson = json.decode(jsonStr);
-        ResponseModel rsp = ResponseModel.fromJson(resJson);
-        yield rsp.output.text;
-      }
+    await for (var data in stream) {
+      ResponseModel rsp = ResponseModel.fromJson(data);
+      yield rsp.output.text;
     }
   }
 }

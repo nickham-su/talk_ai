@@ -71,7 +71,7 @@ class ChatAppListController extends GetxController {
     } else {
       Get.dialog(
         ChatAppSettingDialog(),
-        barrierDismissible: true,
+        barrierDismissible: false,
       );
     }
   }

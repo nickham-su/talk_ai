@@ -22,32 +22,27 @@ const Map<LLMType, ModelInfo> modelInfoMap = {
   ]),
   LLMType.dash_scope: ModelInfo(description: '阿里云-DashScope', docList: [
     Doc(
-      title: '通义千问',
-      url:
-          'https://help.aliyun.com/zh/dashscope/developer-reference/model-introduction',
-    ),
-    Doc(
-      title: '通义千问-开源',
-      url:
-          'https://help.aliyun.com/zh/dashscope/developer-reference/tongyi-qianwen-7b-14b-72b-api-detailes',
-    ),
-    Doc(
-      title: '更多模型',
+      title: '模型列表',
       url: 'https://dashscope.console.aliyun.com/model',
+    ),
+    Doc(
+      title: '费用说明',
+      url: 'https://dashscope.console.aliyun.com/billing',
     ),
   ]),
   LLMType.qianfan: ModelInfo(description: '百度云-千帆', docList: [
     Doc(
-      title: '平台说明',
-      url: 'https://cloud.baidu.com/doc/WENXINWORKSHOP/index.html',
+      title: '平台入口',
+      url: 'https://qianfan.cloud.baidu.com/',
     ),
     Doc(
-      title: '模型及费用',
+      title: '模型列表(需登录)',
+      url:
+          'https://console.bce.baidu.com/qianfan/modelcenter/model/buildIn/list',
+    ),
+    Doc(
+      title: '费用说明',
       url: 'https://cloud.baidu.com/doc/WENXINWORKSHOP/s/hlrk4akp7',
-    ),
-    Doc(
-      title: '获取access_token',
-      url: 'https://cloud.baidu.com/doc/WENXINWORKSHOP/s/Dlkm79mnx',
     ),
   ]),
 };

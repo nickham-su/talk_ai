@@ -19,9 +19,9 @@ class Request {
   /// 聊天
   Stream<Map<String, dynamic>> stream({
     required String url,
-    required Map<String, dynamic> queryParameters,
     required Map<String, dynamic> data,
-    required Map<String, dynamic> headers,
+    Map<String, dynamic>? queryParameters,
+    Map<String, dynamic>? headers,
   }) async* {
     int timeout = SettingRepository.getNetworkTimeout();
     _dio = Dio(

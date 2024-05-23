@@ -7,7 +7,6 @@ import '../../../shared/components/dialog.dart';
 import '../../../shared/components/form_widget/text_widget.dart';
 import '../../../shared/components/snackbar.dart';
 import '../../../shared/models/llm/llm_form_data_item.dart';
-import '../../../shared/models/llm/llm.dart';
 import '../controllers/llm_controller.dart';
 
 class LLMSetting extends GetView<LLMController> {
@@ -15,7 +14,7 @@ class LLMSetting extends GetView<LLMController> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   // 最大宽度
-  final maxWidth = 700.0;
+  final maxWidth = 600.0;
 
   LLMSetting({super.key});
 
@@ -24,30 +23,28 @@ class LLMSetting extends GetView<LLMController> {
     double parentWidth = MediaQuery.of(context).size.width;
     return Obx(() => Form(
           key: _formKey,
-          child: Column(
-            children: [
-              Container(
-                width: double.infinity,
-                height: 49,
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                alignment: Alignment.centerLeft,
-                decoration: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(
-                      color:
-                          Get.theme.colorScheme.outlineVariant.withOpacity(0.5),
+          child: Container(
+            width: double.infinity,
+            height: double.infinity,
+            alignment: Alignment.center,
+            padding: const EdgeInsets.only(top: 40),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              width: parentWidth > maxWidth ? maxWidth : parentWidth,
+              height: double.infinity,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.only(top: 20, bottom: 20),
+                    child: Text(
+                      controller.isCreate ? '新建模型' : '编辑模型',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                   ),
-                ),
-                child: Text(controller.isCreate ? '新建模型' : '编辑模型'),
-              ),
-              Expanded(
-                  child: Center(
-                child: Container(
-                  width: parentWidth > maxWidth ? maxWidth : parentWidth,
-                  height: double.infinity,
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: ListView(
+                  Expanded(
+                      child: ListView(
                     children: [
                       ...controller.formData
                           .map((e) => FormItem(data: e))
@@ -60,10 +57,10 @@ class LLMSetting extends GetView<LLMController> {
                         ),
                       )
                     ],
-                  ),
-                ),
-              )),
-            ],
+                  )),
+                ],
+              ),
+            ),
           ),
         ));
   }
