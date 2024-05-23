@@ -63,6 +63,8 @@ dependencies:
   clipboard: ^0.1.3
   # 文本差异对比
   diff_match_patch: ^0.4.1
+  # 加解密
+  crypto: ^3.0.3
 
 dev_dependencies:
   flutter_test:

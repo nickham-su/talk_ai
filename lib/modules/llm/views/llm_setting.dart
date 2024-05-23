@@ -14,7 +14,7 @@ class LLMSetting extends GetView<LLMController> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   // 最大宽度
-  final maxWidth = 600.0;
+  final maxWidth = 700.0;
 
   LLMSetting({super.key});
 

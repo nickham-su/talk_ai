@@ -63,9 +63,11 @@ class Request {
       }
 
       // 匹配所有 data: 开头的字符串
-      final regex = RegExp(r'data:(.*)[\n$]');
+      final regex = RegExp(r'data:(.*)(?=\n|$|data:)');
       final matchArr = regex.allMatches(resStr);
       if (matchArr.isEmpty) {
+        // 数据不完整
+        uncompletedData = data;
         continue;
       }
 
@@ -86,6 +88,10 @@ class Request {
         continue;
       }
 
+      // 成功解析数据，清空未完成数据
+      uncompletedData = null;
+
+      // 返回数据
       for (var jsonData in jsonList) {
         yield jsonData;
       }

@@ -1,5 +1,6 @@
 import '../../message/message_model.dart';
 import '../request/request.dart';
+import 'signature.dart';
 
 class QianFanApi {
   /// Dio 实例
@@ -13,28 +14,63 @@ class QianFanApi {
   /// 聊天
   static Stream<String> chatCompletions({
     required String url,
-    required String accessToken, // 请求密钥
     required List<MessageModel> messages, // 聊天信息
     required double temperature, // 温度
+    required String accessKey, // AKSK鉴权
+    required String secretKey, // AKSK鉴权
+    required String accessToken, // AccessToken鉴权
   }) async* {
+    if (accessToken == '' && (accessKey == '' || secretKey == '')) {
+      throw 'AK/SK 或 AccessToken 不能同时为空';
+    }
+
     // 过滤空消息
     messages.removeWhere((m) => m.content == '');
 
     _request = Request();
 
+    // 获取当前时间
+    final DateTime now = DateTime.now().toUtc();
+    String timestamp = '${now.toIso8601String().split('.').first}Z';
+
+    // 解析url
+    final uri = Uri.parse(url);
+
+    // 请求头
+    Map<String, dynamic> headers = {
+      'Host': uri.host,
+      'Content-Type': 'application/json',
+      'x-bce-date': timestamp,
+    };
+
+    // 请求参数，默认为空
+    Map<String, dynamic>? queryParameters;
+
+    // 鉴权
+    if (accessKey != '' && secretKey != '') {
+      headers['Authorization'] = signature(
+        accessKeyId: accessKey,
+        secretAccessKey: secretKey,
+        path: uri.path,
+        method: 'POST',
+        timestamp: timestamp,
+        headers: headers,
+      );
+    } else {
+      queryParameters = {
+        'access_token': accessToken,
+      };
+    }
+
+    // 发送请求
     final stream = _request!.stream(
       url: url,
-      queryParameters: {
-        'access_token': accessToken,
-      },
+      queryParameters: queryParameters,
+      headers: headers,
       data: {
         'messages': messages.map((e) => e.toJson()).toList(),
         'temperature': temperature,
         'stream': true,
-      },
-      headers: {
-        'Content-Type': 'application/json',
-        'x-bce-date': DateTime.now().toUtc().toIso8601String(),
       },
     );
 

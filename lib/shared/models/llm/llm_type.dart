@@ -32,10 +32,6 @@ const Map<LLMType, ModelInfo> modelInfoMap = {
   ]),
   LLMType.qianfan: ModelInfo(description: '百度云-千帆', docList: [
     Doc(
-      title: '平台入口',
-      url: 'https://qianfan.cloud.baidu.com/',
-    ),
-    Doc(
       title: '模型列表(需登录)',
       url:
           'https://console.bce.baidu.com/qianfan/modelcenter/model/buildIn/list',
@@ -43,6 +39,10 @@ const Map<LLMType, ModelInfo> modelInfoMap = {
     Doc(
       title: '费用说明',
       url: 'https://cloud.baidu.com/doc/WENXINWORKSHOP/s/hlrk4akp7',
+    ),
+    Doc(
+      title: '鉴权',
+      url: 'https://cloud.baidu.com/doc/WENXINWORKSHOP/s/Dlkm79mnx',
     ),
   ]),
 };
