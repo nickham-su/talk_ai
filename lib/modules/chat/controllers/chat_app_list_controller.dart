@@ -82,12 +82,14 @@ class ChatAppListController extends GetxController {
     required String prompt,
     required double temperature,
     required int llmId,
+    required bool multipleRound, // 是否多轮对话
   }) {
     final app = ChatAppRepository.insert(
       name: name,
       prompt: prompt,
       temperature: temperature,
       llmId: llmId,
+      multipleRound: multipleRound,
     );
     refreshChatApps();
     selectChatApp(app.chatAppId);
@@ -100,6 +102,7 @@ class ChatAppListController extends GetxController {
     required String prompt,
     required double temperature,
     required int llmId,
+    required bool multipleRound,
   }) async {
     ChatAppRepository.update(
       chatAppId: chatAppId,
@@ -107,6 +110,7 @@ class ChatAppListController extends GetxController {
       prompt: prompt,
       temperature: temperature,
       llmId: llmId,
+      multipleRound: multipleRound,
     );
     refreshChatApps();
     // 如果最后一个会话只有一条系统消息，则更新助理设定

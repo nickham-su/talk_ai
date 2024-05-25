@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -34,8 +36,8 @@ class ChatAppSettingDialog extends GetView<ChatAppSettingController> {
   @override
   Widget build(BuildContext context) {
     return DialogWidget(
-      width: 700,
-      height: 450,
+      width: min(Get.width / 2, 600),
+      height: 510,
       title: isEditMode ? '编辑助理' : '新建助理',
       child: Container(
         height: double.infinity,
@@ -57,6 +59,19 @@ class ChatAppSettingDialog extends GetView<ChatAppSettingController> {
                           controller.name = value;
                         },
                       ),
+                      DropdownWidget<bool>(
+                        labelText: '对话方式',
+                        isRequired: true,
+                        initialValue: controller.multipleRound,
+                        items: [
+                          DropdownOption(label: '多轮对话', value: true),
+                          DropdownOption(label: '单轮对话', value: false),
+                        ],
+                        onChanged: (bool? value) {
+                          if (value == null) return;
+                          controller.multipleRound = value;
+                        },
+                      ),
                       TextWidget(
                         labelText: '角色设定/提示词（选填）',
                         hintText: '请输入助理角色设定/提示词',
@@ -67,17 +82,16 @@ class ChatAppSettingDialog extends GetView<ChatAppSettingController> {
                           controller.prompt = value;
                         },
                       ),
-                      Obx(() => DropdownWidget<int>(
-                            labelText: '默认模型（选填。如果选择，新会话自动切换该模型）',
-                            isRequired: true,
-                            initialValue: controller.llmId,
-                            items: controller.llmOptions,
-                            onChanged: (int? value) {
-                              if (value != null) {
-                                controller.llmId = value;
-                              }
-                            },
-                          )),
+                      DropdownWidget<int>(
+                        labelText: '默认模型（选填。如果选择，新会话自动切换该模型）',
+                        isRequired: true,
+                        initialValue: controller.llmId,
+                        items: controller.llmOptions,
+                        onChanged: (int? value) {
+                          if (value == null) return;
+                          controller.llmId = value;
+                        },
+                      ),
                       SliderWidget(
                         labelText: 'Temperature',
                         tooltip: '''控制生成文本的随机性，它是一个0到1之间的浮点数。
@@ -159,6 +173,7 @@ class ChatAppSettingDialog extends GetView<ChatAppSettingController> {
           prompt: controller.prompt,
           temperature: controller.temperature,
           llmId: controller.llmId,
+          multipleRound: controller.multipleRound,
         );
         Get.back();
         await Future.delayed(const Duration(milliseconds: 200));
@@ -179,6 +194,7 @@ class ChatAppSettingDialog extends GetView<ChatAppSettingController> {
           prompt: controller.prompt,
           temperature: controller.temperature,
           llmId: controller.llmId,
+          multipleRound: controller.multipleRound,
         );
         Get.back();
         await Future.delayed(const Duration(milliseconds: 200));

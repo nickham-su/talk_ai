@@ -10,9 +10,12 @@ class ChatAppSettingController extends GetxController {
   String prompt = '';
   double temperature = 1;
   int llmId = 0;
+  bool multipleRound = true;
 
+  /// llm服务
   final llmService = Get.find<LLMService>();
 
+  /// llm选项
   List<DropdownOption<int>> get llmOptions {
     List<DropdownOption<int>> options = [
       DropdownOption<int>(value: 0, label: '无'),
@@ -22,6 +25,7 @@ class ChatAppSettingController extends GetxController {
     return options;
   }
 
+  /// 设置表单数据
   void setFormData(ChatAppModel chatAppModel) {
     chatAppId = chatAppModel.chatAppId;
     name = chatAppModel.name;
@@ -32,13 +36,16 @@ class ChatAppSettingController extends GetxController {
     } else {
       llmId = chatAppModel.llmId;
     }
+    multipleRound = chatAppModel.multipleRound;
   }
 
+  /// 初始化表单数据
   void initFormData() {
     chatAppId = 0;
     name = '';
     prompt = '';
     temperature = 1;
     llmId = 0;
+    multipleRound = true;
   }
 }

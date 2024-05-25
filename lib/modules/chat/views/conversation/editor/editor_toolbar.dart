@@ -89,7 +89,7 @@ class AddButton extends StatelessWidget {
         ),
         onPressed: () {
           final controller = Get.find<ChatAppController>();
-          controller.createConversation();
+          controller.addConversation();
           // 滚动到底部
           controller.scrollToBottom();
           // 聚焦输入框

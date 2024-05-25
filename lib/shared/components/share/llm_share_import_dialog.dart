@@ -107,6 +107,7 @@ class LLMShareImportDialog extends StatelessWidget {
             name: app['name'],
             prompt: app['prompt'],
             temperature: app['temperature'],
+            multipleRound: app['multiple_round'] ?? true,
           );
         } catch (e) {
           if (app['name'] != null) {

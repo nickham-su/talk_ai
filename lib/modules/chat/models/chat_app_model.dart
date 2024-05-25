@@ -8,6 +8,7 @@ class ChatAppModel {
   final DateTime lastUseTime; // 最后使用时间
   final DateTime toppingTime; // 置顶时间
   final int llmId; // 默认模型id
+  final bool multipleRound; // 是否多轮对话
 
   ChatAppModel({
     required this.chatAppId,
@@ -18,5 +19,6 @@ class ChatAppModel {
     required this.lastUseTime,
     required this.toppingTime,
     required this.llmId,
+    required this.multipleRound,
   });
 }

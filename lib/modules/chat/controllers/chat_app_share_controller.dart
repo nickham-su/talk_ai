@@ -40,6 +40,7 @@ class ChatAppShareController extends GetxController {
         'name': e.name,
         'prompt': e.prompt,
         'temperature': e.temperature,
+        'multiple_round': e.multipleRound,
       };
     }).toList();
     final jsonStr = jsonEncode({'apps': apps});

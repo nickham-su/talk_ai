@@ -129,7 +129,7 @@ class ChatAppController extends GetxController {
 
     // 如果会话列表为空，则创建新会话
     if (all.isEmpty) {
-      createConversation();
+      addConversation();
     }
 
     update();
@@ -142,8 +142,8 @@ class ChatAppController extends GetxController {
     update();
   }
 
-  /// 创建新会话
-  void createConversation() {
+  /// 添加新会话
+  void addConversation() {
     if (chatApp == null) {
       return;
     }
@@ -157,6 +157,22 @@ class ChatAppController extends GetxController {
       }
     }
 
+    // 创建会话，并添加系统消息
+    _createConversation();
+
+    // 记录使用chatApp
+    useChatApp();
+
+    // 如果chatApp有默认模型，则设置默认模型
+    if (llmService.getLLM(chatApp!.llmId) != null) {
+      Get.find<LLMPickerController>().setLLM(chatApp!.llmId);
+    }
+
+    update();
+  }
+
+  /// 创建会话，并添加系统消息
+  void _createConversation() {
     // 创建新会话
     final conversation =
         conversationService.insertConversation(chatApp!.chatAppId);
@@ -170,16 +186,6 @@ class ChatAppController extends GetxController {
       content: chatApp!.prompt,
       status: MessageStatus.completed,
     );
-
-    // 记录使用chatApp
-    useChatApp();
-
-    // 如果chatApp有默认模型，则设置默认模型
-    if (llmService.getLLM(chatApp!.llmId) != null) {
-      Get.find<LLMPickerController>().setLLM(chatApp!.llmId);
-    }
-
-    update();
   }
 
   /// 删除会话
@@ -290,6 +296,15 @@ class ChatAppController extends GetxController {
     if (llm == null) {
       snackbar('提示', '模型设置错误，请检查！');
       return;
+    }
+
+    // 处理单轮对话
+    if (chatApp!.multipleRound == false) {
+      final countMessage =
+          messageService.getMessageList(bottomConversationIds.last).length;
+      if (countMessage > 1) {
+        _createConversation();
+      }
     }
 
     // 会话id
