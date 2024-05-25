@@ -7,6 +7,7 @@ class ChatAppModel {
   final double topP; // top_p
   final DateTime lastUseTime; // 最后使用时间
   final DateTime toppingTime; // 置顶时间
+  final int llmId; // 默认模型id
 
   ChatAppModel({
     required this.chatAppId,
@@ -16,5 +17,6 @@ class ChatAppModel {
     required this.topP,
     required this.lastUseTime,
     required this.toppingTime,
+    required this.llmId,
   });
 }

@@ -6,6 +6,7 @@ import '../../../../shared/components/buttons/confirm_button.dart';
 import '../../../../shared/components/buttons/danger_button.dart';
 import '../../../../shared/components/dialog.dart';
 import '../../../../shared/components/dialog_widget/dialog_widget.dart';
+import '../../../../shared/components/form_widget/dropdown_widget.dart';
 import '../../../../shared/components/form_widget/slider_widget.dart';
 import '../../../../shared/components/form_widget/text_widget.dart';
 import '../../../../shared/components/snackbar.dart';
@@ -15,8 +16,7 @@ import '../../controllers/chat_app_setting_controller.dart';
 import '../../models/chat_app_model.dart';
 
 class ChatAppSettingDialog extends GetView<ChatAppSettingController> {
-  final llmService = Get.find<LLMService>();
-  final ChatAppListController chatAppController =
+  final ChatAppListController chatAppListController =
       Get.find<ChatAppListController>();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -35,7 +35,7 @@ class ChatAppSettingDialog extends GetView<ChatAppSettingController> {
   Widget build(BuildContext context) {
     return DialogWidget(
       width: 700,
-      height: 430,
+      height: 450,
       title: isEditMode ? '编辑助理' : '新建助理',
       child: Container(
         height: double.infinity,
@@ -61,12 +61,23 @@ class ChatAppSettingDialog extends GetView<ChatAppSettingController> {
                         labelText: '角色设定/提示词（选填）',
                         hintText: '请输入助理角色设定/提示词',
                         initialValue: controller.prompt,
-                        maxLines: 8,
+                        maxLines: 4,
                         isRequired: false,
                         onChanged: (value) {
                           controller.prompt = value;
                         },
                       ),
+                      Obx(() => DropdownWidget<int>(
+                            labelText: '默认模型（选填。如果选择，新会话自动切换该模型）',
+                            isRequired: true,
+                            initialValue: controller.llmId,
+                            items: controller.llmOptions,
+                            onChanged: (int? value) {
+                              if (value != null) {
+                                controller.llmId = value;
+                              }
+                            },
+                          )),
                       SliderWidget(
                         labelText: 'Temperature',
                         tooltip: '''控制生成文本的随机性，它是一个0到1之间的浮点数。
@@ -143,10 +154,11 @@ class ChatAppSettingDialog extends GetView<ChatAppSettingController> {
   void addChatApp() async {
     if (_formKey.currentState!.validate()) {
       try {
-        chatAppController.addChatApp(
+        chatAppListController.addChatApp(
           name: controller.name,
           prompt: controller.prompt,
           temperature: controller.temperature,
+          llmId: controller.llmId,
         );
         Get.back();
         await Future.delayed(const Duration(milliseconds: 200));
@@ -161,11 +173,12 @@ class ChatAppSettingDialog extends GetView<ChatAppSettingController> {
   void editChatApp() async {
     if (_formKey.currentState!.validate()) {
       try {
-        chatAppController.updateChatApp(
+        chatAppListController.updateChatApp(
           chatAppId: controller.chatAppId,
           name: controller.name,
           prompt: controller.prompt,
           temperature: controller.temperature,
+          llmId: controller.llmId,
         );
         Get.back();
         await Future.delayed(const Duration(milliseconds: 200));
@@ -185,7 +198,7 @@ class ChatAppSettingDialog extends GetView<ChatAppSettingController> {
         text: '删除',
         onPressed: () async {
           Get.back(); // 关闭确认对话框
-          chatAppController.deleteChatApp(controller.chatAppId);
+          chatAppListController.deleteChatApp(controller.chatAppId);
           await Future.delayed(const Duration(milliseconds: 200));
           Get.back(); // 关闭设置窗口
           await Future.delayed(const Duration(milliseconds: 200));

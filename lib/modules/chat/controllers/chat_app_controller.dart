@@ -174,6 +174,11 @@ class ChatAppController extends GetxController {
     // 记录使用chatApp
     useChatApp();
 
+    // 如果chatApp有默认模型，则设置默认模型
+    if (llmService.getLLM(chatApp!.llmId) != null) {
+      Get.find<LLMPickerController>().setLLM(chatApp!.llmId);
+    }
+
     update();
   }
 

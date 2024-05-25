@@ -5,7 +5,6 @@ class ChatAppRepository {
   static String tableName = 'chat_app';
 
   /// 创建表
-  /// llm_id已废弃
   static void initTable() {
     Sqlite.db.execute('''
       CREATE TABLE IF NOT EXISTS $tableName (
@@ -37,7 +36,8 @@ class ChatAppRepository {
     required String name,
     required String prompt,
     required double temperature,
-    double topP = 0.95,
+    double topP = 0.95, // 默认top_p
+    int llmId = 0, // 默认模型id，0表示没有设置默认模型
   }) {
     final lastUseTime = DateTime.now();
     Sqlite.db.execute('''
@@ -47,7 +47,7 @@ class ChatAppRepository {
       name,
       prompt,
       lastUseTime.millisecondsSinceEpoch,
-      0, // llm_id已废弃
+      llmId,
       temperature,
       topP
     ]);
@@ -60,6 +60,7 @@ class ChatAppRepository {
       temperature: temperature,
       topP: topP,
       toppingTime: DateTime.fromMillisecondsSinceEpoch(0),
+      llmId: llmId,
     );
   }
 
@@ -78,6 +79,7 @@ class ChatAppRepository {
         topP: e['top_p'] as double,
         toppingTime:
             DateTime.fromMillisecondsSinceEpoch(e['topping_time'] as int),
+        llmId: e['llm_id'] as int,
       );
     }).toList();
   }
@@ -88,17 +90,19 @@ class ChatAppRepository {
     required String name,
     required String prompt,
     required double temperature,
+    required int llmId,
   }) {
     final lastUseTime = DateTime.now();
     Sqlite.db.execute('''
       UPDATE $tableName
-      SET name = ?, prompt = ?, last_use_time = ?, temperature = ?
+      SET name = ?, prompt = ?, last_use_time = ?, temperature = ?, llm_id = ?
       WHERE chat_app_id = ?
     ''', [
       name,
       prompt,
       lastUseTime.millisecondsSinceEpoch,
       temperature,
+      llmId,
       chatAppId
     ]);
   }

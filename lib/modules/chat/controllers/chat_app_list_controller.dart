@@ -81,11 +81,13 @@ class ChatAppListController extends GetxController {
     required String name,
     required String prompt,
     required double temperature,
+    required int llmId,
   }) {
     final app = ChatAppRepository.insert(
       name: name,
       prompt: prompt,
       temperature: temperature,
+      llmId: llmId,
     );
     refreshChatApps();
     selectChatApp(app.chatAppId);
@@ -97,12 +99,14 @@ class ChatAppListController extends GetxController {
     required String name,
     required String prompt,
     required double temperature,
+    required int llmId,
   }) async {
     ChatAppRepository.update(
       chatAppId: chatAppId,
       name: name,
       prompt: prompt,
       temperature: temperature,
+      llmId: llmId,
     );
     refreshChatApps();
     // 如果最后一个会话只有一条系统消息，则更新助理设定
