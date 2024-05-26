@@ -1,3 +1,4 @@
+import 'coze/coze_model.dart';
 import 'dash_scope/dash_scope_model.dart';
 import 'llm_form_data_item.dart';
 import 'llm.dart';
@@ -15,6 +16,8 @@ class LLMs {
         return DashScopeModel.getInitFormData();
       case LLMType.qianfan:
         return QianFanModel.getInitFormData();
+      case LLMType.coze:
+        return CozeModel.getInitFormData();
     }
   }
 
@@ -27,6 +30,8 @@ class LLMs {
         return DashScopeModel.fromJson(json);
       case LLMType.qianfan:
         return QianFanModel.fromJson(json);
+      case LLMType.coze:
+        return CozeModel.fromJson(json);
     }
   }
 }

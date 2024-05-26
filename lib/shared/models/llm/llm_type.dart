@@ -2,7 +2,8 @@
 enum LLMType {
   openai('openai'), // OpenAI API
   dash_scope('dash_scope'), // 阿里云-DashScope
-  qianfan('qianfan'); // 百度云-千帆
+  qianfan('qianfan'), // 百度云-千帆
+  coze('coze'); // Coze扣子
 
   final String value;
 
@@ -39,6 +40,16 @@ const Map<LLMType, ModelInfo> modelInfoMap = {
     Doc(
       title: '费用说明',
       url: 'https://cloud.baidu.com/doc/WENXINWORKSHOP/s/hlrk4akp7',
+    ),
+  ]),
+  LLMType.coze: ModelInfo(description: 'Coze扣子', docList: [
+    Doc(
+      title: '国内版',
+      url: 'https://www.coze.cn',
+    ),
+    Doc(
+      title: '海外版',
+      url: 'https://www.coze.com',
     ),
   ]),
 };

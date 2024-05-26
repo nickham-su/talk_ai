@@ -237,7 +237,7 @@ void addLLM() {
       ),
       content: SizedBox(
         width: min(Get.width / 2, 600), // or whatever you need
-        height: 250, // or whatever you need
+        height: 280, // or whatever you need
         child: ListView.builder(
           itemCount: items.length,
           itemBuilder: (context, index) {

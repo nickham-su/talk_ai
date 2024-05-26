@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../../shared/components/buttons/confirm_button.dart';
 import '../../../shared/components/buttons/danger_button.dart';
 import '../../../shared/components/dialog.dart';
+import '../../../shared/components/form_widget/dropdown_widget.dart';
 import '../../../shared/components/form_widget/text_widget.dart';
 import '../../../shared/components/snackbar.dart';
 import '../../../shared/models/llm/llm_form_data_item.dart';
@@ -141,14 +142,30 @@ class FormItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextWidget(
+    if (data.options == null) {
+      // 文本框
+      return TextWidget(
+        labelText: data.label,
+        onChanged: (value) {
+          data.value = value;
+        },
+        initialValue: data.value,
+        isRequired: data.isRequired ?? false,
+        isDisabled: data.isDisabled ?? false,
+      );
+    }
+
+    // 下拉框
+    return DropdownWidget(
       labelText: data.label,
+      items: data.options!
+          .map((e) => DropdownOption<String>(label: e, value: e))
+          .toList(),
       onChanged: (value) {
-        data.value = value;
+        data.value = value.toString();
       },
       initialValue: data.value,
       isRequired: data.isRequired ?? false,
-      isDisabled: data.isDisabled ?? false,
     );
   }
 }
