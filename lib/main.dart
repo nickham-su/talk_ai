@@ -6,6 +6,7 @@ import 'package:TalkAI/shared/repositories/create_tables.dart';
 import 'package:TalkAI/shared/controllers/app_update_controller.dart';
 import 'package:TalkAI/shared/services/generate_message_service.dart';
 import 'package:TalkAI/shared/services/llm_service.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -36,6 +37,9 @@ void main() async {
   /// 创建数据库
   Sqlite.openDB(appDocDir);
   initDBTables();
+
+  /// 设置图片缓存时间
+  clearDiskCachedImages(duration: const Duration(days: 365));
 
   /// 注册全局控制器、服务
   Get.put(LayoutController(), permanent: true);

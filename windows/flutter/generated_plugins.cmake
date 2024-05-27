@@ -4,6 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   auto_updater_windows
+  file_saver
   screen_retriever
   sqlite3_flutter_libs
   url_launcher_windows

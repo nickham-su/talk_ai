@@ -82,7 +82,7 @@ class CozeApi {
       if (rsp.message!.type == 'answer') {
         yield rsp.message!.content;
       } else if (rsp.message!.type == 'function_call') {
-        yield '正在调用插件...\n> ${rsp.message!.content}\n\n';
+        yield '> 正在调用插件...\n${rsp.message!.content}\n\n';
       }
     }
   }
