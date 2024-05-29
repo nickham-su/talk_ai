@@ -69,19 +69,25 @@ Widget imgBuilder(String url, Map<String, String> attributes) {
 
   final Widget imgWidget;
   if (isNetImage) {
-    imgWidget = NetworkImageWidget(url: imageUrl, maxWidth: imgWidth);
+    imgWidget = NetworkImageWidget(imageUrl, fit: BoxFit.cover,
+        errorBuilder: (ctx, error, stacktrace) {
+      return buildErrorImage(imageUrl, alt, error);
+    });
   } else if (isDataUrl) {
-    imgWidget = Base64DataUrlImage(imageUrl, width: imgWidth, fit: BoxFit.cover,
+    imgWidget = Base64DataUrlImage(imageUrl, fit: BoxFit.cover,
         errorBuilder: (ctx, error, stacktrace) {
       return buildErrorImage(imageUrl, alt, error);
     });
   } else {
-    imgWidget = Image.asset(imageUrl, width: imgWidth, fit: BoxFit.cover,
+    imgWidget = Image.asset(imageUrl, fit: BoxFit.cover,
         errorBuilder: (ctx, error, stacktrace) {
       return buildErrorImage(imageUrl, alt, error);
     });
   }
-  return imgWidget;
+  return ConstrainedBox(
+    constraints: BoxConstraints(maxWidth: imgWidth),
+    child: imgWidget,
+  );
 }
 
 /// 构建错误图片

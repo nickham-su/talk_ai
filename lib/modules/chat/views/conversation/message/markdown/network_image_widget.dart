@@ -16,12 +16,14 @@ import '../../../../../../shared/utils/app_cache_dir.dart';
 /// 网络图片组件
 class NetworkImageWidget extends StatefulWidget {
   final String url; // 图片地址
-  final double? maxWidth; // 最大宽度
+  final BoxFit? fit; // 图片填充方式
+  final ImageErrorWidgetBuilder? errorBuilder; // 错误构建器
 
-  const NetworkImageWidget({
+  const NetworkImageWidget(
+    this.url, {
     Key? key,
-    required this.url,
-    required this.maxWidth,
+    this.fit,
+    this.errorBuilder,
   }) : super(key: key);
 
   @override
@@ -59,33 +61,25 @@ class _NetworkImageWidgetState extends State<NetworkImageWidget> {
     _imgPath = path.join(imgDirPath, fileName);
 
     final imgFile = File(_imgPath!);
-    if (await imgFile.exists() == false) {
+    if (await imgFile.exists()) {
+      _isLoad = true;
+    } else {
       // 没有缓存文件，下载图片
       try {
         final response = await newDio(timeout: 30).get(widget.url,
             options: Options(responseType: ResponseType.bytes));
         await imgFile.writeAsBytes(response.data as List<int>);
-      } catch (e) {
-        // 下载失败
-        _imageWidget = getErrorWidget();
-        if (mounted) {
-          setState(() {});
-        }
-        return;
-      }
+        _isLoad = true;
+      } catch (e) {}
     }
 
     // 用缓存文件加载图片
     _imageWidget = Image.file(
       imgFile,
-      width: widget.maxWidth,
-      fit: BoxFit.cover,
-      errorBuilder: (context, error, stackTrace) {
-        return getErrorWidget();
-      },
+      fit: widget.fit,
+      errorBuilder: widget.errorBuilder,
     );
 
-    _isLoad = true;
     setState(() {});
   }
 
@@ -148,27 +142,6 @@ class _NetworkImageWidgetState extends State<NetworkImageWidget> {
       height: 300,
       alignment: Alignment.center,
       child: CircularProgressIndicator(),
-    );
-  }
-
-  /// 获取加载失败组件
-  getErrorWidget() {
-    return Row(
-      children: [
-        Icon(
-          Icons.broken_image,
-          color: Get.theme.colorScheme.error,
-          size: 20,
-        ),
-        const SizedBox(width: 4),
-        Text(
-          '图片加载失败',
-          style: TextStyle(
-            fontSize: 14,
-            color: Get.theme.colorScheme.error,
-          ),
-        ),
-      ],
     );
   }
 }
