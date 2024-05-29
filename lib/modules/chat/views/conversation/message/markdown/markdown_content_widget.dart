@@ -21,7 +21,7 @@ class MarkdownContentWidget extends StatelessWidget {
     return GetBuilder<ChatAppController>(
       builder: (ChatAppController controller) {
         // 搜索结果规则
-        List<m.InlineSyntax> inlineSyntaxList = [];
+        List<m.InlineSyntax> inlineSyntaxList = [CustomImageSyntax()];
         if (controller.searchKeyword.isNotEmpty) {
           inlineSyntaxList.add(SearchSyntax(controller.searchKeyword));
         }

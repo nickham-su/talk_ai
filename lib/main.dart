@@ -6,19 +6,17 @@ import 'package:TalkAI/shared/repositories/create_tables.dart';
 import 'package:TalkAI/shared/controllers/app_update_controller.dart';
 import 'package:TalkAI/shared/services/generate_message_service.dart';
 import 'package:TalkAI/shared/services/llm_service.dart';
-import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as path;
 import 'package:window_manager/window_manager.dart';
 
 import 'modules/chat/controllers/chat_app_controller.dart';
 import 'shared/repositories/setting_repository.dart';
 import 'shared/services/conversation_service.dart';
 import 'shared/services/message_service.dart';
+import 'shared/utils/app_cache_dir.dart';
 import 'shared/utils/sqlite.dart';
 
 void main() async {
@@ -26,20 +24,17 @@ void main() async {
   await windowManager.ensureInitialized();
 
   /// 创建TalkAI文件夹
-  final appDocDir = await createDir();
+  final appCacheDir = await getAppCacheDir();
 
   /// 初始化Hive，窗口位置存在Hive中，所以要先初始化Hive
-  Hive.init(appDocDir);
+  Hive.init(appCacheDir);
 
   /// 初始化窗口位置
   await initWindowPosition();
 
   /// 创建数据库
-  Sqlite.openDB(appDocDir);
+  Sqlite.openDB(appCacheDir);
   initDBTables();
-
-  /// 设置图片缓存时间
-  clearDiskCachedImages(duration: const Duration(days: 365));
 
   /// 注册全局控制器、服务
   Get.put(LayoutController(), permanent: true);
@@ -87,22 +82,6 @@ void main() async {
       getPages: Routes.routes,
     ),
   ));
-}
-
-/// 创建文件夹
-Future<String> createDir() async {
-  final dir = await getApplicationDocumentsDirectory();
-  final oldTalkAIDir = Directory(path.join(dir.path, 'TalkAI'));
-  final newTalkAIDir = Directory(path.join(dir.path, '.TalkAI'));
-  if (oldTalkAIDir.existsSync() && !newTalkAIDir.existsSync()) {
-    // 将TalkAI文件夹重命名为.TalkAI
-    oldTalkAIDir.renameSync(newTalkAIDir.path);
-  } else if (!oldTalkAIDir.existsSync() && !newTalkAIDir.existsSync()) {
-    // 创建.TalkAI文件夹
-    newTalkAIDir.createSync();
-  }
-  print('talkAIDir:$newTalkAIDir');
-  return newTalkAIDir.path;
 }
 
 /// 关闭窗口快捷键回调
