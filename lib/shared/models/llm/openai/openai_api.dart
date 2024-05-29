@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import '../../message/message_model.dart';
 import '../request/request.dart';
 
@@ -53,7 +55,7 @@ class OpenaiApi {
     await for (var data in stream) {
       final rsp = ChatCompletionsResponse.fromJson(data);
       for (var choice in rsp.choices) {
-        yield choice.delta.content ?? '';
+        yield choice.delta?.content ?? '';
       }
     }
   }
@@ -107,7 +109,7 @@ class ChoiceModel {
   ChoiceModel({
     this.index,
     this.finishReason,
-    required this.delta,
+    this.delta,
   });
 
   /// 索引号，例如：0
@@ -117,20 +119,20 @@ class ChoiceModel {
   final String? finishReason;
 
   /// 消息模型
-  final Delta delta;
+  final Delta? delta;
 
   factory ChoiceModel.fromJson(Map<String, dynamic> json) {
     return ChoiceModel(
       index: json['index'],
       finishReason: json['finish_reason'],
-      delta: Delta.fromJson(json['delta']),
+      delta: json['delta'] != null ? Delta.fromJson(json['delta']) : null,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'index': index,
-      'delta': delta.toJson(),
+      'delta': delta?.toJson(),
       'finish_reason': finishReason,
     };
   }

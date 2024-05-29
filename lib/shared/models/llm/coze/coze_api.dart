@@ -78,6 +78,9 @@ class CozeApi {
 
     await for (var data in stream) {
       ResponseModel rsp = ResponseModel.fromJson(data);
+      if (rsp.event == 'error') {
+        throw '${rsp.errorInformation!.errMsg}\nurl: $url\nbot_id: ${botId}';
+      }
       if (rsp.message == null) continue;
       if (rsp.message!.type == 'answer') {
         yield rsp.message!.content;
@@ -94,22 +97,29 @@ class ResponseModel {
   bool? isFinish; // 是否结束
   int? index; // 索引
   String? conversationId; // 会话Id
+  ErrorInformation? errorInformation; // 错误信息
 
-  ResponseModel(
-      {required this.event,
-      required this.message,
-      required this.isFinish,
-      required this.index,
-      required this.conversationId});
+  ResponseModel({
+    required this.event,
+    this.message,
+    this.isFinish,
+    this.index,
+    this.conversationId,
+    this.errorInformation,
+  });
 
   factory ResponseModel.fromJson(Map<String, dynamic> map) {
-    final message = map['message'] as Map<String, dynamic>?;
     return ResponseModel(
       event: map['event'] as String,
-      message: message != null ? MessageContent.fromJson(message) : null,
+      message: map['message'] != null
+          ? MessageContent.fromJson(map['message'])
+          : null,
       isFinish: map['is_finish'] as bool?,
       index: map['index'] as int?,
       conversationId: map['conversation_id'] as String?,
+      errorInformation: map['error_information'] != null
+          ? ErrorInformation.fromJson(map['error_information'])
+          : null,
     );
   }
 }
@@ -133,5 +143,26 @@ class MessageContent {
       content: map['content'] as String,
       contentType: map['content_type'] as String,
     );
+  }
+}
+
+class ErrorInformation {
+  final int errCode;
+  final String errMsg;
+
+  ErrorInformation({required this.errCode, required this.errMsg});
+
+  factory ErrorInformation.fromJson(Map<String, dynamic> json) {
+    return ErrorInformation(
+      errCode: json['err_code'] as int,
+      errMsg: json['err_msg'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'err_code': errCode,
+      'err_msg': errMsg,
+    };
   }
 }
