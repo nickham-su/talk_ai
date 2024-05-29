@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 
+import '../../../apis/new_dio.dart';
 import '../../message/message_model.dart';
 import '../request/request.dart';
 
@@ -26,15 +27,7 @@ class QianFanApi {
     required String apiKey,
     required String secretKey,
   }) async {
-    final dio = Dio(
-      BaseOptions(
-        connectTimeout: const Duration(seconds: 10), // 连接超时
-        sendTimeout: const Duration(seconds: 10), // 发送超时
-        receiveTimeout: const Duration(seconds: 10), // 接收超时
-      ),
-    );
-
-    Response response = await dio.post(
+    Response response = await newDio().post(
       tokenUrl,
       queryParameters: {
         'grant_type': 'client_credentials',

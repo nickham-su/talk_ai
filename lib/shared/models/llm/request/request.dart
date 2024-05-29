@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
+import '../../../apis/new_dio.dart';
 import '../../../repositories/setting_repository.dart';
 
 /// 网路请求
@@ -23,14 +24,7 @@ class Request {
     Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? headers,
   }) async* {
-    int timeout = SettingRepository.getNetworkTimeout();
-    _dio = Dio(
-      BaseOptions(
-        connectTimeout: Duration(seconds: timeout), // 连接超时
-        sendTimeout: Duration(seconds: timeout), // 发送超时
-        receiveTimeout: Duration(seconds: timeout), // 接收超时
-      ),
-    );
+    _dio = newDio();
 
     Response<ResponseBody> response = await _dio!.post<ResponseBody>(
       url,

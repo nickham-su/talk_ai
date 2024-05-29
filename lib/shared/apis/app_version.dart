@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 
+import 'new_dio.dart';
+
 /// 版本信息
 class VersionInfo {
   final String version;
@@ -19,11 +21,7 @@ class AppVersion {
 
   /// 获取最新版本
   static Future<VersionInfo> getLatestVersion() async {
-    final response = await Dio(BaseOptions(
-      connectTimeout: const Duration(seconds: 30), // 连接超时
-      sendTimeout: const Duration(seconds: 30), // 发送超时
-      receiveTimeout: const Duration(seconds: 30), // 接收超时
-    )).get(configUrl);
+    final response = await newDio().get(configUrl);
 
     // <sparkle:shortVersionString>1.0.3</sparkle:shortVersionString>
     RegExp regex = RegExp(
