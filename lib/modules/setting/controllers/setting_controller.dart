@@ -23,4 +23,23 @@ class SettingController extends GetxController {
   void setNetworkTimeout(int timeout) {
     SettingRepository.setNetworkTimeout(timeout);
   }
+
+  /// 启用代理
+  bool isProxyEnable = SettingRepository.getProxyEnable();
+
+  /// 代理地址
+  String proxyAddress = SettingRepository.getProxyAddress();
+
+  /// 设置代理地址
+  void setProxyAddress(String address) {
+    proxyAddress = address;
+    SettingRepository.setProxyAddress(address);
+  }
+
+  /// 切换代理开关
+  void toggleProxyStatus() {
+    isProxyEnable = !isProxyEnable;
+    SettingRepository.setProxyEnable(isProxyEnable);
+    update();
+  }
 }
