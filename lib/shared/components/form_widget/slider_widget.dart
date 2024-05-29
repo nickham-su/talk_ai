@@ -10,7 +10,7 @@ class SliderWidget extends StatefulWidget {
   final double max; // 最大值
   final double initialValue; // 初始值
   final int divisions; // 分割数
-  final EdgeInsetsGeometry margin; // 外边距
+  final EdgeInsetsGeometry? margin; // 外边距
   final void Function(double) onChanged; // 滑动回调
   final String Function(double)? format; // 格式化回调
   final String? tooltip; // 提示

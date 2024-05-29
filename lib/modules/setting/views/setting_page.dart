@@ -7,6 +7,7 @@ import '../../../shared/components/layout/views/layout.dart';
 import 'components/cache_widget.dart';
 import 'components/import_widget.dart';
 import 'components/network_timeout.dart';
+import 'components/http_proxy_widget.dart';
 import 'components/theme_widget.dart';
 
 class SettingPage extends StatelessWidget {
@@ -44,9 +45,10 @@ class SettingPage extends StatelessWidget {
                     ),
                   ),
                   const ThemeWidget(),
-                  const NetworkTimeout(),
                   const UpdateWidget(),
                   const ImportWidget(),
+                  const NetworkTimeout(),
+                  const HttpProxyWidget(),
                 ],
               ))),
     );
