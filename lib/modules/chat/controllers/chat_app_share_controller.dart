@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:TalkAI/modules/chat/models/chat_app_model.dart';
 import 'package:get/get.dart';
 
-import '../../../shared/models/llm/llm_model.dart';
+import '../../../shared/models/llm/llm.dart';
 import '../../../shared/services/llm_service.dart';
 import '../../../shared/utils/compress.dart';
 import 'chat_app_list_controller.dart';
@@ -40,6 +40,7 @@ class ChatAppShareController extends GetxController {
         'name': e.name,
         'prompt': e.prompt,
         'temperature': e.temperature,
+        'multiple_round': e.multipleRound,
       };
     }).toList();
     final jsonStr = jsonEncode({'apps': apps});

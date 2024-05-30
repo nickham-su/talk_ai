@@ -15,7 +15,8 @@ class ChatAppRepository {
         llm_id INTEGER NOT NULL,
         temperature DOUBLE,
         top_p DOUBLE,
-        topping_time INTEGER DEFAULT 0
+        topping_time INTEGER DEFAULT 0,
+        multiple_round INTEGER DEFAULT 1
       );
     ''');
 
@@ -29,27 +30,36 @@ class ChatAppRepository {
         ALTER TABLE $tableName ADD COLUMN topping_time INTEGER DEFAULT 0
       ''');
     }
+
+    /// 添加multiple_round列
+    if (!columnNames.contains('multiple_round')) {
+      Sqlite.db.execute('''
+        ALTER TABLE $tableName ADD COLUMN multiple_round INTEGER DEFAULT 1
+      ''');
+    }
   }
 
   /// 新建聊天App
   static ChatAppModel insert({
     required String name,
     required String prompt,
-    required int llmId,
     required double temperature,
-    double topP = 0.95,
+    required bool multipleRound, // 是否多轮对话
+    double topP = 0.95, // 默认top_p
+    int llmId = 0, // 默认模型id，0表示没有设置默认模型
   }) {
     final lastUseTime = DateTime.now();
     Sqlite.db.execute('''
-      INSERT INTO $tableName (name, prompt, last_use_time, llm_id, temperature, top_p)
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO $tableName (name, prompt, last_use_time, llm_id, temperature, top_p, multiple_round)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
     ''', [
       name,
       prompt,
       lastUseTime.millisecondsSinceEpoch,
       llmId,
       temperature,
-      topP
+      topP,
+      multipleRound ? 1 : 0,
     ]);
     final chatAppId = Sqlite.db.lastInsertRowId;
     return ChatAppModel(
@@ -57,10 +67,11 @@ class ChatAppRepository {
       name: name,
       prompt: prompt,
       lastUseTime: lastUseTime,
-      llmId: llmId,
       temperature: temperature,
       topP: topP,
       toppingTime: DateTime.fromMillisecondsSinceEpoch(0),
+      llmId: llmId,
+      multipleRound: multipleRound,
     );
   }
 
@@ -75,11 +86,12 @@ class ChatAppRepository {
         prompt: e['prompt'] as String,
         lastUseTime:
             DateTime.fromMillisecondsSinceEpoch(e['last_use_time'] as int),
-        llmId: e['llm_id'] as int,
         temperature: e['temperature'] as double,
         topP: e['top_p'] as double,
         toppingTime:
             DateTime.fromMillisecondsSinceEpoch(e['topping_time'] as int),
+        llmId: e['llm_id'] as int,
+        multipleRound: e['multiple_round'] == 1,
       );
     }).toList();
   }
@@ -89,22 +101,22 @@ class ChatAppRepository {
     required int chatAppId,
     required String name,
     required String prompt,
-    required int llmId,
     required double temperature,
-    required double topP,
+    required int llmId,
+    required bool multipleRound,
   }) {
     final lastUseTime = DateTime.now();
     Sqlite.db.execute('''
       UPDATE $tableName
-      SET name = ?, prompt = ?, last_use_time = ?, llm_id = ?, temperature = ?, top_p = ?
+      SET name = ?, prompt = ?, last_use_time = ?, temperature = ?, llm_id = ?, multiple_round = ?
       WHERE chat_app_id = ?
     ''', [
       name,
       prompt,
       lastUseTime.millisecondsSinceEpoch,
-      llmId,
       temperature,
-      topP,
+      llmId,
+      multipleRound ? 1 : 0,
       chatAppId
     ]);
   }

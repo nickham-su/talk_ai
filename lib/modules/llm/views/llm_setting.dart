@@ -4,9 +4,10 @@ import 'package:get/get.dart';
 import '../../../shared/components/buttons/confirm_button.dart';
 import '../../../shared/components/buttons/danger_button.dart';
 import '../../../shared/components/dialog.dart';
+import '../../../shared/components/form_widget/dropdown_widget.dart';
 import '../../../shared/components/form_widget/text_widget.dart';
 import '../../../shared/components/snackbar.dart';
-import '../../../shared/models/llm/llm_model.dart';
+import '../../../shared/models/llm/llm_form_data_item.dart';
 import '../controllers/llm_controller.dart';
 
 class LLMSetting extends GetView<LLMController> {
@@ -23,30 +24,28 @@ class LLMSetting extends GetView<LLMController> {
     double parentWidth = MediaQuery.of(context).size.width;
     return Obx(() => Form(
           key: _formKey,
-          child: Column(
-            children: [
-              Container(
-                width: double.infinity,
-                height: 49,
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                alignment: Alignment.centerLeft,
-                decoration: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(
-                      color:
-                          Get.theme.colorScheme.outlineVariant.withOpacity(0.5),
+          child: Container(
+            width: double.infinity,
+            height: double.infinity,
+            alignment: Alignment.center,
+            padding: const EdgeInsets.only(top: 40),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              width: parentWidth > maxWidth ? maxWidth : parentWidth,
+              height: double.infinity,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.only(top: 20, bottom: 20),
+                    child: Text(
+                      controller.isCreate ? '新建模型' : '编辑模型',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                   ),
-                ),
-                child: Text(controller.isCreate ? '新建模型' : '编辑模型'),
-              ),
-              Expanded(
-                  child: Center(
-                child: Container(
-                  width: parentWidth > maxWidth ? maxWidth : parentWidth,
-                  height: double.infinity,
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: ListView(
+                  Expanded(
+                      child: ListView(
                     children: [
                       ...controller.formData
                           .map((e) => FormItem(data: e))
@@ -59,10 +58,10 @@ class LLMSetting extends GetView<LLMController> {
                         ),
                       )
                     ],
-                  ),
-                ),
-              )),
-            ],
+                  )),
+                ],
+              ),
+            ),
           ),
         ));
   }
@@ -134,7 +133,7 @@ class LLMSetting extends GetView<LLMController> {
 }
 
 class FormItem extends StatelessWidget {
-  final FormDataItem data;
+  final LLMFormDataItem data;
 
   const FormItem({
     Key? key,
@@ -143,14 +142,30 @@ class FormItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextWidget(
+    if (data.options == null) {
+      // 文本框
+      return TextWidget(
+        labelText: data.label,
+        onChanged: (value) {
+          data.value = value;
+        },
+        initialValue: data.value,
+        isRequired: data.isRequired ?? false,
+        isDisabled: data.isDisabled ?? false,
+      );
+    }
+
+    // 下拉框
+    return DropdownWidget(
       labelText: data.label,
+      items: data.options!
+          .map((e) => DropdownOption<String>(label: e, value: e))
+          .toList(),
       onChanged: (value) {
-        data.value = value;
+        data.value = value.toString();
       },
       initialValue: data.value,
       isRequired: data.isRequired ?? false,
-      isDisabled: data.isDisabled ?? false,
     );
   }
 }

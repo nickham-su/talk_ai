@@ -87,4 +87,29 @@ class SettingRepository {
     }
     return null;
   }
+
+  /// 设置代理地址
+  /// [proxy] 代理地址，例如：127.0.0.1:7890
+  static setProxyAddress(String proxy) {
+    final box = Hive.box(_boxName);
+    box.put('proxy_address', proxy);
+  }
+
+  /// 获取代理地址
+  static String getProxyAddress() {
+    final box = Hive.box(_boxName);
+    return box.get('proxy_address', defaultValue: '');
+  }
+
+  /// 设置代理启用
+  static setProxyEnable(bool enable) {
+    final box = Hive.box(_boxName);
+    box.put('proxy_enable', enable);
+  }
+
+  /// 获取代理启用
+  static bool getProxyEnable() {
+    final box = Hive.box(_boxName);
+    return box.get('proxy_enable', defaultValue: false);
+  }
 }

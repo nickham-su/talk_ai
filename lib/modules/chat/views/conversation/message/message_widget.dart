@@ -69,7 +69,11 @@ class MessageWidget extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    MessageContent(message: controller.message!),
+                    MessageContent(
+                      key: ValueKey(
+                          'key_generate_${controller.message!.generateId}'),
+                      message: controller.message!,
+                    ),
                     Visibility(
                       visible:
                           controller.message!.role == MessageRole.assistant &&

@@ -1,8 +1,11 @@
 import 'dart:convert';
 
-import '../models/llm/llm_model.dart';
+import 'package:get/get.dart';
+
+
+import '../models/llm/llm.dart';
 import '../models/llm/llm_type.dart';
-import '../models/llm/openai/openai_model.dart';
+import '../models/llm/llms.dart';
 import '../utils/sqlite.dart';
 
 class LLMRepository {
@@ -57,17 +60,29 @@ class LLMRepository {
   static List<LLM> queryAll() {
     final result = Sqlite.db
         .select('SELECT * FROM $tableName ORDER BY last_use_time DESC');
-    return result.map((e) {
-      final type = e[2] as String;
-      Map<String, dynamic> json = jsonDecode(e[3] as String);
-      json['llm_id'] = e[0] as int;
-      json['name'] = e[1] as String;
-      json['last_use_time'] = (e[4] as int?) ?? 0;
-      if (type == LLMType.openai.value) {
-        return OpenaiModel.fromJson(json);
+
+    List<LLM?> list = result.map((e) {
+      final type = e['type'] as String;
+      Map<String, dynamic> json = jsonDecode(e['model_fields'] as String);
+      json['llm_id'] = e['llm_id'] as int;
+      json['name'] = e['name'] as String;
+      json['last_use_time'] = (e['last_use_time'] as int?) ?? 0;
+      final llmType =
+          LLMType.values.firstWhereOrNull((element) => element.value == type);
+      if (llmType == null) {
+        return null;
       }
-      throw '未知的模型类型: $type';
+      return LLMs.fromJson(llmType, json);
     }).toList();
+
+    List<LLM> llmList = [];
+    for (var item in list) {
+      if (item != null) {
+        llmList.add(item);
+      }
+    }
+
+    return llmList;
   }
 
   /// 更新模型

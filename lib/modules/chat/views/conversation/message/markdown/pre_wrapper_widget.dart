@@ -1,17 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class CodeWrapperWidget extends StatefulWidget {
+/// 代码块包装器
+Widget preWrapper(Widget child, String text) {
+  return PreWrapperWidget(child, text);
+}
+
+/// 代码块包装器组件
+class PreWrapperWidget extends StatefulWidget {
   final Widget child;
   final String text;
 
-  const CodeWrapperWidget(this.child, this.text, {Key? key}) : super(key: key);
+  const PreWrapperWidget(this.child, this.text, {Key? key}) : super(key: key);
 
   @override
-  State<CodeWrapperWidget> createState() => _PreWrapperState();
+  State<PreWrapperWidget> createState() => _PreWrapperState();
 }
 
-class _PreWrapperState extends State<CodeWrapperWidget> {
+class _PreWrapperState extends State<PreWrapperWidget> {
   late Widget _switchWidget;
   bool hasCopied = false;
 

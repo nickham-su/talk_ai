@@ -10,13 +10,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as path;
 import 'package:window_manager/window_manager.dart';
 
+import 'modules/chat/controllers/chat_app_controller.dart';
 import 'shared/repositories/setting_repository.dart';
 import 'shared/services/conversation_service.dart';
 import 'shared/services/message_service.dart';
+import 'shared/utils/app_cache_dir.dart';
 import 'shared/utils/sqlite.dart';
 
 void main() async {
@@ -24,16 +24,16 @@ void main() async {
   await windowManager.ensureInitialized();
 
   /// 创建TalkAI文件夹
-  final appDocDir = await createDir();
+  final appCacheDir = await getAppCacheDir();
 
   /// 初始化Hive，窗口位置存在Hive中，所以要先初始化Hive
-  Hive.init(appDocDir);
+  Hive.init(appCacheDir);
 
   /// 初始化窗口位置
   await initWindowPosition();
 
   /// 创建数据库
-  Sqlite.openDB(appDocDir);
+  Sqlite.openDB(appCacheDir);
   initDBTables();
 
   /// 注册全局控制器、服务
@@ -60,12 +60,20 @@ void main() async {
         .apply(fontFamilyFallback: fontFamilyFallback),
   );
 
+  /// 设置快捷键
+  Map<ShortcutActivator, Intent>? shortcuts;
+  if (Platform.isMacOS) {
+    shortcuts = {
+      LogicalKeySet(LogicalKeyboardKey.keyW, LogicalKeyboardKey.meta):
+          const VoidCallbackIntent(closeWindowCallback),
+      LogicalKeySet(LogicalKeyboardKey.keyF, LogicalKeyboardKey.meta):
+          const VoidCallbackIntent(searchCallback),
+    };
+  }
+
   /// 运行APP
   runApp(FocusableActionDetector(
-    shortcuts: {
-      LogicalKeySet(LogicalKeyboardKey.keyW, LogicalKeyboardKey.meta):
-          const VoidCallbackIntent(callbackCommandW),
-    },
+    shortcuts: shortcuts,
     child: GetMaterialApp(
       initialRoute: initialRoute,
       theme: lightTheme,
@@ -76,31 +84,19 @@ void main() async {
   ));
 }
 
-/// 创建文件夹
-Future<String> createDir() async {
-  final dir = await getApplicationDocumentsDirectory();
-  final oldTalkAIDir = Directory(path.join(dir.path, 'TalkAI'));
-  final newTalkAIDir = Directory(path.join(dir.path, '.TalkAI'));
-  if (oldTalkAIDir.existsSync() && !newTalkAIDir.existsSync()) {
-    // 将TalkAI文件夹重命名为.TalkAI
-    oldTalkAIDir.renameSync(newTalkAIDir.path);
-  } else if (!oldTalkAIDir.existsSync() && !newTalkAIDir.existsSync()) {
-    // 创建.TalkAI文件夹
-    newTalkAIDir.createSync();
-  }
-  print('talkAIDir:$newTalkAIDir');
-  return newTalkAIDir.path;
-}
-
-/// 快捷键command+W回调
-void callbackCommandW() {
+/// 关闭窗口快捷键回调
+void closeWindowCallback() {
   // 延迟隐藏窗口；让快捷键弹起后再隐藏，不然下次使用快捷键有bug
   Future.delayed(const Duration(milliseconds: 400), () {
-    // 仅macOS下支持
-    if (Platform.isMacOS) {
-      windowManager.hide();
-    }
+    windowManager.hide();
   });
+}
+
+/// 搜索快捷键回调
+void searchCallback() {
+  try {
+    Get.find<ChatAppController>().toggleSearch();
+  } catch (e) {}
 }
 
 /// 初始化窗口位置
@@ -109,13 +105,11 @@ Future initWindowPosition() async {
       (await SettingRepository.getWindowSize()) ?? const Size(1000, 720);
 
   WindowOptions windowOptions = WindowOptions(
+    center: true,
     size: size,
     titleBarStyle: TitleBarStyle.hidden,
   );
-  windowManager.waitUntilReadyToShow(windowOptions, () async {
-    await windowManager.show();
-    await windowManager.focus();
-  });
+  windowManager.waitUntilReadyToShow(windowOptions);
 
   /// 监听窗口事件
   windowManager.addListener(MyWindowListener());

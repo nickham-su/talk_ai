@@ -168,7 +168,7 @@ class ListHeader extends GetView<ChatAppListController> {
                 onPressed: () {
                   Get.dialog(
                     const AppShareDialog(),
-                    barrierDismissible: true,
+                    barrierDismissible: false,
                   );
                 },
                 style: ButtonStyle(

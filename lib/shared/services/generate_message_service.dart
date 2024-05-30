@@ -7,7 +7,7 @@ import '../models/event_queue/event.dart';
 import '../models/event_queue/event_queue.dart';
 import '../models/message/message_status.dart';
 import '../models/message/generated_message.dart';
-import '../models/llm/llm_model.dart';
+import '../models/llm/llm.dart';
 import '../models/message/message_model.dart';
 import '../repositories/generated_message_repository.dart';
 import 'llm_service.dart';

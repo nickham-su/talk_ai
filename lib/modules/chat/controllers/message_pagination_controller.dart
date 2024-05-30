@@ -5,6 +5,7 @@ import '../../../shared/components/snackbar.dart';
 import '../../../shared/models/message/generated_message.dart';
 import '../../../shared/services/generate_message_service.dart';
 import '../../../shared/services/message_service.dart';
+import '../views/conversation/editor/llm_picker.dart';
 import 'chat_app_controller.dart';
 
 class MessagePaginationController extends GetxController {
@@ -47,8 +48,11 @@ class MessagePaginationController extends GetxController {
       generateId: generatedMessage.generateId,
     );
 
-    // 如果是最后一条消息，滚动到底部
+    // 如果是最后一条消息，滚动到底部，并切换模型
     if (isLastMessage) {
+      // 切换模型
+      Get.find<LLMPickerController>().setLLM(message.llmId);
+      // 滚动到底部
       await WidgetsBinding.instance.endOfFrame;
       chatAppController.scrollToBottom(animate: true);
     }

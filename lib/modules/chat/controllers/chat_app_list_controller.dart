@@ -71,7 +71,7 @@ class ChatAppListController extends GetxController {
     } else {
       Get.dialog(
         ChatAppSettingDialog(),
-        barrierDismissible: true,
+        barrierDismissible: false,
       );
     }
   }
@@ -80,16 +80,16 @@ class ChatAppListController extends GetxController {
   void addChatApp({
     required String name,
     required String prompt,
-    required int llmId,
     required double temperature,
-    required double topP,
+    required int llmId,
+    required bool multipleRound, // 是否多轮对话
   }) {
     final app = ChatAppRepository.insert(
       name: name,
       prompt: prompt,
-      llmId: llmId,
       temperature: temperature,
-      topP: topP,
+      llmId: llmId,
+      multipleRound: multipleRound,
     );
     refreshChatApps();
     selectChatApp(app.chatAppId);
@@ -100,17 +100,17 @@ class ChatAppListController extends GetxController {
     required int chatAppId,
     required String name,
     required String prompt,
-    required int llmId,
     required double temperature,
-    required double topP,
+    required int llmId,
+    required bool multipleRound,
   }) async {
     ChatAppRepository.update(
       chatAppId: chatAppId,
       name: name,
       prompt: prompt,
-      llmId: llmId,
       temperature: temperature,
-      topP: topP,
+      llmId: llmId,
+      multipleRound: multipleRound,
     );
     refreshChatApps();
     // 如果最后一个会话只有一条系统消息，则更新助理设定

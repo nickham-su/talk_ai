@@ -1,10 +1,9 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
-
-import '../../../shared/models/llm/llm_model.dart';
+import '../../../shared/models/llm/llm_form_data_item.dart';
 import '../../../shared/models/llm/llm_type.dart';
-import '../../../shared/models/llm/openai/openai_model.dart';
+import '../../../shared/models/llm/llms.dart';
 import '../../../shared/services/llm_service.dart';
 
 class LLMController extends GetxController {
@@ -12,7 +11,7 @@ class LLMController extends GetxController {
   final currentId = RxInt(-1);
 
   /// 表单数据
-  RxList<FormDataItem> formData = RxList<FormDataItem>([]);
+  RxList<LLMFormDataItem> formData = RxList<LLMFormDataItem>([]);
 
   /// LLM服务
   final llmService = Get.find<LLMService>();
@@ -26,11 +25,6 @@ class LLMController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    if (llmService.getLLMList().isEmpty) {
-      Future.delayed(Duration.zero, () {
-        addLLM(LLMType.openai);
-      });
-    }
   }
 
   /// 改变index
@@ -49,13 +43,7 @@ class LLMController extends GetxController {
   void addLLM(LLMType type) {
     currentId.value = -1;
     formData.clear();
-    switch (type) {
-      case LLMType.openai:
-        Timer(const Duration(milliseconds: 16), () {
-          formData.assignAll(OpenaiModel.getInitFormData());
-        });
-        break;
-    }
+    formData.assignAll(LLMs.getInitFormData(type));
   }
 
   /// 创建LLM

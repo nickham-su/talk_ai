@@ -1,3 +1,66 @@
+import 'dart:convert';
+
+import '../../message/message_model.dart';
+import '../request/request.dart';
+
+class OpenaiApi {
+  static const completionPath = '/v1/chat/completions';
+
+  /// Dio 实例
+  static Request? _request;
+
+  /// 取消请求
+  static cancel() {
+    _request?.cancel();
+  }
+
+  /// 聊天
+  static Stream<String> chatCompletions({
+    required String url, // 请求地址
+    required String apiKey, // 请求密钥
+    required String model, // 请求模型
+    required List<MessageModel> messages, // 聊天信息
+    required double temperature, // 温度
+    required double topP, // top-p
+    List<String>? stop, // 停止词
+  }) async* {
+    // 拼接请求地址
+    url = Uri.parse(url).resolve(completionPath).toString();
+
+    // 过滤空消息
+    messages.removeWhere((m) => m.content == '');
+
+    _request = Request();
+
+    Map<String, dynamic> data = {
+      'model': model,
+      'messages': messages.map((e) => e.toJson()).toList(),
+      'temperature': temperature,
+      'top_p': topP,
+      'stream': true,
+    };
+    if (stop != null) {
+      data['stop'] = stop;
+    }
+
+    final stream = _request!.stream(
+      url: url,
+      data: data,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $apiKey',
+      },
+    );
+
+    await for (var data in stream) {
+      final rsp = ChatCompletionsResponse.fromJson(data);
+      for (var choice in rsp.choices) {
+        yield choice.delta?.content ?? '';
+      }
+    }
+  }
+}
+
 /// 聊天响应模型
 class ChatCompletionsResponse {
   /// 构造函数
@@ -46,7 +109,7 @@ class ChoiceModel {
   ChoiceModel({
     this.index,
     this.finishReason,
-    required this.delta,
+    this.delta,
   });
 
   /// 索引号，例如：0
@@ -56,20 +119,20 @@ class ChoiceModel {
   final String? finishReason;
 
   /// 消息模型
-  final Delta delta;
+  final Delta? delta;
 
   factory ChoiceModel.fromJson(Map<String, dynamic> json) {
     return ChoiceModel(
       index: json['index'],
       finishReason: json['finish_reason'],
-      delta: Delta.fromJson(json['delta']),
+      delta: json['delta'] != null ? Delta.fromJson(json['delta']) : null,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'index': index,
-      'delta': delta.toJson(),
+      'delta': delta?.toJson(),
       'finish_reason': finishReason,
     };
   }

@@ -1,9 +1,6 @@
-import 'dart:convert';
-
-import 'package:get/get.dart';
-
-import '../../../apis/openai_api.dart';
-import '../llm_model.dart';
+import '../llm_form_data_item.dart';
+import 'openai_api.dart';
+import '../llm.dart';
 import '../../message/message_model.dart';
 import '../llm_type.dart';
 
@@ -50,37 +47,37 @@ class OpenaiModel extends LLM {
   }
 
   /// 获取初始化表单数据
-  static List<FormDataItem> getInitFormData() {
+  static List<LLMFormDataItem> getInitFormData() {
     return [
-      FormDataItem(
+      LLMFormDataItem(
         label: '类型',
         key: 'type',
         value: LLMType.openai.value,
         isDisabled: true,
       ),
-      FormDataItem(
+      LLMFormDataItem(
         label: '自定义名称',
         key: 'name',
         value: '',
         isRequired: true,
       ),
-      FormDataItem(
+      LLMFormDataItem(
         label: 'URL',
         key: 'url',
         value: '',
         isRequired: true,
       ),
-      FormDataItem(
+      LLMFormDataItem(
         label: 'API Key(选填)',
         key: 'api_key',
         value: '',
       ),
-      FormDataItem(
+      LLMFormDataItem(
         label: '模型名称(选填)',
         key: 'model',
         value: '',
       ),
-      FormDataItem(
+      LLMFormDataItem(
         label: '停止词(选填)：多个词用逗号分隔,最多4个',
         key: 'stop',
         value: '',
@@ -90,37 +87,37 @@ class OpenaiModel extends LLM {
 
   /// 获取表单数据
   @override
-  List<FormDataItem> getFormData() {
+  List<LLMFormDataItem> getFormData() {
     return [
-      FormDataItem(
+      LLMFormDataItem(
         label: '类型',
         key: 'type',
         value: type.value,
         isDisabled: true,
       ),
-      FormDataItem(
+      LLMFormDataItem(
         label: '自定义名称',
         key: 'name',
         value: name,
         isRequired: true,
       ),
-      FormDataItem(
+      LLMFormDataItem(
         label: 'URL',
         key: 'url',
         value: url,
         isRequired: true,
       ),
-      FormDataItem(
+      LLMFormDataItem(
         label: 'API Key(选填)',
         key: 'api_key',
         value: apiKey,
       ),
-      FormDataItem(
+      LLMFormDataItem(
         label: '模型名称(选填)',
         key: 'model',
         value: model,
       ),
-      FormDataItem(
+      LLMFormDataItem(
         label: '停止词(选填)：多个词用逗号分隔,最多4个',
         key: 'stop',
         value: stop,
@@ -132,7 +129,7 @@ class OpenaiModel extends LLM {
   @override
   Stream<String> chatCompletions({
     required List<MessageModel> messages,
-    double temperature = 0.8,
+    double temperature = 1,
     double topP = 0.95,
   }) {
     List<String>? stopList;

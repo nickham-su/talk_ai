@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -5,6 +7,7 @@ import '../../../../shared/components/buttons/cancel_button.dart';
 import '../../../../shared/components/buttons/confirm_button.dart';
 import '../../../../shared/components/buttons/danger_button.dart';
 import '../../../../shared/components/dialog.dart';
+import '../../../../shared/components/dialog_widget/dialog_widget.dart';
 import '../../../../shared/components/form_widget/dropdown_widget.dart';
 import '../../../../shared/components/form_widget/slider_widget.dart';
 import '../../../../shared/components/form_widget/text_widget.dart';
@@ -15,8 +18,7 @@ import '../../controllers/chat_app_setting_controller.dart';
 import '../../models/chat_app_model.dart';
 
 class ChatAppSettingDialog extends GetView<ChatAppSettingController> {
-  final llmService = Get.find<LLMService>();
-  final ChatAppListController chatAppController =
+  final ChatAppListController chatAppListController =
       Get.find<ChatAppListController>();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -33,118 +35,99 @@ class ChatAppSettingDialog extends GetView<ChatAppSettingController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Center(
-        child: Container(
-          decoration: BoxDecoration(
-            color: Get.theme.scaffoldBackgroundColor,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: Get.theme.colorScheme.outlineVariant,
+    return DialogWidget(
+      width: min(Get.width / 2, 600),
+      height: 510,
+      title: isEditMode ? '编辑助理' : '新建助理',
+      child: Container(
+        height: double.infinity,
+        child: Column(
+          children: [
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      TextWidget(
+                        labelText: '助理名称',
+                        hintText: '请输入助理名称',
+                        initialValue: controller.name,
+                        isRequired: true,
+                        onChanged: (value) {
+                          controller.name = value;
+                        },
+                      ),
+                      DropdownWidget<bool>(
+                        labelText: '对话方式',
+                        isRequired: true,
+                        initialValue: controller.multipleRound,
+                        items: [
+                          DropdownOption(label: '多轮对话', value: true),
+                          DropdownOption(label: '单轮对话', value: false),
+                        ],
+                        onChanged: (bool? value) {
+                          if (value == null) return;
+                          controller.multipleRound = value;
+                        },
+                      ),
+                      TextWidget(
+                        labelText: '角色设定/提示词（选填）',
+                        hintText: '请输入助理角色设定/提示词',
+                        initialValue: controller.prompt,
+                        maxLines: 4,
+                        isRequired: false,
+                        onChanged: (value) {
+                          controller.prompt = value;
+                        },
+                      ),
+                      DropdownWidget<int>(
+                        labelText: '默认模型（选填。如果选择，新会话自动切换该模型）',
+                        isRequired: true,
+                        initialValue: controller.llmId,
+                        items: controller.llmOptions,
+                        onChanged: (int? value) {
+                          if (value == null) return;
+                          controller.llmId = value;
+                        },
+                      ),
+                      SliderWidget(
+                        labelText: 'Temperature',
+                        tooltip: '''控制生成文本的随机性，它是一个0到1之间的浮点数。
+                      当temperature接近0时,模型会变得更加确定和保守,倾向于选择概率最高的下一个词。这会导致输出更加确定但缺乏多样性。
+                      当temperature接近1时,模型会变得更加随机和富有创造力,生成的文本更加多样化但相关性可能降低。''',
+                        labelWidth: 120,
+                        initialValue: controller.temperature,
+                        max: 2,
+                        min: 0.1,
+                        divisions: 19,
+                        onChanged: (value) {
+                          controller.temperature = value;
+                        },
+                        format: (value) {
+                          if (value < 0.75) {
+                            return '${value.toStringAsFixed(2)} 严谨';
+                          } else if (value < 1.25) {
+                            return '${value.toStringAsFixed(2)} 均衡';
+                          } else {
+                            return '${value.toStringAsFixed(2)} 创意';
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
-          ),
-          width: 700,
-          height: 520,
-          child: Column(
-            children: [
-              Container(
-                width: double.infinity,
-                height: 48,
-                alignment: Alignment.centerLeft,
-                padding: const EdgeInsets.only(left: 16),
-                decoration: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(
-                      color:
-                          Get.theme.colorScheme.outlineVariant.withOpacity(0.5),
-                    ),
-                  ),
-                ),
-                child: Text(
-                  isEditMode ? '编辑助理' : '新建助理',
-                  style: const TextStyle(fontSize: 16),
-                ),
+            Container(
+              margin: EdgeInsets.only(top: 24, bottom: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: getButtons(),
               ),
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      children: [
-                        TextWidget(
-                          labelText: '助理名称',
-                          hintText: '请输入助理名称',
-                          initialValue: controller.name,
-                          isRequired: true,
-                          onChanged: (value) {
-                            controller.name = value;
-                          },
-                        ),
-                        TextWidget(
-                          labelText: '角色设定/提示词（选填）',
-                          hintText: '请输入助理角色设定/提示词',
-                          initialValue: controller.prompt,
-                          maxLines: 4,
-                          isRequired: false,
-                          onChanged: (value) {
-                            controller.prompt = value;
-                          },
-                        ),
-                        Obx(() => DropdownWidget<int>(
-                              labelText: '模型',
-                              isRequired: true,
-                              initialValue: controller.llmId,
-                              items: llmService.llmList
-                                  .map((e) => DropdownOption<int>(
-                                        label: e.name,
-                                        value: e.llmId,
-                                      ))
-                                  .toList(),
-                              onChanged: (int? value) {
-                                if (value != null) {
-                                  controller.llmId = value;
-                                }
-                              },
-                            )),
-                        SliderWidget(
-                          labelText: 'Temperature',
-                          tooltip: '''控制生成文本的随机性，它是一个0到1之间的浮点数。
-当temperature接近0时,模型会变得更加确定和保守,倾向于选择概率最高的下一个词。这会导致输出更加确定但缺乏多样性。
-当temperature接近1时,模型会变得更加随机和富有创造力,生成的文本更加多样化但相关性可能降低。''',
-                          labelWidth: 120,
-                          initialValue: controller.temperature,
-                          max: 1,
-                          min: 0.1,
-                          divisions: 18,
-                          onChanged: (value) {
-                            controller.temperature = value;
-                          },
-                          format: (value) {
-                            if (value <= 0.65) {
-                              return '${value.toStringAsFixed(2)} 严谨';
-                            } else if (value <= 0.85) {
-                              return '${value.toStringAsFixed(2)} 均衡';
-                            } else {
-                              return '${value.toStringAsFixed(2)} 创意';
-                            }
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.symmetric(vertical: 24),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: getButtons(),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -185,12 +168,12 @@ class ChatAppSettingDialog extends GetView<ChatAppSettingController> {
   void addChatApp() async {
     if (_formKey.currentState!.validate()) {
       try {
-        chatAppController.addChatApp(
+        chatAppListController.addChatApp(
           name: controller.name,
           prompt: controller.prompt,
-          llmId: controller.llmId,
           temperature: controller.temperature,
-          topP: controller.topP,
+          llmId: controller.llmId,
+          multipleRound: controller.multipleRound,
         );
         Get.back();
         await Future.delayed(const Duration(milliseconds: 200));
@@ -205,13 +188,13 @@ class ChatAppSettingDialog extends GetView<ChatAppSettingController> {
   void editChatApp() async {
     if (_formKey.currentState!.validate()) {
       try {
-        chatAppController.updateChatApp(
+        chatAppListController.updateChatApp(
           chatAppId: controller.chatAppId,
           name: controller.name,
           prompt: controller.prompt,
-          llmId: controller.llmId,
           temperature: controller.temperature,
-          topP: controller.topP,
+          llmId: controller.llmId,
+          multipleRound: controller.multipleRound,
         );
         Get.back();
         await Future.delayed(const Duration(milliseconds: 200));
@@ -231,7 +214,7 @@ class ChatAppSettingDialog extends GetView<ChatAppSettingController> {
         text: '删除',
         onPressed: () async {
           Get.back(); // 关闭确认对话框
-          chatAppController.deleteChatApp(controller.chatAppId);
+          chatAppListController.deleteChatApp(controller.chatAppId);
           await Future.delayed(const Duration(milliseconds: 200));
           Get.back(); // 关闭设置窗口
           await Future.delayed(const Duration(milliseconds: 200));

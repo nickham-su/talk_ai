@@ -12,11 +12,14 @@ class NetworkTimeout extends StatelessWidget {
     return GetBuilder<SettingController>(
         builder: (SettingController controller) {
       return Container(
+        height: 40,
+        margin: const EdgeInsets.only(top: 16),
         padding: const EdgeInsets.only(right: 12),
         child: SliderWidget(
-          labelWidth: 150,
+          labelWidth: 200,
           labelText: '网络超时时间',
           labelStyle: const TextStyle(fontSize: 16),
+          margin: null,
           min: 10,
           max: 120,
           divisions: 11,
