@@ -11,7 +11,7 @@ class HttpProxySwitchWidget extends StatelessWidget {
     return GetBuilder<SettingController>(
       builder: (SettingController controller) {
         return SettingRow(
-          title: '启用代理',
+          title: 'HTTP 代理',
           child: SizedBox(
             height: 40,
             width: 150,

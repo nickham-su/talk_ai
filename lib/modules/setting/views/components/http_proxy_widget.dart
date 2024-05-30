@@ -1,11 +1,6 @@
-import 'package:TalkAI/shared/repositories/setting_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../../shared/components/buttons/danger_button.dart';
-import '../../../../shared/components/dialog.dart';
-import '../../../../shared/components/share/llm_share_import_dialog.dart';
-import '../../../../shared/components/snackbar.dart';
 import '../../controllers/setting_controller.dart';
 import 'setting_row.dart';
 
@@ -17,8 +12,14 @@ class HttpProxyWidget extends StatelessWidget {
     return GetBuilder<SettingController>(builder: (controller) {
       final inputController = TextEditingController();
       inputController.text = controller.proxyAddress;
+
+      // 未启用代理时不显示
+      if (!controller.isProxyEnable) {
+        return const SizedBox();
+      }
+
       return SettingRow(
-        title: 'HTTP代理地址',
+        title: '代理地址',
         child: SizedBox(
           width: 250,
           height: 36,
