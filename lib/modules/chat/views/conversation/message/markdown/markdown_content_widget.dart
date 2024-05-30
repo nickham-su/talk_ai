@@ -8,7 +8,8 @@ import '../../../../../../shared/repositories/setting_repository.dart';
 import '../../../../controllers/chat_app_controller.dart';
 import 'code_wrapper_widget.dart';
 import 'custom_markdown_node.dart';
-import 'network_image_widget.dart';
+import 'image/img_builder.dart';
+import 'image/network_image_widget.dart';
 
 /// Markdown组件
 class MarkdownContentWidget extends StatelessWidget {
@@ -54,56 +55,4 @@ class MarkdownContentWidget extends StatelessWidget {
 /// 代码块包装器
 Widget codeWrapper(Widget child, String text) {
   return CodeWrapperWidget(child, text);
-}
-
-/// 图片构建器
-Widget imgBuilder(String url, Map<String, String> attributes) {
-  final imageUrl = attributes['src'] ?? '';
-  final alt = attributes['alt'] ?? '图片';
-  final isNetImage = imageUrl.startsWith('http');
-  final isDataUrl = imageUrl.startsWith("data:");
-
-  final width = Get.width;
-  final sidebarWidth = SettingRepository.getSidebarWidth(0);
-  final imgWidth = (width - sidebarWidth) / 2;
-
-  final Widget imgWidget;
-  if (isNetImage) {
-    imgWidget = NetworkImageWidget(imageUrl, fit: BoxFit.cover,
-        errorBuilder: (ctx, error, stacktrace) {
-      return buildErrorImage(imageUrl, alt, error);
-    });
-  } else if (isDataUrl) {
-    imgWidget = Base64DataUrlImage(imageUrl, fit: BoxFit.cover,
-        errorBuilder: (ctx, error, stacktrace) {
-      return buildErrorImage(imageUrl, alt, error);
-    });
-  } else {
-    imgWidget = Image.asset(imageUrl, fit: BoxFit.cover,
-        errorBuilder: (ctx, error, stacktrace) {
-      return buildErrorImage(imageUrl, alt, error);
-    });
-  }
-  return ConstrainedBox(
-    constraints: BoxConstraints(maxWidth: imgWidth),
-    child: imgWidget,
-  );
-}
-
-/// 构建错误图片
-Widget buildErrorImage(String url, String alt, Object? error) {
-  return ProxyRichText(TextSpan(children: [
-    WidgetSpan(
-        child: Icon(
-      Icons.broken_image,
-      color: Get.theme.colorScheme.error,
-      size: 20,
-    )),
-    TextSpan(
-        text: alt,
-        style: TextStyle(
-          fontSize: 14,
-          color: Get.theme.colorScheme.error,
-        )),
-  ]));
 }
