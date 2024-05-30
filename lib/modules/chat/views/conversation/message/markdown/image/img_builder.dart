@@ -6,6 +6,7 @@ import 'package:markdown_widget/widget/inlines/data_url_image.dart';
 import 'package:markdown_widget/widget/proxy_rich_text.dart';
 
 import '../../../../../../../shared/repositories/setting_repository.dart';
+import 'draggable_zoomable_widget.dart';
 import 'network_image_widget.dart';
 
 /// 图片构建器
@@ -41,14 +42,21 @@ Widget imgBuilder(String url, Map<String, String> attributes) {
     cursor: SystemMouseCursors.click,
     child: GestureDetector(
       onTap: () {
-        Get.dialog(
-          Dialog(
-            child: GestureDetector(
-              onTap: () => Get.back(),
-              child: Hero(tag: 'markdown_image', child: imgWidget),
+        Get.dialog(Center(
+          child: GestureDetector(
+            onTap: () => Get.back(),
+            child: Container(
+              alignment: Alignment.center,
+              width: double.infinity,
+              height: double.infinity,
+              padding: const EdgeInsets.all(50),
+              color: Colors.transparent,
+              child: DraggableZoomableWidget(
+                child: Hero(tag: 'markdown_image', child: imgWidget),
+              ),
             ),
           ),
-        );
+        ));
       },
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: imgWidth),
