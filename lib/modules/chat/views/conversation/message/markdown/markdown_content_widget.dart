@@ -59,7 +59,7 @@ Widget codeWrapper(Widget child, String text) {
 /// 图片构建器
 Widget imgBuilder(String url, Map<String, String> attributes) {
   final imageUrl = attributes['src'] ?? '';
-  final alt = attributes['alt'] ?? '';
+  final alt = attributes['alt'] ?? '图片';
   final isNetImage = imageUrl.startsWith('http');
   final isDataUrl = imageUrl.startsWith("data:");
 

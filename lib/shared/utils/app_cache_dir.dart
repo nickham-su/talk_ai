@@ -10,11 +10,16 @@ Future<String> getAppCacheDir() async {
   if (appCacheDir != null) {
     return appCacheDir!;
   }
-  final dir = await getApplicationDocumentsDirectory();
-  final oldTalkAIDir = Directory(path.join(dir.path, 'TalkAI'));
-  final newTalkAIDir = Directory(path.join(dir.path, '.TalkAI'));
+
+  // TODO: 2024.07.31以后，去掉文件夹迁移逻辑
+  final docDir = await getApplicationDocumentsDirectory();
+  final oldTalkAIDir = Directory(path.join(docDir.path, '.TalkAI'));
+
+  final cacheDir = await getApplicationCacheDirectory();
+  final newTalkAIDir = Directory(path.join(cacheDir.path, 'app_data'));
+
   if (oldTalkAIDir.existsSync() && !newTalkAIDir.existsSync()) {
-    // 将TalkAI文件夹重命名为.TalkAI
+    // 移动.TalkAI文件夹
     oldTalkAIDir.renameSync(newTalkAIDir.path);
   } else if (!oldTalkAIDir.existsSync() && !newTalkAIDir.existsSync()) {
     // 创建.TalkAI文件夹

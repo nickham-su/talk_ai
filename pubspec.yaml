@@ -65,6 +65,8 @@ dependencies:
   diff_match_patch: ^0.4.1
   # 加解密
   crypto: ^3.0.3
+  # 图片文件处理
+  image: ^4.2.0
 
 dev_dependencies:
   flutter_test:

@@ -9,6 +9,7 @@ import 'package:get/get.dart';
 import 'package:markdown/markdown.dart' as m;
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
+import 'package:image/image.dart' as img;
 
 import '../../../../../../shared/apis/new_dio.dart';
 import '../../../../../../shared/utils/app_cache_dir.dart';
@@ -108,20 +109,7 @@ class _NetworkImageWidgetState extends State<NetworkImageWidget> {
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
-            onPressed: () async {
-              if (_imgPath == null) return;
-              // 缓存的图片文件
-              final imgFile = File(_imgPath!);
-              // 获取下载文档目录
-              final downloadDir = await getDownloadsDirectory();
-              // 从url中获取原始文件名
-              final uri = Uri.parse(widget.url);
-              final savePath =
-                  path.join(downloadDir!.path, uri.pathSegments.last);
-              // 复制文件
-              imgFile.copySync(savePath);
-              snackbar('保存成功', '已保存到"下载"文件夹');
-            },
+            onPressed: saveImage,
             child: Text('下载图片',
                 style: TextStyle(
                   color:
@@ -135,8 +123,40 @@ class _NetworkImageWidgetState extends State<NetworkImageWidget> {
     ]);
   }
 
+  void saveImage() async {
+    if (_imgPath == null) return;
+    // 缓存的图片文件
+    final imgFile = File(_imgPath!);
+    // 获取下载文档目录
+    final downloadDir = await getDownloadsDirectory();
+    // 从url中获取原始文件名
+    final imgUri = Uri.parse(widget.url);
+    String fileName = path.basename(imgUri.path);
+    final savePath = path.join(downloadDir!.path, fileName);
+    String extension = path.extension(imgUri.path);
+    if (extension.isNotEmpty) {
+      // 存在正确的扩展名，复制文件
+      imgFile.copySync(savePath);
+      snackbar('保存成功', '已保存到"下载"文件夹');
+      return;
+    }
+
+    // 不存在扩展名，尝试解析图片，保存为jpg格式
+    final bytes = await imgFile.readAsBytes();
+    img.Image? decodedImage = img.decodeImage(bytes);
+    if (decodedImage == null) {
+      snackbar('提示', '图片保存失败');
+      return;
+    }
+    if (await img.encodeJpgFile('$savePath.jpg', decodedImage)) {
+      snackbar('保存成功', '已保存到"下载"文件夹');
+    } else {
+      snackbar('提示', '图片保存失败');
+    }
+  }
+
   /// 获取加载中组件
-  getLoadingWidget() {
+  Widget getLoadingWidget() {
     return Container(
       width: 300,
       height: 300,
