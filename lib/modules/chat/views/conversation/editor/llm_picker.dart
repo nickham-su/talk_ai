@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:TalkAI/modules/chat/controllers/chat_app_controller.dart';
 import 'package:TalkAI/shared/components/snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -117,10 +118,16 @@ class LLMPickerController extends GetxController {
               return ListTile(
                 title: Text(llmList[index].name),
                 onTap: () {
-                  final llmId = llmList[index].llmId;
-                  setLLM(llmId);
-                  completer.complete(llmId);
-                  Get.back();
+                  try {
+                    if (!completer.isCompleted) {
+                      final llmId = llmList[index].llmId;
+                      setLLM(llmId);
+                      completer.complete(llmId);
+                    }
+                  } finally {
+                    Get.back();
+                    Get.find<ChatAppController>().inputFocusNode.requestFocus();
+                  }
                 },
               );
             },
