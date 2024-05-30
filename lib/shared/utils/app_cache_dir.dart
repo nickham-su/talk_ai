@@ -28,3 +28,7 @@ Future<String> getAppCacheDir() async {
   appCacheDir = newTalkAIDir.path;
   return appCacheDir!;
 }
+
+String getAppCacheDirSync() {
+  return appCacheDir!;
+}

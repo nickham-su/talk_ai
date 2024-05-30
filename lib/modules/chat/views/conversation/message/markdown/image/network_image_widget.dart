@@ -39,18 +39,61 @@ class _NetworkImageWidgetState extends State<NetworkImageWidget> {
 
   @override
   void initState() {
-    _imageWidget = getLoadingWidget();
-    _loadImg();
+    Widget? cacheWidget = loadCacheImg();
+    if (cacheWidget != null) {
+      _imageWidget = cacheWidget;
+      _isLoad = true;
+    } else {
+      _imageWidget = getLoadingWidget();
+      loadNetworkImg();
+    }
     super.initState();
   }
 
-  void _loadImg() async {
+  /// 加载缓存图片
+  Widget? loadCacheImg() {
+    try {
+      final imgFile = File(getImgCachePath());
+      if (imgFile.existsSync()) {
+        return Image.file(
+          imgFile,
+          fit: widget.fit,
+          errorBuilder: widget.errorBuilder,
+        );
+      }
+    } catch (e) {}
+    return null;
+  }
+
+  /// 加载
+  void loadNetworkImg() async {
+    try {
+      // 下载图片
+      final response = await newDio(timeout: 30)
+          .get(widget.url, options: Options(responseType: ResponseType.bytes));
+      // 保存缓存
+      final imgFile = File(getImgCachePath());
+      imgFile.writeAsBytes(response.data);
+      // 显示图片
+      if (!mounted) return;
+      _imageWidget = Image.memory(
+        response.data,
+        fit: widget.fit,
+        errorBuilder: widget.errorBuilder,
+      );
+      _isLoad = true;
+    } catch (e) {}
+    setState(() {});
+  }
+
+  /// 获取缓存path
+  String getImgCachePath() {
     // app缓存文件夹
-    final appCacheDir = await getAppCacheDir();
+    final appCacheDir = getAppCacheDirSync();
     // 图片缓存文件夹
     final imgDirPath = path.join(appCacheDir, 'cache_images');
     final imgDir = Directory(imgDirPath);
-    if (await imgDir.exists() == false) {
+    if (imgDir.existsSync() == false) {
       imgDir.createSync(); // 创建文件夹
     }
     // 使用url hash值作为文件名
@@ -58,29 +101,7 @@ class _NetworkImageWidgetState extends State<NetworkImageWidget> {
     final imgUri = Uri.parse(widget.url);
     final extension = path.extension(imgUri.path);
     final fileName = '$urlHash$extension';
-    _imgPath = path.join(imgDirPath, fileName);
-
-    final imgFile = File(_imgPath!);
-    if (await imgFile.exists()) {
-      _isLoad = true;
-    } else {
-      // 没有缓存文件，下载图片
-      try {
-        final response = await newDio(timeout: 30).get(widget.url,
-            options: Options(responseType: ResponseType.bytes));
-        await imgFile.writeAsBytes(response.data as List<int>);
-        _isLoad = true;
-      } catch (e) {}
-    }
-
-    // 用缓存文件加载图片
-    _imageWidget = Image.file(
-      imgFile,
-      fit: widget.fit,
-      errorBuilder: widget.errorBuilder,
-    );
-
-    setState(() {});
+    return path.join(imgDirPath, fileName);
   }
 
   String generateSha256Hash(String input) {

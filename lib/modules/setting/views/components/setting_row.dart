@@ -21,12 +21,17 @@ class SettingRow extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
-            child: Text(
-              title,
-              style: const TextStyle(fontSize: 16),
+            child: Row(
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(fontSize: 16),
+                ),
+                if (tip != null) const SizedBox(width: 4),
+                if (tip != null) tip!,
+              ],
             ),
           ),
-          if (tip != null) tip!,
           child,
         ],
       ),
