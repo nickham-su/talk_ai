@@ -760,7 +760,13 @@ class ChatAppController extends GetxController {
     }
     _scrollTime = now;
     _isScrolling = true;
-    scrollController.jumpTo(scrollController.offset + direction * speed);
+
+    final newOffset = scrollController.offset + direction * speed;
+
+    if (newOffset > scrollController.position.minScrollExtent &&
+        newOffset < scrollController.position.maxScrollExtent) {
+      scrollController.jumpTo(newOffset);
+    }
 
     Future.delayed(const Duration(milliseconds: interval), () {
       if (_isScrolling) {
