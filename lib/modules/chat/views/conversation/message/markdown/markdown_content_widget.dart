@@ -2,14 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:markdown_widget/markdown_widget.dart';
 import 'package:markdown/markdown.dart' as m;
-import 'package:markdown_widget/widget/inlines/data_url_image.dart';
 
-import '../../../../../../shared/repositories/setting_repository.dart';
 import '../../../../controllers/chat_app_controller.dart';
-import 'code_wrapper_widget.dart';
-import 'custom_markdown_node.dart';
+import 'image/custom_image_syntax.dart';
+import 'pre_wrapper_widget.dart';
+import 'custom_search_node.dart';
 import 'image/img_builder.dart';
-import 'image/network_image_widget.dart';
 
 /// Markdown组件
 class MarkdownContentWidget extends StatelessWidget {
@@ -30,12 +28,21 @@ class MarkdownContentWidget extends StatelessWidget {
         /// Markdown配置
         MarkdownConfig markdownConfig = Get.isDarkMode
             ? MarkdownConfig.darkConfig.copy(configs: [
-                PreConfig.darkConfig.copy(wrapper: codeWrapper),
+                PreConfig.darkConfig.copy(wrapper: preWrapper),
                 const ImgConfig(builder: imgBuilder),
+                CodeConfig(
+                  // 处理行内代码块，拖选时背景色显示不正常的问题
+                  style: TextStyle(
+                      backgroundColor: Color(0xffaaaaaa).withOpacity(0.4)),
+                ),
               ])
             : MarkdownConfig.defaultConfig.copy(configs: [
-                const PreConfig().copy(wrapper: codeWrapper),
+                const PreConfig().copy(wrapper: preWrapper),
                 const ImgConfig(builder: imgBuilder),
+                CodeConfig(
+                  style: TextStyle(
+                      backgroundColor: Color(0xffdae5f1).withOpacity(0.4)),
+                ),
               ]);
 
         return MarkdownBlock(
@@ -50,9 +57,4 @@ class MarkdownContentWidget extends StatelessWidget {
       },
     );
   }
-}
-
-/// 代码块包装器
-Widget codeWrapper(Widget child, String text) {
-  return CodeWrapperWidget(child, text);
 }
