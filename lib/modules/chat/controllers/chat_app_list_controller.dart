@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:TalkAI/modules/chat/repositorys/chat_app_repository.dart';
 import 'package:TalkAI/shared/models/message/message_model.dart';
 import 'package:get/get.dart';
@@ -9,8 +11,6 @@ import '../../../shared/services/conversation_service.dart';
 import '../../../shared/services/llm_service.dart';
 import '../../../shared/services/message_service.dart';
 import '../models/chat_app_model.dart';
-import '../repositorys/conversation_repository.dart';
-import '../repositorys/message_repository.dart';
 import '../views/app_list/chat_app_setting_dialog.dart';
 import 'chat_app_controller.dart';
 
@@ -83,6 +83,7 @@ class ChatAppListController extends GetxController {
     required double temperature,
     required int llmId,
     required bool multipleRound, // 是否多轮对话
+    Uint8List? profilePicture,
   }) {
     final app = ChatAppRepository.insert(
       name: name,
@@ -90,6 +91,7 @@ class ChatAppListController extends GetxController {
       temperature: temperature,
       llmId: llmId,
       multipleRound: multipleRound,
+      profilePicture: profilePicture,
     );
     refreshChatApps();
     selectChatApp(app.chatAppId);
@@ -103,6 +105,7 @@ class ChatAppListController extends GetxController {
     required double temperature,
     required int llmId,
     required bool multipleRound,
+    Uint8List? profilePicture,
   }) async {
     ChatAppRepository.update(
       chatAppId: chatAppId,
@@ -111,6 +114,7 @@ class ChatAppListController extends GetxController {
       temperature: temperature,
       llmId: llmId,
       multipleRound: multipleRound,
+      profilePicture: profilePicture,
     );
     refreshChatApps();
     // 如果最后一个会话只有一条系统消息，则更新助理设定

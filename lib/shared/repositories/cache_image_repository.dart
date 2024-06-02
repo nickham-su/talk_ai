@@ -21,9 +21,10 @@ class CacheImageRepository {
   }
 
   /// 保存图片
-  static void saveImage(String uri, Uint8List bytes) {
+  static File saveImage(String uri, Uint8List bytes) {
     final imgFile = File(_getImgCachePath(uri));
     imgFile.writeAsBytesSync(bytes);
+    return imgFile;
   }
 
   /// 导出图片

@@ -1,5 +1,8 @@
+import 'dart:typed_data';
+
 import '../models/chat_app_model.dart';
 import '../../../shared/utils/sqlite.dart';
+import 'chat_app_picture_repository.dart';
 
 class ChatAppRepository {
   static String tableName = 'chat_app';
@@ -47,6 +50,7 @@ class ChatAppRepository {
     required bool multipleRound, // 是否多轮对话
     double topP = 0.95, // 默认top_p
     int llmId = 0, // 默认模型id，0表示没有设置默认模型
+    Uint8List? profilePicture,
   }) {
     final lastUseTime = DateTime.now();
     Sqlite.db.execute('''
@@ -62,6 +66,11 @@ class ChatAppRepository {
       multipleRound ? 1 : 0,
     ]);
     final chatAppId = Sqlite.db.lastInsertRowId;
+
+    if (profilePicture != null) {
+      ChatAppPictureRepository.insertOrUpdate(chatAppId, profilePicture);
+    }
+
     return ChatAppModel(
       chatAppId: chatAppId,
       name: name,
@@ -72,6 +81,7 @@ class ChatAppRepository {
       toppingTime: DateTime.fromMillisecondsSinceEpoch(0),
       llmId: llmId,
       multipleRound: multipleRound,
+      profilePicture: profilePicture,
     );
   }
 
@@ -92,6 +102,8 @@ class ChatAppRepository {
             DateTime.fromMillisecondsSinceEpoch(e['topping_time'] as int),
         llmId: e['llm_id'] as int,
         multipleRound: e['multiple_round'] == 1,
+        profilePicture:
+            ChatAppPictureRepository.getPicture(e['chat_app_id'] as int),
       );
     }).toList();
   }
@@ -104,6 +116,7 @@ class ChatAppRepository {
     required double temperature,
     required int llmId,
     required bool multipleRound,
+    Uint8List? profilePicture,
   }) {
     final lastUseTime = DateTime.now();
     Sqlite.db.execute('''
@@ -119,12 +132,19 @@ class ChatAppRepository {
       multipleRound ? 1 : 0,
       chatAppId
     ]);
+
+    if (profilePicture != null) {
+      ChatAppPictureRepository.insertOrUpdate(chatAppId, profilePicture);
+    } else {
+      ChatAppPictureRepository.delete(chatAppId);
+    }
   }
 
   /// 删除聊天App
   static void delete(int chatAppId) {
     Sqlite.db
         .execute('DELETE FROM $tableName WHERE chat_app_id = ?', [chatAppId]);
+    ChatAppPictureRepository.delete(chatAppId);
   }
 
   /// 记录聊天App的最后一次使用时间

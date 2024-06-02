@@ -12,10 +12,10 @@ import '../../../../shared/components/form_widget/dropdown_widget.dart';
 import '../../../../shared/components/form_widget/slider_widget.dart';
 import '../../../../shared/components/form_widget/text_widget.dart';
 import '../../../../shared/components/snackbar.dart';
-import '../../../../shared/services/llm_service.dart';
 import '../../controllers/chat_app_list_controller.dart';
 import '../../controllers/chat_app_setting_controller.dart';
 import '../../models/chat_app_model.dart';
+import 'components/image_picker_widget.dart';
 
 class ChatAppSettingDialog extends GetView<ChatAppSettingController> {
   final ChatAppListController chatAppListController =
@@ -37,7 +37,7 @@ class ChatAppSettingDialog extends GetView<ChatAppSettingController> {
   Widget build(BuildContext context) {
     return DialogWidget(
       width: min(Get.width / 2, 600),
-      height: 510,
+      height: 580,
       title: isEditMode ? '编辑助理' : '新建助理',
       child: Container(
         height: double.infinity,
@@ -49,6 +49,7 @@ class ChatAppSettingDialog extends GetView<ChatAppSettingController> {
                 child: Form(
                   key: _formKey,
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       TextWidget(
                         labelText: '助理名称',
@@ -115,6 +116,23 @@ class ChatAppSettingDialog extends GetView<ChatAppSettingController> {
                           }
                         },
                       ),
+                      Container(
+                        margin: const EdgeInsets.only(top: 16),
+                        child: Row(
+                          children: [
+                            const Text('助理头像',
+                                style: TextStyle(
+                                    fontSize: 14, fontWeight: FontWeight.w300)),
+                            const SizedBox(width: 84),
+                            ImagePickerWidget(
+                              data: controller.profilePicture,
+                              onSelected: (data) {
+                                controller.profilePicture = data;
+                              },
+                            ),
+                          ],
+                        ),
+                      )
                     ],
                   ),
                 ),
@@ -174,6 +192,7 @@ class ChatAppSettingDialog extends GetView<ChatAppSettingController> {
           temperature: controller.temperature,
           llmId: controller.llmId,
           multipleRound: controller.multipleRound,
+          profilePicture: controller.profilePicture,
         );
         Get.back();
         await Future.delayed(const Duration(milliseconds: 200));
@@ -195,6 +214,7 @@ class ChatAppSettingDialog extends GetView<ChatAppSettingController> {
           temperature: controller.temperature,
           llmId: controller.llmId,
           multipleRound: controller.multipleRound,
+          profilePicture: controller.profilePicture,
         );
         Get.back();
         await Future.delayed(const Duration(milliseconds: 200));

@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 /// 聊天助理
 class ChatAppModel {
   final int chatAppId; // 聊天助理id
@@ -9,6 +11,7 @@ class ChatAppModel {
   final DateTime toppingTime; // 置顶时间
   final int llmId; // 默认模型id
   final bool multipleRound; // 是否多轮对话
+  final Uint8List? profilePicture; // 头像
 
   ChatAppModel({
     required this.chatAppId,
@@ -20,5 +23,6 @@ class ChatAppModel {
     required this.toppingTime,
     required this.llmId,
     required this.multipleRound,
+    required this.profilePicture,
   });
 }

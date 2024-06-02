@@ -67,6 +67,8 @@ dependencies:
   crypto: ^3.0.3
   # 图片文件处理
   image: ^4.2.0
+  # 选择文件
+  file_picker: ^8.0.0+1
 
 dev_dependencies:
   flutter_test:

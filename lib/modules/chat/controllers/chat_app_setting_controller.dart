@@ -1,5 +1,6 @@
-import 'package:get/get.dart';
+import 'dart:typed_data';
 
+import 'package:get/get.dart';
 import '../../../shared/components/form_widget/dropdown_widget.dart';
 import '../../../shared/services/llm_service.dart';
 import '../models/chat_app_model.dart';
@@ -11,6 +12,7 @@ class ChatAppSettingController extends GetxController {
   double temperature = 1;
   int llmId = 0;
   bool multipleRound = true;
+  Uint8List? profilePicture;
 
   /// llm服务
   final llmService = Get.find<LLMService>();
@@ -37,6 +39,7 @@ class ChatAppSettingController extends GetxController {
       llmId = chatAppModel.llmId;
     }
     multipleRound = chatAppModel.multipleRound;
+    profilePicture = chatAppModel.profilePicture;
   }
 
   /// 初始化表单数据
@@ -47,5 +50,6 @@ class ChatAppSettingController extends GetxController {
     temperature = 1;
     llmId = 0;
     multipleRound = true;
+    profilePicture = null;
   }
 }
