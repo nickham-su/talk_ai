@@ -94,8 +94,9 @@ class ChatAppController extends GetxController {
     if (chatApp != null &&
         oldChatApp != null &&
         chatApp.chatAppId == oldChatApp.chatAppId &&
-        chatApp.prompt == oldChatApp.prompt) {
-      // 如果chatApp没有改变，且prompt没有改变，则不需要更新会话列表。
+        chatApp.prompt == oldChatApp.prompt &&
+        chatApp.profilePicture == oldChatApp.profilePicture) {
+      // 如果chatApp没有改变，且prompt、头像没有改变，则不需要更新会话列表。
       return;
     }
 

@@ -24,7 +24,7 @@ class MessageContent extends StatelessWidget {
     if (message.role == MessageRole.user) {
       roleName = '我';
     } else if (message.role == MessageRole.assistant) {
-      roleName = '助手  ${message.llmName}';
+      roleName = '助理  ${message.llmName}';
     } else {
       roleName = '助理设定';
     }

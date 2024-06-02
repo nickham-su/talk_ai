@@ -1,4 +1,3 @@
-import 'package:TalkAI/shared/models/message/message_status.dart';
 import 'package:get/get.dart';
 
 import '../../../shared/models/event_queue/event_listener.dart';
@@ -6,7 +5,6 @@ import '../../../shared/models/message/generated_message.dart';
 import '../../../shared/services/generate_message_service.dart';
 import '../../../shared/services/message_service.dart';
 import '../models/conversation_message_model.dart';
-import '../repositorys/message_repository.dart';
 
 class MessageController extends GetxController {
   /// 生成消息服务
@@ -27,6 +25,7 @@ class MessageController extends GetxController {
   /// 监听生成列表更新ID
   late EventListener updateGenerateListListener;
 
+  /// 生成消息列表
   List<GeneratedMessage> get generateMessages =>
       generateService.getMessages(msgId);
 
