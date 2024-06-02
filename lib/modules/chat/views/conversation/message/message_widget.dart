@@ -24,6 +24,7 @@ class MessageWidget extends StatelessWidget {
       init: MessageController(msgId),
       builder: (controller) {
         final message = controller.message;
+        if (message == null) return const SizedBox();
 
         // 显示搜索结果
         final chatAppController = Get.find<ChatAppController>();
@@ -43,7 +44,8 @@ class MessageWidget extends StatelessWidget {
             children: [
               GetBuilder<ChatAppController>(
                 builder: (controller) {
-                  return getIcon(message, controller.chatApp?.profilePicture);
+                  return getIcon(
+                      message.role, controller.chatApp?.profilePicture);
                 },
               ),
               Expanded(
@@ -52,7 +54,7 @@ class MessageWidget extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     MessageContent(
-                      key: ValueKey('key_generate_${message!.generateId}'),
+                      key: ValueKey('key_generate_${message.generateId}'),
                       message: message,
                     ),
                     Visibility(
@@ -71,31 +73,26 @@ class MessageWidget extends StatelessWidget {
   }
 
   /// 获取头像
-  Widget getIcon(ConversationMessageModel? message, Uint8List? iconImg) {
+  Widget getIcon(MessageRole role, Uint8List? iconImg) {
     late String iconSvg; // 默认图片svg
-    if (message?.role == MessageRole.user) {
+    if (role == MessageRole.user) {
       iconSvg = 'assets/icons/user.svg';
-    } else if (message?.role == MessageRole.assistant) {
+    } else if (role == MessageRole.assistant) {
       iconSvg = 'assets/icons/assistant.svg';
     } else {
       iconSvg = 'assets/icons/build.svg';
     }
 
     late Color iconColor; // 默认图标颜色
-    if (message?.role == MessageRole.user) {
+    if (role == MessageRole.user) {
       iconColor = Get.theme.colorScheme.tertiaryContainer;
-    } else if (message?.role == MessageRole.assistant) {
+    } else if (role == MessageRole.assistant) {
       iconColor = Get.theme.colorScheme.primaryContainer;
     } else {
       iconColor = Get.theme.colorScheme.outlineVariant;
     }
 
-    Uint8List? iconImg; // 自定义图片
-    if (message?.role == MessageRole.assistant) {
-      iconImg = Get.find<ChatAppController>().chatApp?.profilePicture;
-    }
-
-    Widget picture = iconImg != null
+    Widget picture = role == MessageRole.assistant && iconImg != null
         ? Image.memory(iconImg, fit: BoxFit.cover)
         : SvgPicture.asset(iconSvg,
             width: 22,
@@ -109,7 +106,7 @@ class MessageWidget extends StatelessWidget {
       height: 44,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        border: iconImg != null
+        border: role == MessageRole.assistant && iconImg != null
             ? Border.all(
                 color: Get.theme.colorScheme.primary,
                 width: 1.5,
