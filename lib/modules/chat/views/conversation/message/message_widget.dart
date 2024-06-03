@@ -109,7 +109,7 @@ class MessageWidget extends StatelessWidget {
         border: role == MessageRole.assistant && iconImg != null
             ? Border.all(
                 color: Get.theme.colorScheme.primary,
-                width: 1.5,
+                width: 2,
               )
             : null,
         color: iconColor,

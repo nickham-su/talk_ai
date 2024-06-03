@@ -57,7 +57,7 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
                 border: _cacheImg != null
                     ? Border.all(
                         color: Get.theme.colorScheme.primary,
-                        width: 1.5,
+                        width: 2,
                       )
                     : null,
                 color: Get.theme.colorScheme.primaryContainer,
@@ -112,7 +112,7 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
       Get.snackbar('提示', '图片格式不支持，请重新选择');
       return;
     }
-    final resizeImg = img.copyResize(image, width: 144, height: 144);
+    final resizeImg = img.copyResize(image, width: 100, height: 100);
     _cacheImg = img.encodeJpg(resizeImg);
     setState(() {});
     widget.onSelected(_cacheImg);
