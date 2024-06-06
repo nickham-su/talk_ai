@@ -77,10 +77,9 @@ class LLMSetting extends GetView<LLMController> {
             try {
               if (controller.isCreate) {
                 controller.createLLM();
-                snackbar('恭喜您', '模型添加成功');
               } else {
                 controller.editLLM();
-                snackbar('恭喜您', '模型设置成功');
+                snackbar('成功', '模型设置成功', duration: const Duration(seconds: 2));
               }
             } catch (e) {
               snackbar('保存失败', e.toString());
@@ -99,9 +98,8 @@ class LLMSetting extends GetView<LLMController> {
         onPressed: () {
           try {
             controller.copyLLM();
-            snackbar('恭喜您', '模型已复制');
           } catch (e) {
-            snackbar('保存失败', e.toString());
+            snackbar('复制失败', e.toString());
           }
         },
       ));
@@ -120,7 +118,6 @@ class LLMSetting extends GetView<LLMController> {
                 controller.deleteLLM();
                 Get.back();
                 await Future.delayed(const Duration(milliseconds: 200));
-                snackbar('提示', '模型已删除');
               },
             ),
           );
