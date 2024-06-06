@@ -38,6 +38,7 @@ class OpenaiApi {
       'temperature': temperature,
       'top_p': topP,
       'stream': true,
+      'max_tokens': 8 * 1024,
     };
     if (stop != null) {
       data['stop'] = stop;

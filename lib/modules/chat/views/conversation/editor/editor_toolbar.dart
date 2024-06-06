@@ -78,7 +78,7 @@ class AddButton extends StatelessWidget {
             ),
           ),
         ),
-        tooltip: '开始新会话',
+        tooltip: '开始新话题',
         icon: SvgPicture.asset(
           'assets/icons/add.svg',
           width: 22,

@@ -94,7 +94,5 @@ class Request {
         yield jsonData;
       }
     }
-
-    await Future.delayed(const Duration(seconds: 1));
   }
 }
