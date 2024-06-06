@@ -6,7 +6,7 @@ import '../../../../shared/components/buttons/cancel_button.dart';
 import '../../../../shared/components/buttons/confirm_button.dart';
 import '../../../../shared/components/dialog_widget/dialog_widget.dart';
 import '../../../../shared/components/form_widget/text_widget.dart';
-import '../../controllers/openai_subscription_controller.dart';
+import '../../controllers/openai_batch_add_controller.dart';
 import 'openai_model_picker.dart';
 
 class OpenaiBatchAddDialog extends StatelessWidget {
@@ -20,7 +20,7 @@ class OpenaiBatchAddDialog extends StatelessWidget {
       width: 600,
       height: 280,
       title: '批量添加OpenAI模型',
-      child: GetBuilder<OpenaiSubscriptionController>(
+      child: GetBuilder<OpenaiBatchAddController>(
         builder: (controller) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,

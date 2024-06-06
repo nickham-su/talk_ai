@@ -6,7 +6,7 @@ import '../apis/openai_models.dart';
 import '../../../shared/models/llm/llm.dart';
 import '../../../shared/services/llm_service.dart';
 
-class OpenaiSubscriptionController extends GetxController {
+class OpenaiBatchAddController extends GetxController {
   /// URL
   String url = '';
 

@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher_string.dart';
 import '../../../shared/components/dialog_widget/dialog_widget.dart';
 import '../../../shared/models/llm/llm_type.dart';
 import '../controllers/llm_controller.dart';
+import '../controllers/openai_batch_add_controller.dart';
 import 'openai_subscription/openai_batch_add_dialog.dart';
 
 class LLMAddDialog extends StatelessWidget {
@@ -47,6 +48,7 @@ class LLMAddDialog extends StatelessWidget {
                     TextButton(
                       onPressed: () {
                         Get.back();
+                        Get.put(OpenaiBatchAddController(), permanent: true);
                         Get.dialog(
                           OpenaiBatchAddDialog(),
                           barrierDismissible: false,
@@ -66,80 +68,6 @@ class LLMAddDialog extends StatelessWidget {
             ),
           );
         },
-      ),
-    );
-
-    return AlertDialog(
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Text('选择模型类型'),
-          IconButton(
-            onPressed: () {
-              Get.back();
-            },
-            icon: SvgPicture.asset(
-              'assets/icons/close.svg',
-              width: 24,
-              height: 24,
-              theme: SvgTheme(
-                currentColor: Get.theme.colorScheme.inverseSurface,
-              ),
-            ),
-          ),
-        ],
-      ),
-      content: SizedBox(
-        width: 600, // or whatever you need
-        height: 280, // or whatever you need
-        child: ListView.builder(
-          itemCount: items.length,
-          itemBuilder: (context, index) {
-            final llmType = items[index];
-            return ListTile(
-              title: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    llmType.info.description,
-                    style: TextStyle(fontSize: 16),
-                  ),
-                  Row(
-                    children: llmType.info.docList
-                        .map((doc) => DocLink(doc: doc))
-                        .toList(),
-                  )
-                ],
-              ),
-              trailing: SizedBox(
-                width: 200,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    if (llmType == LLMType.openai)
-                      TextButton(
-                        onPressed: () {
-                          Get.back();
-                          Get.dialog(
-                            OpenaiBatchAddDialog(),
-                            barrierDismissible: false,
-                          );
-                        },
-                        child: Text('批量添加'),
-                      ),
-                    TextButton(
-                      onPressed: () {
-                        Get.find<LLMController>().addLLM(llmType);
-                        Get.back();
-                      },
-                      child: Text('添加'),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        ),
       ),
     );
   }

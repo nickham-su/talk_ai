@@ -8,7 +8,7 @@ import '../../../../shared/components/buttons/confirm_button.dart';
 import '../../../../shared/components/dialog_widget/dialog_widget.dart';
 import '../../../../shared/components/form_widget/text_widget.dart';
 import '../../../../shared/components/snackbar.dart';
-import '../../controllers/openai_subscription_controller.dart';
+import '../../controllers/openai_batch_add_controller.dart';
 
 class OpenaiModelPicker extends StatelessWidget {
   const OpenaiModelPicker({super.key});
@@ -19,7 +19,7 @@ class OpenaiModelPicker extends StatelessWidget {
       width: 600,
       height: 600,
       title: '批量添加OpenAI模型',
-      child: GetBuilder<OpenaiSubscriptionController>(
+      child: GetBuilder<OpenaiBatchAddController>(
         builder: (controller) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -100,7 +100,7 @@ class OpenaiModelPicker extends StatelessWidget {
   }
 
   /// 获取列表项
-  Widget getItem(OpenaiSubscriptionController controller, int index) {
+  Widget getItem(OpenaiBatchAddController controller, int index) {
     final model = controller.models[index];
     final fullName = controller.getFullName(model);
     final isSelect = controller.isSelect(model);
