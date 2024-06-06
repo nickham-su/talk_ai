@@ -10,8 +10,8 @@ import '../../../../shared/components/form_widget/text_widget.dart';
 import '../../../../shared/components/snackbar.dart';
 import '../../controllers/openai_subscription_controller.dart';
 
-class OpenaiSubscriptionPicker extends StatelessWidget {
-  const OpenaiSubscriptionPicker({super.key});
+class OpenaiModelPicker extends StatelessWidget {
+  const OpenaiModelPicker({super.key});
 
   @override
   Widget build(BuildContext context) {

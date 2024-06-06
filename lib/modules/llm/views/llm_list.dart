@@ -1,13 +1,10 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../../shared/components/layout/models/layout_menu_type.dart';
-import '../../../shared/models/llm/llm_type.dart';
 import '../controllers/llm_controller.dart';
+import 'llm_add_dialog.dart';
 import 'llm_share_dialog.dart';
 
 class LLMList extends GetView<LLMController> {
@@ -213,98 +210,8 @@ class ListHeader extends GetView<LLMController> {
 
 /// 添加模型，弹出选择框
 void addLLM() {
-  List<LLMType> items = LLMType.values;
   Get.dialog(
-    AlertDialog(
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Text('选择模型类型'),
-          IconButton(
-            onPressed: () {
-              Get.back();
-            },
-            icon: SvgPicture.asset(
-              'assets/icons/close.svg',
-              width: 24,
-              height: 24,
-              theme: SvgTheme(
-                currentColor: Get.theme.colorScheme.inverseSurface,
-              ),
-            ),
-          ),
-        ],
-      ),
-      content: SizedBox(
-        width: min(Get.width / 2, 600), // or whatever you need
-        height: 280, // or whatever you need
-        child: ListView.builder(
-          itemCount: items.length,
-          itemBuilder: (context, index) {
-            return ListTile(
-              title: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    items[index].info.description,
-                    style: TextStyle(fontSize: 16),
-                  ),
-                  Row(
-                    children: items[index]
-                        .info
-                        .docList
-                        .map((doc) => DocLink(doc: doc))
-                        .toList(),
-                  )
-                ],
-              ),
-              onTap: () {
-                Get.find<LLMController>().addLLM(items[index]);
-                Get.back();
-              },
-            );
-          },
-        ),
-      ),
-    ),
+    LLMAddDialog(),
     barrierDismissible: false,
   );
-}
-
-/// 文档链接
-class DocLink extends StatelessWidget {
-  final Doc doc;
-
-  const DocLink({super.key, required this.doc});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(right: 8, top: 4),
-      child: TextButton(
-        style: ButtonStyle(
-          minimumSize: MaterialStateProperty.all<Size>(const Size(0, 32)),
-          padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-              const EdgeInsets.symmetric(horizontal: 2)),
-          shape: MaterialStateProperty.all<OutlinedBorder>(
-            RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(4),
-            ),
-          ),
-        ),
-        onPressed: () {
-          launchUrlString(doc.url);
-        },
-        child: Text(
-          doc.title,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w200,
-            color: Get.theme.textTheme.bodyMedium?.color?.withOpacity(0.7),
-            decoration: TextDecoration.underline,
-          ),
-        ),
-      ),
-    );
-  }
 }

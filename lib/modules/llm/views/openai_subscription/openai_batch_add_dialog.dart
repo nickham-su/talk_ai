@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:TalkAI/shared/components/snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -9,18 +7,18 @@ import '../../../../shared/components/buttons/confirm_button.dart';
 import '../../../../shared/components/dialog_widget/dialog_widget.dart';
 import '../../../../shared/components/form_widget/text_widget.dart';
 import '../../controllers/openai_subscription_controller.dart';
-import 'openai_subscription_picker.dart';
+import 'openai_model_picker.dart';
 
-class OpenaiSubscriptionDialog extends StatelessWidget {
+class OpenaiBatchAddDialog extends StatelessWidget {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  OpenaiSubscriptionDialog({super.key});
+  OpenaiBatchAddDialog({super.key});
 
   @override
   Widget build(BuildContext context) {
     return DialogWidget(
       width: 600,
-      height: 270,
+      height: 280,
       title: '批量添加OpenAI模型',
       child: GetBuilder<OpenaiSubscriptionController>(
         builder: (controller) {
@@ -28,7 +26,7 @@ class OpenaiSubscriptionDialog extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                '第1步：填写URl和API Key，获取可用模型',
+                '第1步：填写URl和API Key，查询可用模型。（服务需要提供/v1/models接口）',
                 style: TextStyle(
                   height: 1,
                   fontSize: 14,
@@ -43,7 +41,7 @@ class OpenaiSubscriptionDialog extends StatelessWidget {
                     children: [
                       TextWidget(
                         labelText: 'URL',
-                        hintText: '如：https://api.openai.com，不需要携带"/v1/models"',
+                        hintText: '如：https://api.openai.com',
                         initialValue: controller.url,
                         isRequired: true,
                         onChanged: (value) {
@@ -78,7 +76,7 @@ class OpenaiSubscriptionDialog extends StatelessWidget {
                           await controller.getModels();
                           Get.back();
                           Get.dialog(
-                            const OpenaiSubscriptionPicker(),
+                            const OpenaiModelPicker(),
                             barrierDismissible: false,
                           );
                         } catch (e) {
