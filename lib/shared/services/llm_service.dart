@@ -38,12 +38,18 @@ class LLMService extends GetxService {
   }
 
   /// 更新模型
-  void updateLLM(int llmId, Map<String, String> data) {
+  void updateLLMByData(int llmId, Map<String, String> data) {
     final type = data['type'];
     final llmType =
         LLMType.values.firstWhere((element) => element.value == type);
     final llm = LLMs.fromJson(llmType, data);
     llm.llmId = llmId;
+    LLMRepository.update(llm);
+    refreshLLMList();
+  }
+
+  /// 更新模型
+  void updateLLM(LLM llm) {
     LLMRepository.update(llm);
     refreshLLMList();
   }
@@ -55,9 +61,9 @@ class LLMService extends GetxService {
   }
 
   /// 删除模型
-  void deleteLLM(LLM llm) {
-    LLMRepository.delete(llm.llmId);
-    llmList.removeWhere((element) => element.llmId == llm.llmId);
+  void deleteLLM(int llmId) {
+    LLMRepository.delete(llmId);
+    llmList.removeWhere((element) => element.llmId == llmId);
   }
 
   /// 获取模型

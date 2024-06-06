@@ -7,7 +7,7 @@ abstract class LLM {
   int llmId;
 
   /// 模型名称
-  final String name;
+  String name;
 
   /// 最后使用时间
   int lastUseTime;

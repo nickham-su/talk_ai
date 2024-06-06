@@ -72,7 +72,7 @@ class LLMController extends GetxController {
     for (var item in formData) {
       map[item.key] = item.value;
     }
-    llmService.updateLLM(llm.llmId, map);
+    llmService.updateLLMByData(llm.llmId, map);
   }
 
   /// 复制LLM
@@ -100,7 +100,7 @@ class LLMController extends GetxController {
     if (llm == null) {
       return;
     }
-    llmService.deleteLLM(llm);
+    llmService.deleteLLM(llm.llmId);
     formData.clear();
   }
 }
