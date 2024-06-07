@@ -15,6 +15,7 @@ import 'package:window_manager/window_manager.dart';
 import 'package:uni_links_desktop/uni_links_desktop.dart';
 
 import 'modules/chat/controllers/chat_app_controller.dart';
+import 'modules/sync/controllers/sync_controller.dart';
 import 'shared/repositories/setting_repository.dart';
 import 'shared/services/conversation_service.dart';
 import 'shared/services/message_service.dart';
@@ -46,6 +47,7 @@ void main() async {
   /// 注册全局控制器、服务
   Get.put(LayoutController(), permanent: true);
   Get.put(AppUpdateController(), permanent: true);
+  Get.put(SyncController(), permanent: true);
   Get.put(GenerateMessageService(), permanent: true);
   Get.put(MessageService(), permanent: true);
   Get.put(ConversationService(), permanent: true);
@@ -144,9 +146,11 @@ class MyWindowListener with WindowListener {
 Future<void> initUniLinks() async {
   registerProtocol('talkai');
   linkStream.listen((String? link) {
-    print('Got link: $link');
     windowManager.focus();
-  }, onError: (err) {
-    print('Got error: $err');
-  });
+    if (link == null) return;
+    if (link.startsWith('talkai://alipan')) {
+      final code = link.split('code=')[1];
+      Get.find<SyncController>().getAliPanInfo(code);
+    }
+  }, onError: (err) {});
 }

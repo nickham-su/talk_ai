@@ -77,7 +77,7 @@ class LLMShareImportDialog extends StatelessWidget {
   }
 
   importData(String url) async {
-    final reg = RegExp(r'^(.*?\n)*?talkai://');
+    final reg = RegExp(r'^(.*?\n)*?talkai://(share/)?');
     final compressed = url.replaceAll(reg, '');
     final jsonStr = gzipDecompress(compressed);
     final data = jsonDecode(jsonStr);

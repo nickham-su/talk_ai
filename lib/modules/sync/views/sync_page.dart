@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:markdown_widget/markdown_widget.dart';
 
+import '../../../shared/components/buttons/cancel_button.dart';
 import '../../../shared/components/buttons/confirm_button.dart';
 import '../../../shared/components/layout/models/layout_menu_type.dart';
 import '../../../shared/components/layout/views/layout.dart';
 import '../../../shared/components/share/llm_share_import_dialog.dart';
+import '../controllers/sync_controller.dart';
 
 class SyncPage extends StatelessWidget {
   // 最大宽度
@@ -36,29 +38,50 @@ class SyncPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                          padding: const EdgeInsets.only(bottom: 20),
-                          child: const Text('阿里云盘同步',
-                              style: TextStyle(
-                                  fontSize: 20, fontWeight: FontWeight.bold))),
-                      const Text('将助理和模型的设置信息保存到阿里云盘，不包含聊天信息'),
-                      const Text('使用场景：数据备份、多设备同步'),
-                      const SizedBox(height: 8),
-                      Text('阿里云盘需要自己注册（有赠送免费容量）',
-                          style: TextStyle(
-                              color: Get.theme.textTheme.bodyMedium?.color
-                                  ?.withOpacity(0.5))),
-                      const SizedBox(height: 12),
-                      ConfirmButton(
-                        text: '登录阿里云盘',
-                        onPressed: () {},
-                      ),
-                      const SizedBox(height: 40),
-                    ],
-                  ),
+                  GetBuilder<SyncController>(builder: (controller) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                            padding: const EdgeInsets.only(bottom: 20),
+                            child: const Text('阿里云盘同步',
+                                style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold))),
+                        const Text('将助理和模型的设置信息保存到阿里云盘，不包含聊天信息'),
+                        const Text('使用场景：数据备份、多设备同步'),
+                        const SizedBox(height: 8),
+                        Text('阿里云盘需要自己注册（有赠送免费容量）',
+                            style: TextStyle(
+                                color: Get.theme.textTheme.bodyMedium?.color
+                                    ?.withOpacity(0.5))),
+                        const SizedBox(height: 12),
+                        controller.driveInfo != null
+                            ? Row(
+                                children: [
+                                  Text(
+                                    '已授权：${controller.driveInfo!.name}',
+                                    style: TextStyle(fontSize: 16),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  CancelButton(
+                                    text: '取消授权',
+                                    onPressed: () {
+                                      controller.logoutAliPan();
+                                    },
+                                  ),
+                                ],
+                              )
+                            : ConfirmButton(
+                                text: '阿里云盘授权',
+                                onPressed: () {
+                                  controller.loginAliPan();
+                                },
+                              ),
+                        const SizedBox(height: 40),
+                      ],
+                    );
+                  }),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -84,12 +107,12 @@ class SyncPage extends StatelessWidget {
                           style: TextStyle(
                               color: Get.theme.textTheme.bodyMedium?.color
                                   ?.withOpacity(0.5))),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Text('以下是分享信息示例：',
                           style: TextStyle(
                               color: Get.theme.textTheme.bodyMedium?.color
                                   ?.withOpacity(0.5))),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 4),
@@ -100,13 +123,14 @@ class SyncPage extends StatelessWidget {
                         ),
                         child: SelectionArea(
                           child: Text(
-                            '您的好友分享了1个助理。打开TalkAI，在[同步]页面中导入：\ntalkai://H4sIAAAAAAAAE6tWSiwoKFayiq5WykvMTVWyUnratfL5hDYlHaWCovzcghKgCJBdkppbkFqUWFJaBFRiqGego5RbmlOSWZCTGl%2BUX5qXomRVUlSaCtaTlgkULMhMhqjNK83JqY2tBQBX67j9ZwAAAA%3D%3D',
+                            '您的好友分享了1个助理。打开TalkAI，在[同步]页面中导入：\ntalkai://share/H4sIAAAAAAAAE6tWSiwoKFayiq5WykvMTVWyUnratfL5hDYlHaWCovzcghKgCJBdkppbkFqUWFJaBFRiqGego5RbmlOSWZCTGl%2BUX5qXomRVUlSaCtaTlgkULMhMhqjNK83JqY2tBQBX67j9ZwAAAA%3D%3D',
                             style: TextStyle(
                                 color: Get.theme.textTheme.bodyMedium?.color
                                     ?.withOpacity(0.5)),
                           ),
                         ),
                       ),
+                      const SizedBox(height: 100),
                     ],
                   )
                 ],

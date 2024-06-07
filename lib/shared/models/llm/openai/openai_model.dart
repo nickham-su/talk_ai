@@ -159,6 +159,13 @@ class OpenaiModel extends LLM {
       messages.first.content = '$systemContent\n${messages.first.content}';
     }
 
+    int? maxTokens;
+
+    // 零一万物模型的默认max_tokens太小，兼容一下
+    if (model.startsWith('yi-')) {
+      maxTokens = 8 * 1024;
+    }
+
     return OpenaiApi.chatCompletions(
       url: url,
       apiKey: apiKey,
@@ -167,6 +174,7 @@ class OpenaiModel extends LLM {
       temperature: temperature,
       topP: topP,
       stop: stopList,
+      maxTokens: maxTokens,
     );
   }
 
