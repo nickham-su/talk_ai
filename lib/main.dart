@@ -10,7 +10,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:uni_links/uni_links.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:uni_links_desktop/uni_links_desktop.dart';
 
 import 'modules/chat/controllers/chat_app_controller.dart';
 import 'shared/repositories/setting_repository.dart';
@@ -31,6 +33,11 @@ void main() async {
 
   /// 初始化窗口位置
   await initWindowPosition();
+
+  /// 注册schema
+  if (Platform.isWindows || Platform.isMacOS) {
+    initUniLinks();
+  }
 
   /// 创建数据库
   Sqlite.openDB(appCacheDir);
@@ -115,6 +122,7 @@ Future initWindowPosition() async {
   windowManager.addListener(MyWindowListener());
 }
 
+/// 窗口事件监听
 class MyWindowListener with WindowListener {
   @override
   void onWindowResized() async {
@@ -130,4 +138,15 @@ class MyWindowListener with WindowListener {
     SystemNavigator.pop();
     super.onWindowClose();
   }
+}
+
+/// 注册schema
+Future<void> initUniLinks() async {
+  registerProtocol('talkai');
+  linkStream.listen((String? link) {
+    print('Got link: $link');
+    windowManager.focus();
+  }, onError: (err) {
+    print('Got error: $err');
+  });
 }
