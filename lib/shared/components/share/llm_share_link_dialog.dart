@@ -19,7 +19,7 @@ class LLMShareLinkDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DialogWidget(
-      width: min(Get.width / 2, 400), // or whatever you need
+      width: min(Get.width / 2, 500), // or whatever you need
       height: 300,
       title: '分享',
       child: GetBuilder<LLMShareController>(

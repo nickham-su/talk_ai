@@ -24,7 +24,7 @@ class LLMShareImportDialog extends StatelessWidget {
     String input = importValue ?? '';
 
     return DialogWidget(
-      width: min(Get.width / 2, 400), // or whatever you need
+      width: min(Get.width / 2, 500), // or whatever you need
       height: 300,
       title: '导入数据',
       child: GetBuilder<LLMShareController>(
