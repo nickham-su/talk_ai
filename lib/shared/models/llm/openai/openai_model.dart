@@ -17,6 +17,7 @@ class OpenaiModel extends LLM {
     required super.llmId,
     required super.name,
     required super.lastUseTime,
+    required super.updatedTime,
     required this.url,
     required this.apiKey,
     required this.model,
@@ -32,6 +33,7 @@ class OpenaiModel extends LLM {
       apiKey: json['api_key'] ?? '',
       model: json['model'] ?? '',
       stop: json['stop'] ?? '',
+      updatedTime: json['updated_time'] ?? 0,
     );
   }
 

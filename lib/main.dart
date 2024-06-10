@@ -28,6 +28,7 @@ void main() async {
 
   /// 创建TalkAI文件夹
   final appCacheDir = await getAppCacheDir();
+  print('appCacheDir: $appCacheDir');
 
   /// 初始化Hive，窗口位置存在Hive中，所以要先初始化Hive
   Hive.init(appCacheDir);
