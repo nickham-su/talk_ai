@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../modules/chat/repositorys/chat_app_repository.dart';
+import '../../../modules/sync/controllers/sync_controller.dart';
 import '../buttons/cancel_button.dart';
 import '../buttons/confirm_button.dart';
 import '../../services/llm_service.dart';
@@ -143,5 +144,9 @@ class LLMShareImportDialog extends StatelessWidget {
       }
     }
     snackbar('导入结果', ret, duration: const Duration(seconds: 5));
+
+    /// 同步数据
+    final syncController = Get.find<SyncController>();
+    syncController.delaySync();
   }
 }

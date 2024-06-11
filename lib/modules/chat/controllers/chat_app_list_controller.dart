@@ -10,6 +10,7 @@ import '../../../shared/repositories/generated_message_repository.dart';
 import '../../../shared/services/conversation_service.dart';
 import '../../../shared/services/llm_service.dart';
 import '../../../shared/services/message_service.dart';
+import '../../sync/controllers/sync_controller.dart';
 import '../models/chat_app_model.dart';
 import '../views/app_list/chat_app_setting_dialog.dart';
 import 'chat_app_controller.dart';
@@ -20,6 +21,9 @@ class ChatAppListController extends GetxController {
 
   /// 消息服务
   final messageService = Get.find<MessageService>();
+
+  /// 数据同步控制器
+  final syncController = Get.find<SyncController>();
 
   /// 聊天App列表
   final chatAppList = RxList<ChatAppModel>([]);
@@ -95,6 +99,8 @@ class ChatAppListController extends GetxController {
     );
     refreshChatApps();
     selectChatApp(app.chatAppId);
+    // 同步数据
+    syncController.delaySync();
   }
 
   /// 更新聊天App
@@ -133,6 +139,8 @@ class ChatAppListController extends GetxController {
     }
 
     selectChatApp(chatAppId);
+    // 同步数据
+    syncController.delaySync();
   }
 
   /// 删除聊天App
@@ -143,6 +151,8 @@ class ChatAppListController extends GetxController {
     GeneratedMessageRepository.deleteByChatAppId(id);
     refreshChatApps();
     selectChatApp(-1);
+    // 同步数据
+    syncController.delaySync();
   }
 
   /// 获取聊天App

@@ -2,6 +2,7 @@ import 'package:TalkAI/shared/models/llm/llm_type.dart';
 import 'package:TalkAI/shared/models/llm/openai/openai_model.dart';
 import 'package:get/get.dart';
 
+import '../../sync/controllers/sync_controller.dart';
 import '../apis/openai_models.dart';
 import '../../../shared/models/llm/llm.dart';
 import '../../../shared/services/llm_service.dart';
@@ -146,5 +147,9 @@ class OpenaiBatchAddController extends GetxController {
         'model': model,
       });
     }
+
+    // 同步数据
+    final syncController = Get.find<SyncController>();
+    syncController.delaySync();
   }
 }

@@ -101,6 +101,20 @@ class SyncController extends GetxController {
     }
   }
 
+  /// 同步计数
+  int syncCount = 0;
+
+  /// 延时30秒同步，过滤频繁操作
+  void delaySync() {
+    syncCount++;
+    Future.delayed(const Duration(seconds: 30), () {
+      syncCount--;
+      if (syncCount == 0) {
+        sync();
+      }
+    });
+  }
+
   /// 同步数据
   void sync() async {
     if (token == null) return;
