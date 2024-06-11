@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
+import 'package:encrypt/encrypt.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -126,10 +127,15 @@ class SyncController extends GetxController {
       final talkAIFolder = await getFolder();
       // 获取最新的备份文件
       final backupFile = await getLastFile(talkAIFolder.fileId);
+
+      print('backupFile: ${backupFile?.toJson()}');
+
       // 获取本地数据
       final localData = getLocalData();
       // 计算本地数据哈希
       final localHash = sha1.convert(localData).toString().toUpperCase();
+
+      print('localHash: $localHash');
 
       if (backupFile == null) {
         // 如果没有备份文件，则上传数据
@@ -140,18 +146,21 @@ class SyncController extends GetxController {
 
       // 如果云端数据和本地数据一致，则不进行同步
       if (backupFile.contentHash == localHash) {
+        print('数据一致，无需同步');
         return;
       }
 
       final lastSyncHash = await ALiPanRepository.getLastSyncHash();
       // 如果云端数据和上次同步数据一致，但与本地数据不一致，说明有新增数据，需要上传数据
       if (backupFile.contentHash == lastSyncHash) {
+        print('有新增数据，需要上传数据');
         await uploadData(talkAIFolder.fileId, localData);
         await ALiPanRepository.saveLastSyncHash(localHash);
         return;
       }
 
       // 云端数据和本地数据不一致，且云端数据和上次同步数据不一致，说明需要下载数据
+      print('云端数据和本地数据不一致，需要下载数据');
       await downloadData(backupFile);
       // 保存本次同步数据哈希
       await ALiPanRepository.saveLastSyncHash(backupFile.contentHash!);
@@ -209,7 +218,7 @@ class SyncController extends GetxController {
       token: token!,
       driveId: driveId!,
       parentFileId: fileId,
-      name: 'backup_$nowStr.json',
+      name: '$nowStr.talkai',
       data: data,
     );
     // 清理历史文件
@@ -243,17 +252,18 @@ class SyncController extends GetxController {
         return map;
       }).toList(),
     };
-    final dataStr = jsonEncode(data);
-    return utf8.encode(dataStr);
+    final dataStr = encrypt(jsonEncode(data));
+    return Uint8List.fromList(dataStr.codeUnits);
   }
 
   /// 下载数据并更新
   downloadData(FileModel backupFile) async {
-    final remoteDataStr = await ALiPanApi.downloadFile(
+    final decrypted = await ALiPanApi.downloadFile(
       token: token!,
       driveId: driveId!,
       fileId: backupFile.fileId,
     );
+    final remoteDataStr = decrypt(decrypted);
     final remoteData = jsonDecode(remoteDataStr);
     final remoteFileCreatedTime = DateTime.parse(backupFile.createdAt!);
     // 更新助理
@@ -395,6 +405,28 @@ class SyncController extends GetxController {
         fileId: list[i].fileId,
       );
     }
+  }
+
+  /// 密钥
+  static const aesSecretKey = r'a4*s^*cM6g3~?XTjM"~6GQa\3N:RCMb7';
+
+  /// IV
+  static const aesIV = r'^XBmbN,J^S.jn[2`';
+
+  /// 加密
+  String encrypt(String text) {
+    final key = Key.fromUtf8(aesSecretKey);
+    final iv = IV.fromUtf8(aesIV);
+    final encrypter = Encrypter(AES(key));
+    return encrypter.encrypt(text, iv: iv).base64;
+  }
+
+  /// 解密
+  String decrypt(String decrypted) {
+    final key = Key.fromUtf8(aesSecretKey);
+    final iv = IV.fromUtf8(aesIV);
+    final encrypter = Encrypter(AES(key));
+    return encrypter.decrypt64(decrypted, iv: iv);
   }
 }
 
