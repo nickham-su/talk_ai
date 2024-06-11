@@ -95,7 +95,7 @@ class SyncPage extends StatelessWidget {
                         const SizedBox(height: 8),
                         if (controller.driveId != null)
                           ConfirmButton(
-                            text: controller.isSyncing ? '正在同步数据' : '立即同步',
+                            text: controller.isSyncing ? '正在同步数据...' : '立即同步',
                             onPressed: controller.isSyncing
                                 ? null
                                 : () {

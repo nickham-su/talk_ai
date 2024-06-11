@@ -73,6 +73,7 @@ class SyncController extends GetxController {
     await ALiPanRepository.deleteDriveInfo();
     token = null;
     driveInfo = null;
+    lastSyncTime = null;
     update();
   }
 
@@ -91,10 +92,6 @@ class SyncController extends GetxController {
       await ALiPanRepository.saveToken(token!);
       await ALiPanRepository.saveDriveInfo(driveInfo!);
       snackbar('授权成功', '已成功授权阿里云盘');
-      isSyncing = true;
-      update();
-      await Future.delayed(const Duration(seconds: 5)); // 延迟5秒同步，增强用户感知
-      isSyncing = false;
       sync();
     } catch (e) {
       snackbar('授权失败', '请重新登录');
@@ -122,6 +119,7 @@ class SyncController extends GetxController {
     if (isSyncing) return;
     isSyncing = true;
     update();
+    await Future.delayed(const Duration(seconds: 3)); // 延迟同步，增强用户感知
 
     try {
       // 获取文件夹
