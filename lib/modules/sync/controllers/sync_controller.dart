@@ -253,7 +253,7 @@ class SyncController extends GetxController {
       }).toList(),
     };
     final dataStr = encrypt(jsonEncode(data));
-    return Uint8List.fromList(dataStr.codeUnits);
+    return utf8.encode(dataStr);
   }
 
   /// 下载数据并更新
@@ -309,7 +309,8 @@ class SyncController extends GetxController {
             localChatAppList.firstWhere((e) => e.name == remoteChatAppName);
         final remoteUpdatedTime = remoteChatApp['updated_time'];
         if (remoteUpdatedTime >
-            localChatApp.updatedTime.millisecondsSinceEpoch) {
+                localChatApp.updatedTime.millisecondsSinceEpoch ||
+            localChatApp.updatedTime.millisecondsSinceEpoch == 0) {
           final profilePicture = remoteChatApp['profile_picture'] != null
               ? base64Decode(remoteChatApp['profile_picture'])
               : null;
@@ -361,7 +362,8 @@ class SyncController extends GetxController {
         final localLLM =
             localLLMList.firstWhere((e) => e.name == remoteLLMName);
         final remoteUpdatedTime = remoteLLM['updated_time'];
-        if (remoteUpdatedTime > localLLM.updatedTime.millisecondsSinceEpoch) {
+        if (remoteUpdatedTime > localLLM.updatedTime.millisecondsSinceEpoch ||
+            localLLM.updatedTime.millisecondsSinceEpoch == 0) {
           print('更新模型: $remoteLLMName');
           Get.find<LLMService>().updateLLMByData(
             localLLM.llmId,
