@@ -12,6 +12,7 @@ import 'package:TalkAI/shared/repositories/llm_repository.dart';
 
 import '../../../shared/models/llm/llm.dart';
 import '../../../shared/services/llm_service.dart';
+import '../../chat/controllers/chat_app_list_controller.dart';
 import '../../chat/models/chat_app_model.dart';
 import '../apis/alipan_api.dart';
 import '../apis/api_models.dart';
@@ -103,10 +104,10 @@ class SyncController extends GetxController {
   /// 同步计数
   int syncCount = 0;
 
-  /// 延时30秒同步，过滤频繁操作
+  /// 延时同步，过滤频繁操作
   void delaySync() {
     syncCount++;
-    Future.delayed(const Duration(seconds: 30), () {
+    Future.delayed(const Duration(seconds: 3), () {
       syncCount--;
       if (syncCount == 0) {
         sync();
@@ -121,7 +122,6 @@ class SyncController extends GetxController {
     if (isSyncing) return;
     isSyncing = true;
     update();
-    await Future.delayed(const Duration(seconds: 3)); // 延迟同步，增强用户感知
 
     try {
       // 获取文件夹
@@ -167,6 +167,11 @@ class SyncController extends GetxController {
         await uploadData(talkAIFolder.fileId, localData2);
         await ALiPanRepository.saveLastSyncHash(localHash2);
       }
+
+      // 更新助理
+      try {
+        Get.find<ChatAppListController>().refreshChatApps();
+      } catch (e) {}
     } catch (e) {
       snackbar('同步失败', '请检查网络连接');
     } finally {
