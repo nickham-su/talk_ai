@@ -73,7 +73,9 @@ class SyncController extends GetxController {
   /// 退出登录
   void logoutAliPan() async {
     await ALiPanRepository.deleteToken();
+    await ALiPanRepository.deleteTokenExpireTime();
     await ALiPanRepository.deleteDriveInfo();
+    await ALiPanRepository.deleteLastSyncHash();
     token = null;
     driveInfo = null;
     lastSyncTime = null;
@@ -83,8 +85,6 @@ class SyncController extends GetxController {
   /// 获取阿里云盘信息
   void getAliPanInfo(String code) async {
     try {
-      ALiPanRepository.deleteToken();
-      ALiPanRepository.deleteDriveInfo();
       token = await ALiPanApi.getAccessToken(code, randomCode);
       driveInfo = await ALiPanApi.getDriveInfo(token!);
       if (driveInfo!.backupDriveId == null) {
@@ -94,6 +94,9 @@ class SyncController extends GetxController {
       }
       await ALiPanRepository.saveToken(token!);
       await ALiPanRepository.saveDriveInfo(driveInfo!);
+      final expireTime =
+          DateTime.now().add(Duration(seconds: token!.expiresIn));
+      await ALiPanRepository.saveTokenExpireTime(expireTime);
       snackbar('授权成功', '已成功授权阿里云盘');
       sync();
     } catch (e) {
@@ -120,6 +123,15 @@ class SyncController extends GetxController {
     if (token == null) return;
     if (driveInfo == null) return;
     if (isSyncing) return;
+
+    // 检查token是否过期
+    final tokenExpireTime = await ALiPanRepository.getTokenExpireTime();
+    if (tokenExpireTime == null || tokenExpireTime.isBefore(DateTime.now())) {
+      snackbar('授权过期', '请重新登录阿里云盘');
+      logoutAliPan();
+      return;
+    }
+
     isSyncing = true;
     update();
 

@@ -28,6 +28,28 @@ class ALiPanRepository {
     box.delete('token');
   }
 
+  /// 保存token过期时间
+  static saveTokenExpireTime(DateTime expireTime) async {
+    final box = await Hive.openBox(_boxName);
+    box.put('expire_time', expireTime.millisecondsSinceEpoch);
+  }
+
+  /// 获取过期时间
+  static Future<DateTime?> getTokenExpireTime() async {
+    final box = await Hive.openBox(_boxName);
+    final expireTime = box.get('expire_time', defaultValue: null);
+    if (expireTime == null) {
+      return null;
+    }
+    return DateTime.fromMillisecondsSinceEpoch(expireTime);
+  }
+
+  /// 删除过期时间
+  static deleteTokenExpireTime() async {
+    final box = await Hive.openBox(_boxName);
+    box.delete('expire_time');
+  }
+
   /// 保存DriveInfo
   static saveDriveInfo(DriveInfo driveInfo) async {
     final box = await Hive.openBox(_boxName);
@@ -60,5 +82,11 @@ class ALiPanRepository {
   static Future<String?> getLastSyncHash() async {
     final box = await Hive.openBox(_boxName);
     return box.get('last_sync_hash', defaultValue: null);
+  }
+
+  /// 删除最近一次同步的数据哈希
+  static deleteLastSyncHash() async {
+    final box = await Hive.openBox(_boxName);
+    box.delete('last_sync_hash');
   }
 }
