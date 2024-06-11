@@ -5,17 +5,17 @@
         <description>An intelligent chatbot powered by large language models. Easily integrate OpenAI API, customize prompts to generate personalized assistants. Simple and user-friendly, empowering seamless conversations.</description>
         <language>en</language>
         <item>
-            <title>Version 1.3.3</title>
-            <sparkle:shortVersionString>1.3.3</sparkle:shortVersionString>
-            <sparkle:version>37</sparkle:version>
+            <title>Version 1.3.4</title>
+            <sparkle:shortVersionString>1.3.4</sparkle:shortVersionString>
+            <sparkle:version>38</sparkle:version>
             <sparkle:releaseNotesLink>
                 https://github.com/nickham-su/talk_ai/releases/latest/download/release_notes.html
             </sparkle:releaseNotesLink>
             <pubDate>Wed, 6 Jun 2024 00:00:00 +0800</pubDate>
-            <enclosure url="https://github.com/nickham-su/talk_ai/releases/latest/download/TalkAI-1.3.3+37-macos.zip"
-                sparkle:edSignature="/jewKF+VtoS48IgMrHHHrxROI3vC1GhmbVTBrup3a23ro64qLaBfns/dqD9gOGRgqds1ii3MXLwsoHc1Wgn1AA=="
+            <enclosure url="https://github.com/nickham-su/talk_ai/releases/latest/download/TalkAI-1.3.4+38-macos.zip"
+                sparkle:edSignature="feKJC1SxFIvOUdLYz+LDrGgWbdpbwYHgdpMvJng5if1U76OZ1cMDOpEI48d322M2XamjpaIuOo2CFywbOFUlAw=="
                 sparkle:os="macos"
-                length="24677665"
+                length="25425935"
                 type="application/octet-stream" />
         </item>
         <item>

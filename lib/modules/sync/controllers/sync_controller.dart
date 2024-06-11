@@ -325,7 +325,9 @@ class SyncController extends GetxController {
             temperature: remoteChatApp['temperature'],
             multipleRound: remoteChatApp['multiple_round'],
             profilePicture: profilePicture,
-            updatedTime: remoteChatApp['updated_time'],
+            updatedTime: remoteUpdatedTime != 0
+                ? remoteUpdatedTime
+                : DateTime.now().millisecondsSinceEpoch,
           );
         }
       }
@@ -367,7 +369,9 @@ class SyncController extends GetxController {
           Get.find<LLMService>().updateLLMByData(
             localLLM.llmId,
             remoteLLM,
-            updatedTime: remoteUpdatedTime,
+            updatedTime: remoteUpdatedTime != 0
+                ? remoteUpdatedTime
+                : DateTime.now().millisecondsSinceEpoch,
           );
         }
       }
