@@ -128,14 +128,10 @@ class SyncController extends GetxController {
       // 获取最新的备份文件
       final backupFile = await getLastFile(talkAIFolder.fileId);
 
-      print('backupFile: ${backupFile?.toJson()}');
-
       // 获取本地数据
       final localData = getLocalData();
       // 计算本地数据哈希
       final localHash = sha1.convert(localData).toString().toUpperCase();
-
-      print('localHash: $localHash');
 
       if (backupFile == null) {
         // 如果没有备份文件，则上传数据
@@ -146,21 +142,18 @@ class SyncController extends GetxController {
 
       // 如果云端数据和本地数据一致，则不进行同步
       if (backupFile.contentHash == localHash) {
-        print('数据一致，无需同步');
         return;
       }
 
       final lastSyncHash = await ALiPanRepository.getLastSyncHash();
       // 如果云端数据和上次同步数据一致，但与本地数据不一致，说明有新增数据，需要上传数据
       if (backupFile.contentHash == lastSyncHash) {
-        print('有新增数据，需要上传数据');
         await uploadData(talkAIFolder.fileId, localData);
         await ALiPanRepository.saveLastSyncHash(localHash);
         return;
       }
 
       // 云端数据和本地数据不一致，且云端数据和上次同步数据不一致，说明需要下载数据
-      print('云端数据和本地数据不一致，需要下载数据');
       await downloadData(backupFile);
       // 保存本次同步数据哈希
       await ALiPanRepository.saveLastSyncHash(backupFile.contentHash!);
@@ -263,18 +256,23 @@ class SyncController extends GetxController {
       driveId: driveId!,
       fileId: backupFile.fileId,
     );
-    final remoteDataStr = decrypt(decrypted);
-    final remoteData = jsonDecode(remoteDataStr);
-    final remoteFileCreatedTime = DateTime.parse(backupFile.createdAt!);
-    // 更新助理
-    final remoteChatAppList = remoteData['chat_app_list'];
-    final localChatAppList = ChatAppRepository.queryAll();
-    updateLocalChatApp(
-        remoteChatAppList, localChatAppList, remoteFileCreatedTime);
-    // 更新模型
-    final remoteLLMList = remoteData['llm_list'];
-    final localLLMList = LLMRepository.queryAll();
-    updateLocalLLM(remoteLLMList, localLLMList, remoteFileCreatedTime);
+
+    try {
+      // 即使解析数据出错，后面也会重新上传数据，覆盖掉错误数据
+      // 所以这里出错不能影响之后的操作
+      final remoteDataStr = decrypt(decrypted);
+      final remoteData = jsonDecode(remoteDataStr);
+      final remoteFileCreatedTime = DateTime.parse(backupFile.createdAt!);
+      // 更新助理
+      final remoteChatAppList = remoteData['chat_app_list'];
+      final localChatAppList = ChatAppRepository.queryAll();
+      updateLocalChatApp(
+          remoteChatAppList, localChatAppList, remoteFileCreatedTime);
+      // 更新模型
+      final remoteLLMList = remoteData['llm_list'];
+      final localLLMList = LLMRepository.queryAll();
+      updateLocalLLM(remoteLLMList, localLLMList, remoteFileCreatedTime);
+    } catch (e) {}
   }
 
   /// 更新本地助理
@@ -290,7 +288,6 @@ class SyncController extends GetxController {
         final profilePicture = remoteChatApp['profile_picture'] != null
             ? base64Decode(remoteChatApp['profile_picture'])
             : null;
-        print('新增助理: $remoteChatAppName');
         ChatAppRepository.insert(
           name: remoteChatApp['name'],
           prompt: remoteChatApp['prompt'],
@@ -314,7 +311,6 @@ class SyncController extends GetxController {
           final profilePicture = remoteChatApp['profile_picture'] != null
               ? base64Decode(remoteChatApp['profile_picture'])
               : null;
-          print('更新助理: $remoteChatAppName');
           ChatAppRepository.update(
             chatAppId: localChatApp.chatAppId,
             llmId: localChatApp.llmId,
@@ -334,7 +330,6 @@ class SyncController extends GetxController {
       final localChatAppName = localChatApp.name;
       if (!remoteChatAppNameSet.contains(localChatAppName)) {
         if (remoteFileCreatedTime.isAfter(localChatApp.updatedTime)) {
-          print('删除助理: $localChatAppName');
           ChatAppRepository.delete(localChatApp.chatAppId);
         }
       }
@@ -350,7 +345,6 @@ class SyncController extends GetxController {
     for (final remoteLLM in remoteLLMList) {
       final remoteLLMName = remoteLLM['name'];
       if (!localLLMNameSet.contains(remoteLLMName)) {
-        print('新增模型: $remoteLLMName');
         Get.find<LLMService>().addLLM(remoteLLM);
       }
     }
@@ -364,7 +358,6 @@ class SyncController extends GetxController {
         final remoteUpdatedTime = remoteLLM['updated_time'];
         if (remoteUpdatedTime > localLLM.updatedTime.millisecondsSinceEpoch ||
             localLLM.updatedTime.millisecondsSinceEpoch == 0) {
-          print('更新模型: $remoteLLMName');
           Get.find<LLMService>().updateLLMByData(
             localLLM.llmId,
             remoteLLM,
@@ -379,12 +372,14 @@ class SyncController extends GetxController {
       final localLLMName = localLLM.name;
       if (!remoteLLMNameSet.contains(localLLMName)) {
         if (remoteFileCreatedTime.isAfter(localLLM.updatedTime)) {
-          print('删除模型: $localLLMName');
           Get.find<LLMService>().deleteLLM(localLLM.llmId);
         }
       }
     }
   }
+
+  /// 保留历史文件数量
+  static const historyFileCount = 10;
 
   /// 清理云端历史文件，保留最近的10个
   Future<void> clearHistory(
@@ -398,9 +393,8 @@ class SyncController extends GetxController {
       orderDirection: 'DESC',
       type: 'file',
     );
-    if (list.length <= 2) return;
-    for (var i = 2; i < list.length; i++) {
-      print('删除历史文件: ${list[i].name}');
+    if (list.length <= historyFileCount) return;
+    for (var i = historyFileCount; i < list.length; i++) {
       await ALiPanApi.deleteFile(
         token: token!,
         driveId: driveId!,
