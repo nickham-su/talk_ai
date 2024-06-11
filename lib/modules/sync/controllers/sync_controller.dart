@@ -56,6 +56,7 @@ class SyncController extends GetxController {
       ALiPanRepository.getDriveInfo().then((value) {
         driveInfo = value;
         update();
+        sync();
       });
     });
   }
