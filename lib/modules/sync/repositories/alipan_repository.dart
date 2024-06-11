@@ -1,6 +1,7 @@
 import 'package:hive/hive.dart';
 
 import '../apis/alipan_api.dart';
+import '../apis/api_models.dart';
 
 class ALiPanRepository {
   static const _boxName = 'ali_pan';

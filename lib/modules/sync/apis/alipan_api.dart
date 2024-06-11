@@ -1,16 +1,19 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:dio/dio.dart';
+import 'package:http/http.dart' as http;
 
 import '../../../shared/apis/new_dio.dart';
+import 'api_models.dart';
 
 class ALiPanApi {
   static const host = 'https://openapi.alipan.com';
-  static const accessTokenPath = '/oauth/access_token';
-  static const driveInfoPath = '/adrive/v1.0/user/getDriveInfo';
 
   /// 获取access token
   static Future<TokenModel> getAccessToken(
       String code, String codeVerifier) async {
-    final rsp = await newDio().post('$host$accessTokenPath', data: {
+    final rsp = await newDio().post('$host/oauth/access_token', data: {
       'client_id': '79a72348cfd74f7e81136fd5b8124ee6',
       'grant_type': 'authorization_code',
       'code': code,
@@ -21,85 +24,137 @@ class ALiPanApi {
 
   /// 获取用户信息
   static Future<DriveInfo> getDriveInfo(TokenModel token) async {
-    const url = '$host$driveInfoPath';
+    const url = '$host/adrive/v1.0/user/getDriveInfo';
     final header = {
       'Authorization': '${token.tokenType} ${token.accessToken}',
     };
     final rsp = await newDio().post(url, options: Options(headers: header));
     return DriveInfo.fromJson(rsp.data);
   }
-}
 
-/// Token响应数据
-class TokenModel {
-  final String tokenType;
-  final String accessToken;
-  final String? refreshToken;
-  final int expiresIn;
-
-  TokenModel({
-    required this.tokenType,
-    required this.accessToken,
-    required this.refreshToken,
-    required this.expiresIn,
-  });
-
-  factory TokenModel.fromJson(Map<dynamic, dynamic> json) {
-    return TokenModel(
-      tokenType: json['token_type'] as String,
-      accessToken: json['access_token'] as String,
-      refreshToken: json['refresh_token'] as String?,
-      expiresIn: json['expires_in'] as int,
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'token_type': tokenType,
-      'access_token': accessToken,
-      'refresh_token': refreshToken,
-      'expires_in': expiresIn,
+  /// 查询文件
+  static Future<FileModel> getByPath(
+      TokenModel token, String driveId, String path) async {
+    const url = '$host/adrive/v1.0/openFile/get_by_path';
+    final header = {
+      'Authorization': '${token.tokenType} ${token.accessToken}',
     };
+    final rsp =
+        await newDio().post(url, options: Options(headers: header), data: {
+      'drive_id': driveId,
+      'file_path': path,
+    });
+    return FileModel.fromJson(rsp.data);
   }
-}
 
-/// 用户信息
-class DriveInfo {
-  String name; // 用户名
-  String avatar; // 头像
-  String userId; // 用户ID
-  String? defaultDriveId; // 默认drive
-  String? backupDriveId; // 备份盘。用户选择了授权才会返回
-  String? resourceDriveId; // 资源库。用户选择了授权才会返回
+  /// 创建文件或文件夹
+  static Future<FileModel> create({
+    required TokenModel token, // token
+    required String driveId, // driveId
+    required String parentFileId, // 父文件夹ID,根目录是 root
+    required String name, // 文件名
+    required String type, // file | folder
+  }) async {
+    const url = '$host/adrive/v1.0/openFile/create';
+    final header = {
+      'Authorization': '${token.tokenType} ${token.accessToken}',
+    };
+    final data = {
+      'drive_id': driveId,
+      'parent_file_id': parentFileId,
+      'name': name,
+      'type': type,
+      'check_name_mode': 'refuse',
+    };
+    final rsp =
+        await newDio().post(url, options: Options(headers: header), data: data);
+    return FileModel.fromJson(rsp.data);
+  }
 
-  DriveInfo({
-    required this.name,
-    required this.avatar,
-    required this.userId,
-    required this.defaultDriveId,
-    required this.backupDriveId,
-    required this.resourceDriveId,
-  });
+  static Future<List<FileModel>> getFileList({
+    required TokenModel token,
+    required String driveId,
+    required String parentFileId,
+    String? orderBy, // created_at | updated_at | name | size | name_enhanced
+    String? orderDirection, // DESC | ASC
+    int? limit,
+    String? type, // all | file | folder
+  }) async {
+    const url = '$host/adrive/v1.0/openFile/list';
+    final header = {
+      'Authorization': '${token.tokenType} ${token.accessToken}',
+    };
+    final data = {
+      'drive_id': driveId,
+      'parent_file_id': parentFileId,
+      'order_by': orderBy,
+      'order_direction': orderDirection,
+      'limit': limit,
+      'type': type,
+    };
+    final rsp =
+        await newDio().post(url, options: Options(headers: header), data: data);
+    final list = FileListModel.fromJson(rsp.data);
+    return list.items;
+  }
 
-  factory DriveInfo.fromJson(Map<dynamic, dynamic> json) {
-    return DriveInfo(
-      name: json['name'],
-      avatar: json['avatar'],
-      userId: json['user_id'],
-      defaultDriveId: json['default_drive_id'],
-      backupDriveId: json['backup_drive_id'],
-      resourceDriveId: json['resource_drive_id'],
+  /// 上传文件
+  static uploadFile({
+    required TokenModel token,
+    required String driveId,
+    required String parentFileId,
+    required String name,
+    required Uint8List data,
+  }) async {
+    final file = await create(
+      token: token,
+      driveId: driveId,
+      parentFileId: parentFileId,
+      name: name,
+      type: 'file',
+    );
+
+    Uri uri = Uri.parse(file.partInfoList![0].uploadUrl);
+    final rsp = await http.put(uri, body: data);
+    if (rsp.statusCode != 200) {
+      throw Exception('上传失败');
+    }
+
+    await newDio().post(
+      '$host/adrive/v1.0/openFile/complete',
+      options: Options(headers: {
+        'Authorization': '${token.tokenType} ${token.accessToken}',
+      }),
+      data: {
+        'drive_id': driveId,
+        'file_id': file.fileId,
+        'upload_id': file.uploadId,
+      },
     );
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['name'] = name;
-    data['avatar'] = avatar;
-    data['user_id'] = userId;
-    data['default_drive_id'] = defaultDriveId;
-    data['backup_drive_id'] = backupDriveId;
-    data['resource_drive_id'] = resourceDriveId;
-    return data;
+  /// 下载文件
+  static Future<String> downloadFile({
+    required TokenModel token,
+    required String driveId,
+    required String fileId,
+  }) async {
+    final rsp = await newDio().post(
+      '$host/adrive/v1.0/openFile/getDownloadUrl',
+      options: Options(
+        headers: {
+          'Authorization': '${token.tokenType} ${token.accessToken}',
+        },
+      ),
+      data: {
+        'drive_id': driveId,
+        'file_id': fileId,
+      },
+    );
+
+    final url = rsp.data['url'];
+
+    final rsp2 = await newDio().get(url);
+    return rsp2.data;
   }
 }

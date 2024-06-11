@@ -64,8 +64,8 @@ class SyncPage extends StatelessWidget {
                                     style: TextStyle(fontSize: 16),
                                   ),
                                   const SizedBox(width: 8),
-                                  CancelButton(
-                                    text: '取消授权',
+                                  TextButton(
+                                    child: Text('取消授权'),
                                     onPressed: () {
                                       controller.logoutAliPan();
                                     },
@@ -78,6 +78,12 @@ class SyncPage extends StatelessWidget {
                                   controller.loginAliPan();
                                 },
                               ),
+                        ConfirmButton(
+                          text: '同步',
+                          onPressed: () {
+                            controller.sync();
+                          },
+                        ),
                         const SizedBox(height: 40),
                       ],
                     );
