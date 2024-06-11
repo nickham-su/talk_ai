@@ -1,9 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:markdown_widget/markdown_widget.dart';
 
-import '../../../shared/components/buttons/cancel_button.dart';
 import '../../../shared/components/buttons/confirm_button.dart';
 import '../../../shared/components/layout/models/layout_menu_type.dart';
 import '../../../shared/components/layout/views/layout.dart';
@@ -51,11 +49,17 @@ class SyncPage extends StatelessWidget {
                         const Text('将助理和模型的设置信息保存到阿里云盘，不包含聊天信息'),
                         const Text('使用场景：数据备份、多设备同步'),
                         const SizedBox(height: 8),
-                        Text('阿里云盘需要自己注册（有赠送免费容量）',
+                        if (controller.driveId == null)
+                          Text(
+                            '阿里云盘需要自己注册（有赠送免费容量）',
                             style: TextStyle(
-                                color: Get.theme.textTheme.bodyMedium?.color
-                                    ?.withOpacity(0.5))),
-                        const SizedBox(height: 12),
+                              color: Get.theme.textTheme.bodyMedium?.color
+                                  ?.withOpacity(0.5),
+                              fontWeight: FontWeight.w300,
+                            ),
+                          ),
+                        if (controller.driveId == null)
+                          const SizedBox(height: 12),
                         controller.driveInfo != null
                             ? Row(
                                 children: [
@@ -78,12 +82,26 @@ class SyncPage extends StatelessWidget {
                                   controller.loginAliPan();
                                 },
                               ),
-                        ConfirmButton(
-                          text: '同步',
-                          onPressed: () {
-                            controller.sync();
-                          },
-                        ),
+                        if (controller.driveId != null &&
+                            controller.lastSyncTimeStr != null)
+                          Text(
+                            '上次同步时间: ${controller.lastSyncTimeStr}',
+                            style: TextStyle(
+                              color: Get.theme.textTheme.bodyMedium?.color
+                                  ?.withOpacity(0.7),
+                              fontWeight: FontWeight.w300,
+                            ),
+                          ),
+                        const SizedBox(height: 8),
+                        if (controller.driveId != null)
+                          ConfirmButton(
+                            text: controller.isSyncing ? '正在同步数据' : '立即同步',
+                            onPressed: controller.isSyncing
+                                ? null
+                                : () {
+                                    controller.sync();
+                                  },
+                          ),
                         const SizedBox(height: 40),
                       ],
                     );
@@ -136,7 +154,7 @@ class SyncPage extends StatelessWidget {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 100),
+                      const SizedBox(height: 50),
                     ],
                   )
                 ],

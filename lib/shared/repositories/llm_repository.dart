@@ -49,6 +49,9 @@ class LLMRepository {
     required LLM llm,
   }) {
     final now = DateTime.now();
+    final updatedTime = llm.updatedTime.millisecondsSinceEpoch != 0
+        ? llm.updatedTime.millisecondsSinceEpoch
+        : now.millisecondsSinceEpoch;
     try {
       Sqlite.db.execute('''
       INSERT INTO $tableName (name, type, model_fields, last_use_time, updated_time)
@@ -58,7 +61,7 @@ class LLMRepository {
         llm.type.value,
         jsonEncode(llm.toJson()),
         now.millisecondsSinceEpoch,
-        now.millisecondsSinceEpoch,
+        updatedTime,
       ]);
     } catch (e) {
       throw '模型保存失败，请检查模型名称是否重复：\n${llm.name}';
@@ -122,7 +125,8 @@ class LLMRepository {
   }
 
   /// 更新模型
-  static void update(LLM llm) {
+  /// [updatedTime] 指定更新时间，用于数据同步
+  static void update(LLM llm, {int? updatedTime}) {
     final now = DateTime.now();
     Sqlite.db.execute('''
       UPDATE $tableName
@@ -132,7 +136,7 @@ class LLMRepository {
       llm.name,
       jsonEncode(llm.toJson()),
       now.millisecondsSinceEpoch,
-      now.millisecondsSinceEpoch,
+      updatedTime ?? now.millisecondsSinceEpoch,
       llm.llmId,
     ]);
   }

@@ -1,16 +1,17 @@
 import 'dart:convert';
 import 'dart:math';
-import 'dart:convert';
 import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
-import 'package:TalkAI/modules/chat/repositorys/chat_app_picture_repository.dart';
 import 'package:TalkAI/modules/chat/repositorys/chat_app_repository.dart';
 import 'package:TalkAI/shared/components/snackbar.dart';
 import 'package:TalkAI/shared/repositories/llm_repository.dart';
 
+import '../../../shared/models/llm/llm.dart';
+import '../../../shared/services/llm_service.dart';
+import '../../chat/models/chat_app_model.dart';
 import '../apis/alipan_api.dart';
 import '../apis/api_models.dart';
 import '../repositories/alipan_repository.dart';
@@ -31,6 +32,18 @@ class SyncController extends GetxController {
 
   /// 备份盘id
   String? get driveId => driveInfo?.backupDriveId;
+
+  /// 同步状态
+  bool isSyncing = false;
+
+  /// 最近同步时间
+  DateTime? lastSyncTime;
+
+  /// 最近同步时间字符串
+  String? get lastSyncTimeStr {
+    if (lastSyncTime == null) return null;
+    return '${lastSyncTime!.month}月${lastSyncTime!.day}日${lastSyncTime!.hour}时${lastSyncTime!.minute}分${lastSyncTime!.second}秒';
+  }
 
   SyncController();
 
@@ -58,6 +71,7 @@ class SyncController extends GetxController {
   void logoutAliPan() async {
     await ALiPanRepository.deleteToken();
     await ALiPanRepository.deleteDriveInfo();
+    token = null;
     driveInfo = null;
     update();
   }
@@ -77,43 +91,74 @@ class SyncController extends GetxController {
       await ALiPanRepository.saveToken(token!);
       await ALiPanRepository.saveDriveInfo(driveInfo!);
       snackbar('授权成功', '已成功授权阿里云盘');
+      isSyncing = true;
       update();
+      await Future.delayed(const Duration(seconds: 5)); // 延迟5秒同步，增强用户感知
+      isSyncing = false;
+      sync();
     } catch (e) {
       snackbar('授权失败', '请重新登录');
     }
   }
 
+  /// 同步数据
   void sync() async {
     if (token == null) return;
     if (driveInfo == null) return;
+    if (isSyncing) return;
+    isSyncing = true;
+    update();
 
-    final talkAIFolder = await getFolder();
-    final backupFile = await getLastFile(talkAIFolder.fileId);
-    print(jsonEncode(backupFile));
-    if (backupFile == null) {
-      return;
+    try {
+      // 获取文件夹
+      final talkAIFolder = await getFolder();
+      // 获取最新的备份文件
+      final backupFile = await getLastFile(talkAIFolder.fileId);
+      // 获取本地数据
+      final localData = getLocalData();
+      // 计算本地数据哈希
+      final localHash = sha1.convert(localData).toString().toUpperCase();
+
+      if (backupFile == null) {
+        // 如果没有备份文件，则上传数据
+        await uploadData(talkAIFolder.fileId, localData);
+        await ALiPanRepository.saveLastSyncHash(localHash);
+        return;
+      }
+
+      // 如果云端数据和本地数据一致，则不进行同步
+      if (backupFile.contentHash == localHash) {
+        return;
+      }
+
+      final lastSyncHash = await ALiPanRepository.getLastSyncHash();
+      // 如果云端数据和上次同步数据一致，但与本地数据不一致，说明有新增数据，需要上传数据
+      if (backupFile.contentHash == lastSyncHash) {
+        await uploadData(talkAIFolder.fileId, localData);
+        await ALiPanRepository.saveLastSyncHash(localHash);
+        return;
+      }
+
+      // 云端数据和本地数据不一致，且云端数据和上次同步数据不一致，说明需要下载数据
+      await downloadData(backupFile);
+      // 保存本次同步数据哈希
+      await ALiPanRepository.saveLastSyncHash(backupFile.contentHash!);
+
+      // 再次计算本地数据哈希
+      final localData2 = getLocalData();
+      final localHash2 = sha1.convert(localData2).toString().toUpperCase();
+      // 如果本地数据和云端数据不一致，需要再次上传数据
+      if (localHash2 != backupFile.contentHash) {
+        await uploadData(talkAIFolder.fileId, localData2);
+        await ALiPanRepository.saveLastSyncHash(localHash2);
+      }
+    } catch (e) {
+      snackbar('同步失败', '请检查网络连接');
+    } finally {
+      isSyncing = false;
+      lastSyncTime = DateTime.now();
+      update();
     }
-    final data = await ALiPanApi.downloadFile(
-      token: token!,
-      driveId: driveId!,
-      fileId: backupFile.fileId,
-    );
-    print('data.length: ${data.length}');
-
-    // final data = getLocalData();
-    // final hash = sha1.convert(data).toString().toUpperCase();
-    // print('hash: $hash');
-    //
-    // final now = DateTime.now();
-    // final nowStr =
-    //     '${now.year}_${now.month}_${now.day}_${now.hour}_${now.minute}_${now.second}';
-    // ALiPanApi.uploadFile(
-    //   token: token!,
-    //   driveId: driveId!,
-    //   parentFileId: talkAIFolder.fileId,
-    //   name: 'backup_$nowStr.json',
-    //   data: data,
-    // );
   }
 
   /// 获取文件夹
@@ -143,7 +188,21 @@ class SyncController extends GetxController {
     return list.isNotEmpty ? list.first : null;
   }
 
-  uploadData() {}
+  /// 上传数据
+  Future<void> uploadData(String fileId, Uint8List data) async {
+    final now = DateTime.now();
+    final nowStr =
+        '${now.year}_${now.month}_${now.day}_${now.hour}_${now.minute}_${now.second}';
+    await ALiPanApi.uploadFile(
+      token: token!,
+      driveId: driveId!,
+      parentFileId: fileId,
+      name: 'backup_$nowStr.json',
+      data: data,
+    );
+    // 清理历史文件
+    clearHistory(fileId);
+  }
 
   /// 获取本地数据
   Uint8List getLocalData() {
@@ -168,11 +227,162 @@ class SyncController extends GetxController {
         final map = e.toJson();
         map['name'] = e.name;
         map['type'] = e.type.value;
+        map['updated_time'] = e.updatedTime.millisecondsSinceEpoch;
         return map;
       }).toList(),
     };
     final dataStr = jsonEncode(data);
     return utf8.encode(dataStr);
+  }
+
+  /// 下载数据并更新
+  downloadData(FileModel backupFile) async {
+    final remoteDataStr = await ALiPanApi.downloadFile(
+      token: token!,
+      driveId: driveId!,
+      fileId: backupFile.fileId,
+    );
+    final remoteData = jsonDecode(remoteDataStr);
+    final remoteFileCreatedTime = DateTime.parse(backupFile.createdAt!);
+    // 更新助理
+    final remoteChatAppList = remoteData['chat_app_list'];
+    final localChatAppList = ChatAppRepository.queryAll();
+    updateLocalChatApp(
+        remoteChatAppList, localChatAppList, remoteFileCreatedTime);
+    // 更新模型
+    final remoteLLMList = remoteData['llm_list'];
+    final localLLMList = LLMRepository.queryAll();
+    updateLocalLLM(remoteLLMList, localLLMList, remoteFileCreatedTime);
+  }
+
+  /// 更新本地助理
+  updateLocalChatApp(List remoteChatAppList,
+      List<ChatAppModel> localChatAppList, DateTime remoteFileCreatedTime) {
+    final remoteChatAppNameSet =
+        remoteChatAppList.map((e) => e['name']).toSet();
+    final localChatAppNameSet = localChatAppList.map((e) => e.name).toSet();
+    // 云端有、本地无：新增
+    for (final remoteChatApp in remoteChatAppList) {
+      final remoteChatAppName = remoteChatApp['name'];
+      if (!localChatAppNameSet.contains(remoteChatAppName)) {
+        final profilePicture = remoteChatApp['profile_picture'] != null
+            ? base64Decode(remoteChatApp['profile_picture'])
+            : null;
+        print('新增助理: $remoteChatAppName');
+        ChatAppRepository.insert(
+          name: remoteChatApp['name'],
+          prompt: remoteChatApp['prompt'],
+          temperature: remoteChatApp['temperature'],
+          multipleRound: remoteChatApp['multiple_round'],
+          profilePicture: profilePicture,
+          updatedTime: remoteChatApp['updated_time'],
+        );
+      }
+    }
+    // 云端有、本地有：云端更新时间晚于本地更新时间，更新本地
+    for (final remoteChatApp in remoteChatAppList) {
+      final remoteChatAppName = remoteChatApp['name'];
+      if (localChatAppNameSet.contains(remoteChatAppName)) {
+        final localChatApp =
+            localChatAppList.firstWhere((e) => e.name == remoteChatAppName);
+        final remoteUpdatedTime = remoteChatApp['updated_time'];
+        if (remoteUpdatedTime >
+            localChatApp.updatedTime.millisecondsSinceEpoch) {
+          final profilePicture = remoteChatApp['profile_picture'] != null
+              ? base64Decode(remoteChatApp['profile_picture'])
+              : null;
+          print('更新助理: $remoteChatAppName');
+          ChatAppRepository.update(
+            chatAppId: localChatApp.chatAppId,
+            llmId: localChatApp.llmId,
+            name: remoteChatApp['name'],
+            prompt: remoteChatApp['prompt'],
+            temperature: remoteChatApp['temperature'],
+            multipleRound: remoteChatApp['multiple_round'],
+            profilePicture: profilePicture,
+            updatedTime: remoteChatApp['updated_time'],
+          );
+        }
+      }
+    }
+
+    // 云端无、本地有：云端文件创建时间晚于本地更新时间，删除本地
+    for (final localChatApp in localChatAppList) {
+      final localChatAppName = localChatApp.name;
+      if (!remoteChatAppNameSet.contains(localChatAppName)) {
+        if (remoteFileCreatedTime.isAfter(localChatApp.updatedTime)) {
+          print('删除助理: $localChatAppName');
+          ChatAppRepository.delete(localChatApp.chatAppId);
+        }
+      }
+    }
+  }
+
+  /// 更新本地LLM
+  updateLocalLLM(List remoteLLMList, List<LLM> localLLMList,
+      DateTime remoteFileCreatedTime) {
+    final remoteLLMNameSet = remoteLLMList.map((e) => e['name']).toSet();
+    final localLLMNameSet = localLLMList.map((e) => e.name).toSet();
+    // 云端有、本地无：新增
+    for (final remoteLLM in remoteLLMList) {
+      final remoteLLMName = remoteLLM['name'];
+      if (!localLLMNameSet.contains(remoteLLMName)) {
+        print('新增模型: $remoteLLMName');
+        Get.find<LLMService>().addLLM(remoteLLM);
+      }
+    }
+
+    // 云端有、本地有：云端更新时间晚于本地更新时间，更新本地
+    for (final remoteLLM in remoteLLMList) {
+      final remoteLLMName = remoteLLM['name'];
+      if (localLLMNameSet.contains(remoteLLMName)) {
+        final localLLM =
+            localLLMList.firstWhere((e) => e.name == remoteLLMName);
+        final remoteUpdatedTime = remoteLLM['updated_time'];
+        if (remoteUpdatedTime > localLLM.updatedTime.millisecondsSinceEpoch) {
+          print('更新模型: $remoteLLMName');
+          Get.find<LLMService>().updateLLMByData(
+            localLLM.llmId,
+            remoteLLM,
+            updatedTime: remoteUpdatedTime,
+          );
+        }
+      }
+    }
+
+    // 云端无、本地有：云端文件创建时间晚于本地更新时间，删除本地
+    for (final localLLM in localLLMList) {
+      final localLLMName = localLLM.name;
+      if (!remoteLLMNameSet.contains(localLLMName)) {
+        if (remoteFileCreatedTime.isAfter(localLLM.updatedTime)) {
+          print('删除模型: $localLLMName');
+          Get.find<LLMService>().deleteLLM(localLLM.llmId);
+        }
+      }
+    }
+  }
+
+  /// 清理云端历史文件，保留最近的10个
+  Future<void> clearHistory(
+    String fileId,
+  ) async {
+    final list = await ALiPanApi.getFileList(
+      token: token!,
+      driveId: driveId!,
+      parentFileId: fileId,
+      orderBy: 'created_at',
+      orderDirection: 'DESC',
+      type: 'file',
+    );
+    if (list.length <= 2) return;
+    for (var i = 2; i < list.length; i++) {
+      print('删除历史文件: ${list[i].name}');
+      await ALiPanApi.deleteFile(
+        token: token!,
+        driveId: driveId!,
+        fileId: list[i].fileId,
+      );
+    }
   }
 }
 

@@ -49,4 +49,16 @@ class ALiPanRepository {
     final box = await Hive.openBox(_boxName);
     box.delete('drive_info');
   }
+
+  /// 保存最近一次同步的数据哈希
+  static saveLastSyncHash(String hash) async {
+    final box = await Hive.openBox(_boxName);
+    box.put('last_sync_hash', hash);
+  }
+
+  /// 获取最近一次同步的数据哈希
+  static Future<String?> getLastSyncHash() async {
+    final box = await Hive.openBox(_boxName);
+    return box.get('last_sync_hash', defaultValue: null);
+  }
 }

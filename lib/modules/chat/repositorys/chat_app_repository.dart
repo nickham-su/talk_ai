@@ -59,6 +59,7 @@ class ChatAppRepository {
     double topP = 0.95, // 默认top_p
     int llmId = 0, // 默认模型id，0表示没有设置默认模型
     Uint8List? profilePicture,
+    int? updatedTime,
   }) {
     final now = DateTime.now();
     Sqlite.db.execute('''
@@ -72,7 +73,7 @@ class ChatAppRepository {
       temperature,
       topP,
       multipleRound ? 1 : 0,
-      now.millisecondsSinceEpoch,
+      updatedTime ?? now.millisecondsSinceEpoch,
     ]);
     final chatAppId = Sqlite.db.lastInsertRowId;
 
@@ -160,6 +161,7 @@ class ChatAppRepository {
     required int llmId,
     required bool multipleRound,
     Uint8List? profilePicture,
+    int? updatedTime,
   }) {
     final now = DateTime.now();
     Sqlite.db.execute('''
@@ -173,7 +175,7 @@ class ChatAppRepository {
       temperature,
       llmId,
       multipleRound ? 1 : 0,
-      now.millisecondsSinceEpoch,
+      updatedTime ?? now.millisecondsSinceEpoch,
       chatAppId
     ]);
 

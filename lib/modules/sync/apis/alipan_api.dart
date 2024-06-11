@@ -99,7 +99,7 @@ class ALiPanApi {
   }
 
   /// 上传文件
-  static uploadFile({
+  static Future<void> uploadFile({
     required TokenModel token,
     required String driveId,
     required String parentFileId,
@@ -156,5 +156,25 @@ class ALiPanApi {
 
     final rsp2 = await newDio().get(url);
     return rsp2.data;
+  }
+
+  /// 删除文件
+  static Future<void> deleteFile({
+    required TokenModel token,
+    required String driveId,
+    required String fileId,
+  }) async {
+    await newDio().post(
+      '$host/adrive/v1.0/openFile/delete',
+      options: Options(
+        headers: {
+          'Authorization': '${token.tokenType} ${token.accessToken}',
+        },
+      ),
+      data: {
+        'drive_id': driveId,
+        'file_id': fileId,
+      },
+    );
   }
 }
