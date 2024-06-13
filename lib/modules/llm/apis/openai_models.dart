@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 
 import '../../../shared/apis/new_dio.dart';
@@ -23,6 +25,7 @@ class OpenaiModelsApi {
         },
       ),
     );
+    print(jsonEncode(response.data));
     final modelList = ModelList.fromJson(response.data);
     return modelList.data.map((model) => model.id).toList();
   }
@@ -31,21 +34,16 @@ class OpenaiModelsApi {
 class Model {
   String id;
   String object;
-  int created;
-  String ownedBy;
 
-  Model(
-      {required this.id,
-      required this.object,
-      required this.created,
-      required this.ownedBy});
+  Model({
+    required this.id,
+    required this.object,
+  });
 
   factory Model.fromJson(Map<String, dynamic> json) {
     return Model(
       id: json['id'],
       object: json['object'],
-      created: json['created'],
-      ownedBy: json['owned_by'],
     );
   }
 
@@ -53,17 +51,14 @@ class Model {
     return {
       'id': id,
       'object': object,
-      'created': created,
-      'owned_by': ownedBy,
     };
   }
 }
 
 class ModelList {
   List<Model> data;
-  String object;
 
-  ModelList({required this.data, required this.object});
+  ModelList({required this.data});
 
   factory ModelList.fromJson(Map<String, dynamic> json) {
     List<Model> dataList = [];
@@ -72,7 +67,6 @@ class ModelList {
     });
     return ModelList(
       data: dataList,
-      object: json['object'],
     );
   }
 
@@ -83,7 +77,6 @@ class ModelList {
     });
     return {
       'data': dataJsonList,
-      'object': object,
     };
   }
 }
