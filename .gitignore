@@ -44,3 +44,4 @@ app.*.map.json
 
 *.zip
 *.exe
+*.pem
