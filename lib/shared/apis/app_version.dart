@@ -20,7 +20,7 @@ class AppVersion {
       'https://github.com/nickham-su/talk_ai/releases/latest/download/appcast.xml';
 
   /// 获取最新版本
-  static Future<VersionInfo> getLatestVersion() async {
+  static Future<VersionInfo> getLatestVersionForMacos() async {
     final response = await newDio().get(configUrl);
 
     // <sparkle:shortVersionString>1.0.3</sparkle:shortVersionString>
@@ -38,6 +38,22 @@ class AppVersion {
       throw Exception('未匹配到buildNumber');
     }
     String latestBuildNumber = match2.group(1)!;
+
+    return VersionInfo(latestVersion, latestBuildNumber);
+  }
+
+  /// 获取最新版本
+  static Future<VersionInfo> getLatestVersionForWindows() async {
+    final response = await newDio().get(configUrl);
+
+    // sparkle:version="1.0.0+1"
+    RegExp regex = RegExp(r'sparkle:version="([\d\.]+)\+(\d+)"');
+    final match = regex.firstMatch(response.data as String);
+    if (match == null) {
+      throw Exception('未匹配到version');
+    }
+    String latestVersion = match.group(1)!;
+    String latestBuildNumber = match.group(2)!;
 
     return VersionInfo(latestVersion, latestBuildNumber);
   }

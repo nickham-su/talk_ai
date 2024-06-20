@@ -196,7 +196,6 @@ class ChatAppSettingDialog extends GetView<ChatAppSettingController> {
         );
         Get.back();
         await Future.delayed(const Duration(milliseconds: 200));
-        snackbar('添加成功', '助理已添加');
       } catch (e) {
         snackbar('添加失败', '助理添加失败，请检查助理名称是否重复');
       }
@@ -218,7 +217,6 @@ class ChatAppSettingDialog extends GetView<ChatAppSettingController> {
         );
         Get.back();
         await Future.delayed(const Duration(milliseconds: 200));
-        snackbar('保存成功', '助理设置已保存');
       } catch (e) {
         snackbar('保存失败', '助理设置失败，请检查助理名称是否重复');
       }
@@ -238,7 +236,6 @@ class ChatAppSettingDialog extends GetView<ChatAppSettingController> {
           await Future.delayed(const Duration(milliseconds: 200));
           Get.back(); // 关闭设置窗口
           await Future.delayed(const Duration(milliseconds: 200));
-          snackbar('删除成功', '助理已删除');
         },
       ),
     );
