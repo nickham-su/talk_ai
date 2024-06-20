@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:TalkAI/modules/chat/models/chat_app_model.dart';
@@ -150,7 +151,7 @@ class ListHeader extends GetView<ChatAppListController> {
       width: double.infinity,
       height: 60,
       alignment: Alignment.centerLeft,
-      padding: const EdgeInsets.only(left: 12, top: 20),
+      padding: EdgeInsets.only(left: 12, top: Platform.isMacOS?20:0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

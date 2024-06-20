@@ -80,6 +80,12 @@ void main() async {
           const VoidCallbackIntent(searchCallback),
     };
   }
+  if (Platform.isWindows){
+    shortcuts = {
+      LogicalKeySet(LogicalKeyboardKey.keyF, LogicalKeyboardKey.control):
+          const VoidCallbackIntent(searchCallback),
+    };
+  }
 
   /// 运行APP
   runApp(FocusableActionDetector(
@@ -117,7 +123,7 @@ Future initWindowPosition() async {
   WindowOptions windowOptions = WindowOptions(
     center: true,
     size: size,
-    titleBarStyle: TitleBarStyle.hidden,
+    titleBarStyle: Platform.isMacOS?TitleBarStyle.hidden:TitleBarStyle.normal,
   );
   windowManager.waitUntilReadyToShow(windowOptions);
 

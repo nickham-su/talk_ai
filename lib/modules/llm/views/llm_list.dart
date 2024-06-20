@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
@@ -133,7 +135,7 @@ class ListHeader extends GetView<LLMController> {
       width: double.infinity,
       height: 60,
       alignment: Alignment.centerLeft,
-      padding: const EdgeInsets.only(left: 12, top: 20),
+      padding: EdgeInsets.only(left: 12, top: Platform.isMacOS?20:0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
