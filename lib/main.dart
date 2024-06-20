@@ -124,6 +124,7 @@ Future initWindowPosition() async {
     center: true,
     size: size,
     titleBarStyle: Platform.isMacOS?TitleBarStyle.hidden:TitleBarStyle.normal,
+    title:"Talk AI",
   );
   windowManager.waitUntilReadyToShow(windowOptions);
 
