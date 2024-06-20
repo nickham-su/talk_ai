@@ -1,0 +1,7 @@
+app_id: 2F659B4D-3C8A-4D30-928E-675B0C1E4A3F
+publisher: nickham-su
+publisher_url: https://github.com/nickham-su/talk_ai
+display_name: TalkAI
+create_desktop_icon: true
+locales:
+  - zh
