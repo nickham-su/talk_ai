@@ -73,6 +73,10 @@ class Request {
           // 去掉 data: 开头的字符串, 保留 json 字符串
           final regex = RegExp(r'^data:');
           final jsonStr = data.replaceFirst(regex, '').trim();
+          // 处理[DONE]
+          if (jsonStr == '[DONE]') {
+            break;
+          }
           // 解析 json 字符串
           jsonList.add(json.decode(jsonStr));
         }

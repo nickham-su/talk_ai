@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:TalkAI/modules/chat/models/chat_app_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -80,7 +83,7 @@ class _ListItemState extends State<ListItem> {
           widget.onTap();
         },
         child: Container(
-          padding: const EdgeInsets.only(left: 12),
+          padding: const EdgeInsets.only(left: 8),
           height: 40,
           decoration: BoxDecoration(
             color: widget.selected
@@ -93,6 +96,7 @@ class _ListItemState extends State<ListItem> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              getIcon(widget.app.profilePicture),
               Expanded(
                 child: Text(
                   widget.app.name,
@@ -113,6 +117,28 @@ class _ListItemState extends State<ListItem> {
       ),
     );
   }
+
+  /// 获取头像
+  Widget getIcon(Uint8List? iconImg) {
+    Widget picture = iconImg != null
+        ? Image.memory(iconImg, fit: BoxFit.cover)
+        : SvgPicture.asset('assets/icons/assistant.svg',
+            width: 18,
+            height: 18,
+            theme: SvgTheme(
+                currentColor:
+                    Get.theme.colorScheme.inverseSurface.withOpacity(0.2)));
+
+    return Container(
+      width: 28,
+      height: 28,
+      margin: const EdgeInsets.only(right: 4),
+      alignment: Alignment.center,
+      child: ClipOval(
+        child: picture,
+      ),
+    );
+  }
 }
 
 /// 表头
@@ -125,7 +151,7 @@ class ListHeader extends GetView<ChatAppListController> {
       width: double.infinity,
       height: 60,
       alignment: Alignment.centerLeft,
-      padding: const EdgeInsets.only(left: 12, top: 20),
+      padding: EdgeInsets.only(left: 12, top: Platform.isMacOS?20:0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

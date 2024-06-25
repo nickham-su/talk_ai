@@ -41,10 +41,13 @@ class ChatAppShareController extends GetxController {
         'prompt': e.prompt,
         'temperature': e.temperature,
         'multiple_round': e.multipleRound,
+        'profile_picture': e.profilePicture != null
+            ? base64Encode(e.profilePicture as List<int>)
+            : null,
       };
     }).toList();
     final jsonStr = jsonEncode({'apps': apps});
     final compressed = gzipCompress(jsonStr);
-    return '您的好友分享了${apps.length}个助理。打开TalkAI，在[设置]中导入：\ntalkai://$compressed';
+    return '您的好友分享了${apps.length}个助理。打开TalkAI，在[同步]页面中导入：\ntalkai://share/$compressed';
   }
 }

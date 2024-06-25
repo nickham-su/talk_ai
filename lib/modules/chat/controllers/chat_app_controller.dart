@@ -70,6 +70,9 @@ class ChatAppController extends GetxController {
   /// 发送中状态
   get isSending => generateMessageService.isGenerating;
 
+  /// 显示历史消息过多提示
+  bool showHistoryMessageHint = false;
+
   @override
   void onInit() {
     // 监听消息生成更新editor_toolbar
@@ -94,8 +97,9 @@ class ChatAppController extends GetxController {
     if (chatApp != null &&
         oldChatApp != null &&
         chatApp.chatAppId == oldChatApp.chatAppId &&
-        chatApp.prompt == oldChatApp.prompt) {
-      // 如果chatApp没有改变，且prompt没有改变，则不需要更新会话列表。
+        chatApp.prompt == oldChatApp.prompt &&
+        chatApp.profilePicture == oldChatApp.profilePicture) {
+      // 如果chatApp没有改变，且prompt、头像没有改变，则不需要更新会话列表。
       return;
     }
 
@@ -159,6 +163,9 @@ class ChatAppController extends GetxController {
 
     // 创建会话，并添加系统消息
     _createConversation();
+
+    // 关闭消息过多提示
+    showHistoryMessageHint = false;
 
     // 记录使用chatApp
     useChatApp();
@@ -329,6 +336,11 @@ class ChatAppController extends GetxController {
 
     // 查询历史消息
     final messages = messageService.getMessageList(conversationId);
+
+    // 消息数量提示
+    if (messages.where((m) => m.role == MessageRole.user).length >= 6) {
+      showHistoryMessageHint = true;
+    }
 
     // 生成消息
     _generateMessage(

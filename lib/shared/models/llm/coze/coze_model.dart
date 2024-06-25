@@ -17,6 +17,7 @@ class CozeModel extends LLM {
     required super.llmId,
     required super.name,
     required super.lastUseTime,
+    required super.updatedTime,
     required this.host,
     required this.apiKey,
     required this.botId,
@@ -30,6 +31,7 @@ class CozeModel extends LLM {
       host: json['host'] ?? '',
       apiKey: json['api_key'] ?? '',
       botId: json['bot_id'] ?? '',
+      updatedTime: json['updated_time'] ?? 0,
     );
   }
 

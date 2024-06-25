@@ -6,6 +6,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   auto_updater_windows
   screen_retriever
   sqlite3_flutter_libs
+  uni_links_desktop
   url_launcher_windows
   window_manager
 )

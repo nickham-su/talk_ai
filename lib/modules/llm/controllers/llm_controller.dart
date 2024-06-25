@@ -5,6 +5,7 @@ import '../../../shared/models/llm/llm_form_data_item.dart';
 import '../../../shared/models/llm/llm_type.dart';
 import '../../../shared/models/llm/llms.dart';
 import '../../../shared/services/llm_service.dart';
+import '../../sync/controllers/sync_controller.dart';
 
 class LLMController extends GetxController {
   /// 当前选中的LLM的index
@@ -15,6 +16,9 @@ class LLMController extends GetxController {
 
   /// LLM服务
   final llmService = Get.find<LLMService>();
+
+  /// 数据同步控制器
+  final syncController = Get.find<SyncController>();
 
   /// 是否是编辑状态
   get isEdit => currentId.value != -1 && formData.isNotEmpty;
@@ -60,6 +64,8 @@ class LLMController extends GetxController {
     }
     // 选中新建的LLM
     currentId.value = id;
+    // 同步数据
+    syncController.delaySync();
   }
 
   /// 编辑LLM
@@ -72,7 +78,9 @@ class LLMController extends GetxController {
     for (var item in formData) {
       map[item.key] = item.value;
     }
-    llmService.updateLLM(llm.llmId, map);
+    llmService.updateLLMByData(llm.llmId, map);
+    // 同步数据
+    syncController.delaySync();
   }
 
   /// 复制LLM
@@ -92,6 +100,8 @@ class LLMController extends GetxController {
     }
     // 选中新建的LLM
     changeIndex(id);
+    // 同步数据
+    syncController.delaySync();
   }
 
   /// 删除LLM
@@ -100,7 +110,9 @@ class LLMController extends GetxController {
     if (llm == null) {
       return;
     }
-    llmService.deleteLLM(llm);
+    llmService.deleteLLM(llm.llmId);
     formData.clear();
+    // 同步数据
+    syncController.delaySync();
   }
 }

@@ -17,8 +17,8 @@ enum LLMType {
 const Map<LLMType, ModelInfo> modelInfoMap = {
   LLMType.openai: ModelInfo(description: 'OpenAI API（文本生成）', docList: [
     Doc(
-      title: 'API文档',
-      url: 'https://openai.apifox.cn/api-55352401',
+      title: 'OpenAI API官网',
+      url: 'https://openai.com/api/',
     )
   ]),
   LLMType.dash_scope: ModelInfo(description: '阿里云-DashScope', docList: [

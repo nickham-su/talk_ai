@@ -6,6 +6,7 @@ import 'modules/llm/bindings/llm_binding.dart';
 import 'modules/llm/views/llm_page.dart';
 import 'modules/setting/bindings/setting_binding.dart';
 import 'modules/setting/views/setting_page.dart';
+import 'modules/sync/views/sync_page.dart';
 
 // 路由页面构建器
 typedef PageBuilder = Widget Function();
@@ -15,6 +16,7 @@ class Routes {
   static const String llm = '/llm';
   static const String template = '/template';
   static const String setting = '/setting';
+  static const String sync = '/sync';
 
   static final routes = [
     GetPage(
@@ -34,6 +36,13 @@ class Routes {
       bindings: [
         LLMBinding(),
       ],
+    ),
+    GetPage(
+      name: sync,
+      page: () => const SyncPage(),
+      preventDuplicates: true,
+      transition: Transition.noTransition,
+      bindings: [],
     ),
     GetPage(
       name: setting,

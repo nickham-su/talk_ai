@@ -1,5 +1,8 @@
+import 'dart:typed_data';
+
 import '../models/chat_app_model.dart';
 import '../../../shared/utils/sqlite.dart';
+import 'chat_app_picture_repository.dart';
 
 class ChatAppRepository {
   static String tableName = 'chat_app';
@@ -16,7 +19,8 @@ class ChatAppRepository {
         temperature DOUBLE,
         top_p DOUBLE,
         topping_time INTEGER DEFAULT 0,
-        multiple_round INTEGER DEFAULT 1
+        multiple_round INTEGER DEFAULT 1,
+        updated_time INTEGER DEFAULT 0
       );
     ''');
 
@@ -37,6 +41,13 @@ class ChatAppRepository {
         ALTER TABLE $tableName ADD COLUMN multiple_round INTEGER DEFAULT 1
       ''');
     }
+
+    /// 添加updated_time列
+    if (!columnNames.contains('updated_time')) {
+      Sqlite.db.execute('''
+        ALTER TABLE $tableName ADD COLUMN updated_time INTEGER DEFAULT 0
+      ''');
+    }
   }
 
   /// 新建聊天App
@@ -47,31 +58,41 @@ class ChatAppRepository {
     required bool multipleRound, // 是否多轮对话
     double topP = 0.95, // 默认top_p
     int llmId = 0, // 默认模型id，0表示没有设置默认模型
+    Uint8List? profilePicture,
+    int? updatedTime,
   }) {
-    final lastUseTime = DateTime.now();
+    final now = DateTime.now();
     Sqlite.db.execute('''
-      INSERT INTO $tableName (name, prompt, last_use_time, llm_id, temperature, top_p, multiple_round)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO $tableName (name, prompt, last_use_time, llm_id, temperature, top_p, multiple_round, updated_time)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     ''', [
       name,
       prompt,
-      lastUseTime.millisecondsSinceEpoch,
+      now.millisecondsSinceEpoch,
       llmId,
       temperature,
       topP,
       multipleRound ? 1 : 0,
+      updatedTime ?? now.millisecondsSinceEpoch,
     ]);
     final chatAppId = Sqlite.db.lastInsertRowId;
+
+    if (profilePicture != null) {
+      ChatAppPictureRepository.insertOrUpdate(chatAppId, profilePicture);
+    }
+
     return ChatAppModel(
       chatAppId: chatAppId,
       name: name,
       prompt: prompt,
-      lastUseTime: lastUseTime,
+      lastUseTime: now,
       temperature: temperature,
       topP: topP,
       toppingTime: DateTime.fromMillisecondsSinceEpoch(0),
       llmId: llmId,
       multipleRound: multipleRound,
+      profilePicture: profilePicture,
+      updatedTime: now,
     );
   }
 
@@ -92,8 +113,43 @@ class ChatAppRepository {
             DateTime.fromMillisecondsSinceEpoch(e['topping_time'] as int),
         llmId: e['llm_id'] as int,
         multipleRound: e['multiple_round'] == 1,
+        updatedTime:
+            DateTime.fromMillisecondsSinceEpoch(e['updated_time'] as int),
+        profilePicture:
+            ChatAppPictureRepository.getPicture(e['chat_app_id'] as int),
       );
     }).toList();
+  }
+
+  /// 根据ID查询聊天App
+  static ChatAppModel? queryById(int chatAppId) {
+    final result = Sqlite.db.select('''
+      SELECT * FROM $tableName
+      WHERE chat_app_id = ?
+    ''', [chatAppId]);
+
+    if (result.isEmpty) {
+      return null;
+    }
+
+    final e = result[0];
+    return ChatAppModel(
+      chatAppId: e['chat_app_id'] as int,
+      name: e['name'] as String,
+      prompt: e['prompt'] as String,
+      lastUseTime:
+          DateTime.fromMillisecondsSinceEpoch(e['last_use_time'] as int),
+      temperature: e['temperature'] as double,
+      topP: e['top_p'] as double,
+      toppingTime:
+          DateTime.fromMillisecondsSinceEpoch(e['topping_time'] as int),
+      llmId: e['llm_id'] as int,
+      multipleRound: e['multiple_round'] == 1,
+      updatedTime:
+          DateTime.fromMillisecondsSinceEpoch(e['updated_time'] as int),
+      profilePicture:
+          ChatAppPictureRepository.getPicture(e['chat_app_id'] as int),
+    );
   }
 
   /// 更新聊天App
@@ -104,27 +160,37 @@ class ChatAppRepository {
     required double temperature,
     required int llmId,
     required bool multipleRound,
+    Uint8List? profilePicture,
+    int? updatedTime,
   }) {
-    final lastUseTime = DateTime.now();
+    final now = DateTime.now();
     Sqlite.db.execute('''
       UPDATE $tableName
-      SET name = ?, prompt = ?, last_use_time = ?, temperature = ?, llm_id = ?, multiple_round = ?
+      SET name = ?, prompt = ?, last_use_time = ?, temperature = ?, llm_id = ?, multiple_round = ?, updated_time = ?
       WHERE chat_app_id = ?
     ''', [
       name,
       prompt,
-      lastUseTime.millisecondsSinceEpoch,
+      now.millisecondsSinceEpoch,
       temperature,
       llmId,
       multipleRound ? 1 : 0,
+      updatedTime ?? now.millisecondsSinceEpoch,
       chatAppId
     ]);
+
+    if (profilePicture != null) {
+      ChatAppPictureRepository.insertOrUpdate(chatAppId, profilePicture);
+    } else {
+      ChatAppPictureRepository.delete(chatAppId);
+    }
   }
 
   /// 删除聊天App
   static void delete(int chatAppId) {
     Sqlite.db
         .execute('DELETE FROM $tableName WHERE chat_app_id = ?', [chatAppId]);
+    ChatAppPictureRepository.delete(chatAppId);
   }
 
   /// 记录聊天App的最后一次使用时间

@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:TalkAI/modules/chat/controllers/message_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -5,6 +7,7 @@ import 'package:get/get.dart';
 
 import '../../../../../shared/models/message/message_model.dart';
 import '../../../controllers/chat_app_controller.dart';
+import '../../../models/conversation_message_model.dart';
 import 'message_content.dart';
 import 'message_pagination.dart';
 
@@ -20,18 +23,8 @@ class MessageWidget extends StatelessWidget {
       tag: 'message_$msgId',
       init: MessageController(msgId),
       builder: (controller) {
-        late String iconFile; // icon文件
-        late Color iconColor; // icon颜色
-        if (controller.message?.role == MessageRole.user) {
-          iconFile = 'assets/icons/user.svg';
-          iconColor = Get.theme.colorScheme.tertiaryContainer;
-        } else if (controller.message?.role == MessageRole.assistant) {
-          iconFile = 'assets/icons/assistant.svg';
-          iconColor = Get.theme.colorScheme.primaryContainer;
-        } else {
-          iconFile = 'assets/icons/build.svg';
-          iconColor = Get.theme.colorScheme.outlineVariant;
-        }
+        final message = controller.message;
+        if (message == null) return const SizedBox();
 
         // 显示搜索结果
         final chatAppController = Get.find<ChatAppController>();
@@ -49,20 +42,11 @@ class MessageWidget extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 40,
-                height: 40,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: iconColor,
-                  shape: BoxShape.circle,
-                ),
-                child: SvgPicture.asset(iconFile,
-                    width: 20,
-                    height: 20,
-                    theme: SvgTheme(
-                      currentColor: Get.theme.colorScheme.inverseSurface,
-                    )),
+              GetBuilder<ChatAppController>(
+                builder: (controller) {
+                  return getIcon(
+                      message.role, controller.chatApp?.profilePicture);
+                },
               ),
               Expanded(
                 flex: 1,
@@ -70,15 +54,13 @@ class MessageWidget extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     MessageContent(
-                      key: ValueKey(
-                          'key_generate_${controller.message!.generateId}'),
-                      message: controller.message!,
+                      key: ValueKey('key_generate_${message.generateId}'),
+                      message: message,
                     ),
                     Visibility(
-                      visible:
-                          controller.message!.role == MessageRole.assistant &&
-                              controller.generateMessages.length > 1,
-                      child: MessagePagination(message: controller.message!),
+                      visible: message.role == MessageRole.assistant &&
+                          controller.generateMessages.length > 1,
+                      child: MessagePagination(message: message),
                     ),
                   ],
                 ),
@@ -87,6 +69,55 @@ class MessageWidget extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+
+  /// 获取头像
+  Widget getIcon(MessageRole role, Uint8List? iconImg) {
+    late String iconSvg; // 默认图片svg
+    if (role == MessageRole.user) {
+      iconSvg = 'assets/icons/user.svg';
+    } else if (role == MessageRole.assistant) {
+      iconSvg = 'assets/icons/assistant.svg';
+    } else {
+      iconSvg = 'assets/icons/build.svg';
+    }
+
+    late Color iconColor; // 默认图标颜色
+    if (role == MessageRole.user) {
+      iconColor = Get.theme.colorScheme.tertiaryContainer;
+    } else if (role == MessageRole.assistant) {
+      iconColor = Get.theme.colorScheme.primaryContainer;
+    } else {
+      iconColor = Get.theme.colorScheme.outlineVariant;
+    }
+
+    Widget picture = role == MessageRole.assistant && iconImg != null
+        ? Image.memory(iconImg, fit: BoxFit.cover)
+        : SvgPicture.asset(iconSvg,
+            width: 22,
+            height: 22,
+            theme: SvgTheme(
+              currentColor: Get.theme.colorScheme.inverseSurface,
+            ));
+
+    return Container(
+      width: 44,
+      height: 44,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        border: role == MessageRole.assistant && iconImg != null
+            ? Border.all(
+                color: Get.theme.colorScheme.primary,
+                width: 2,
+              )
+            : null,
+        color: iconColor,
+        shape: BoxShape.circle,
+      ),
+      child: ClipOval(
+        child: picture,
+      ),
     );
   }
 }

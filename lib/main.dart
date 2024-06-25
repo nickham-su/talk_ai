@@ -10,9 +10,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:uni_links/uni_links.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:uni_links_desktop/uni_links_desktop.dart';
 
 import 'modules/chat/controllers/chat_app_controller.dart';
+import 'modules/sync/controllers/sync_controller.dart';
 import 'shared/repositories/setting_repository.dart';
 import 'shared/services/conversation_service.dart';
 import 'shared/services/message_service.dart';
@@ -25,12 +28,18 @@ void main() async {
 
   /// 创建TalkAI文件夹
   final appCacheDir = await getAppCacheDir();
+  print('appCacheDir: $appCacheDir');
 
   /// 初始化Hive，窗口位置存在Hive中，所以要先初始化Hive
   Hive.init(appCacheDir);
 
   /// 初始化窗口位置
   await initWindowPosition();
+
+  /// 注册schema
+  if (Platform.isWindows || Platform.isMacOS) {
+    initUniLinks();
+  }
 
   /// 创建数据库
   Sqlite.openDB(appCacheDir);
@@ -39,6 +48,7 @@ void main() async {
   /// 注册全局控制器、服务
   Get.put(LayoutController(), permanent: true);
   Get.put(AppUpdateController(), permanent: true);
+  Get.put(SyncController(), permanent: true);
   Get.put(GenerateMessageService(), permanent: true);
   Get.put(MessageService(), permanent: true);
   Get.put(ConversationService(), permanent: true);
@@ -67,6 +77,12 @@ void main() async {
       LogicalKeySet(LogicalKeyboardKey.keyW, LogicalKeyboardKey.meta):
           const VoidCallbackIntent(closeWindowCallback),
       LogicalKeySet(LogicalKeyboardKey.keyF, LogicalKeyboardKey.meta):
+          const VoidCallbackIntent(searchCallback),
+    };
+  }
+  if (Platform.isWindows){
+    shortcuts = {
+      LogicalKeySet(LogicalKeyboardKey.keyF, LogicalKeyboardKey.control):
           const VoidCallbackIntent(searchCallback),
     };
   }
@@ -107,7 +123,8 @@ Future initWindowPosition() async {
   WindowOptions windowOptions = WindowOptions(
     center: true,
     size: size,
-    titleBarStyle: TitleBarStyle.hidden,
+    titleBarStyle: Platform.isMacOS?TitleBarStyle.hidden:TitleBarStyle.normal,
+    title:"Talk AI",
   );
   windowManager.waitUntilReadyToShow(windowOptions);
 
@@ -115,6 +132,7 @@ Future initWindowPosition() async {
   windowManager.addListener(MyWindowListener());
 }
 
+/// 窗口事件监听
 class MyWindowListener with WindowListener {
   @override
   void onWindowResized() async {
@@ -130,4 +148,17 @@ class MyWindowListener with WindowListener {
     SystemNavigator.pop();
     super.onWindowClose();
   }
+}
+
+/// 注册schema
+Future<void> initUniLinks() async {
+  registerProtocol('talkai');
+  linkStream.listen((String? link) {
+    windowManager.focus();
+    if (link == null) return;
+    if (link.startsWith('talkai://alipan')) {
+      final code = link.split('code=')[1];
+      Get.find<SyncController>().getAliPanInfo(code);
+    }
+  }, onError: (err) {});
 }

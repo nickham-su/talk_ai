@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../repositories/setting_repository.dart';
@@ -33,7 +35,7 @@ class Layout extends StatelessWidget {
                 Expanded(child: child)
               ],
             ),
-            const Positioned(
+            if(Platform.isMacOS) const Positioned(
               top: 0,
               left: 0,
               right: 0,

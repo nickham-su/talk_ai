@@ -23,6 +23,7 @@ class OpenaiApi {
     required double temperature, // 温度
     required double topP, // top-p
     List<String>? stop, // 停止词
+    int? maxTokens, // 最大令牌数
   }) async* {
     // 拼接请求地址
     url = Uri.parse(url).resolve(completionPath).toString();
@@ -41,6 +42,9 @@ class OpenaiApi {
     };
     if (stop != null) {
       data['stop'] = stop;
+    }
+    if (maxTokens != null) {
+      data['max_tokens'] = maxTokens;
     }
 
     final stream = _request!.stream(

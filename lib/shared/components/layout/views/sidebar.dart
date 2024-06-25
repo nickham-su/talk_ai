@@ -36,6 +36,11 @@ class Sidebar extends StatelessWidget {
                   type: LayoutMenuType.llm,
                   routePath: Routes.llm,
                 ),
+                getListTile(
+                  controller: controller,
+                  type: LayoutMenuType.sync,
+                  routePath: Routes.sync,
+                ),
                 GetBuilder<AppUpdateController>(
                   builder: (AppUpdateController appUpdateController) {
                     return getListTile(
@@ -63,58 +68,59 @@ class Sidebar extends StatelessWidget {
   }) {
     return Container(
         child: Stack(
-          children: [
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: IconButton(
-                hoverColor: Get.theme.colorScheme.secondaryContainer.withOpacity(0.4),
-                style: ButtonStyle(
-                  padding: MaterialStateProperty.all(EdgeInsets.zero),
-                  alignment: Alignment.center,
-                  shape: MaterialStateProperty.all(RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  )),
+      children: [
+        SizedBox(
+          width: double.infinity,
+          height: 50,
+          child: IconButton(
+            hoverColor:
+                Get.theme.colorScheme.secondaryContainer.withOpacity(0.4),
+            style: ButtonStyle(
+              padding: MaterialStateProperty.all(EdgeInsets.zero),
+              alignment: Alignment.center,
+              shape: MaterialStateProperty.all(RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              )),
+            ),
+            icon: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                getIcon(type, currentMenu),
+                Text(
+                  type.value,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w300,
+                    fontSize: 10,
+                    color: type == currentMenu
+                        ? Get.theme.colorScheme.primary
+                        : Get.theme.textTheme.bodyMedium?.color
+                            ?.withOpacity(0.5),
+                  ),
                 ),
-                icon: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    getIcon(type, currentMenu),
-                    Text(
-                      type.value,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w300,
-                        fontSize: 10,
-                        color: type == currentMenu
-                            ? Get.theme.colorScheme.primary
-                            : Get.theme.textTheme.bodyMedium?.color
-                                ?.withOpacity(0.5),
-                      ),
-                    ),
-                  ],
-                ),
-                onPressed: () {
-                  Get.offNamed(routePath);
-                },
+              ],
+            ),
+            onPressed: () {
+              Get.offNamed(routePath);
+            },
+          ),
+        ),
+        if (showBadge)
+          Positioned(
+            right: 8,
+            top: 8,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.red,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              constraints: const BoxConstraints(
+                minWidth: 8,
+                minHeight: 8,
               ),
             ),
-            if (showBadge)
-              Positioned(
-                right: 8,
-                top: 8,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.red,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  constraints: const BoxConstraints(
-                    minWidth: 8,
-                    minHeight: 8,
-                  ),
-                ),
-              ),
-          ],
-        ));
+          ),
+      ],
+    ));
   }
 
   // 获取图标
@@ -132,6 +138,12 @@ class Sidebar extends StatelessWidget {
           iconFile = 'assets/icons/layout/layout_llm.svg';
         } else {
           iconFile = 'assets/icons/layout/layout_llm_gray.svg';
+        }
+      case LayoutMenuType.sync:
+        if (currentMenuType == LayoutMenuType.sync) {
+          iconFile = 'assets/icons/layout/layout_sync.svg';
+        } else {
+          iconFile = 'assets/icons/layout/layout_sync_gray.svg';
         }
       case LayoutMenuType.setting:
         if (currentMenuType == LayoutMenuType.setting) {

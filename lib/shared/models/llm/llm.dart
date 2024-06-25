@@ -7,15 +7,26 @@ abstract class LLM {
   int llmId;
 
   /// 模型名称
-  final String name;
+  String name;
 
   /// 最后使用时间
-  int lastUseTime;
+  late DateTime lastUseTime;
+
+  /// 更新时间
+  late DateTime updatedTime;
 
   /// 模型类型
   abstract final LLMType type;
 
-  LLM({required this.name, required this.llmId, required this.lastUseTime});
+  LLM({
+    required this.name,
+    required this.llmId,
+    required int lastUseTime,
+    required int updatedTime,
+  }) {
+    this.lastUseTime = DateTime.fromMillisecondsSinceEpoch(lastUseTime);
+    this.updatedTime = DateTime.fromMillisecondsSinceEpoch(updatedTime);
+  }
 
   /// 聊天
   Stream<String> chatCompletions({

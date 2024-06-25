@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:get/get.dart';
 import 'package:package_info/package_info.dart';
@@ -35,7 +36,16 @@ class AppUpdateController extends GetxController {
       return;
     }
     SettingRepository.setCheckUpdateTime();
-    final remoteVersion = await AppVersion.getLatestVersion();
+
+    late VersionInfo remoteVersion;
+    if (Platform.isWindows) {
+      remoteVersion = await AppVersion.getLatestVersionForWindows();
+    } else if (Platform.isMacOS) {
+      remoteVersion = await AppVersion.getLatestVersionForMacos();
+    } else {
+      return;
+    }
+
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     String buildNumber = packageInfo.buildNumber;
 

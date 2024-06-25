@@ -17,6 +17,7 @@ class OpenaiModel extends LLM {
     required super.llmId,
     required super.name,
     required super.lastUseTime,
+    required super.updatedTime,
     required this.url,
     required this.apiKey,
     required this.model,
@@ -32,6 +33,7 @@ class OpenaiModel extends LLM {
       apiKey: json['api_key'] ?? '',
       model: json['model'] ?? '',
       stop: json['stop'] ?? '',
+      updatedTime: json['updated_time'] ?? 0,
     );
   }
 
@@ -159,6 +161,13 @@ class OpenaiModel extends LLM {
       messages.first.content = '$systemContent\n${messages.first.content}';
     }
 
+    int? maxTokens;
+
+    // 零一万物模型的默认max_tokens太小，兼容一下
+    if (model.startsWith('yi-')) {
+      maxTokens = 8 * 1024;
+    }
+
     return OpenaiApi.chatCompletions(
       url: url,
       apiKey: apiKey,
@@ -167,6 +176,7 @@ class OpenaiModel extends LLM {
       temperature: temperature,
       topP: topP,
       stop: stopList,
+      maxTokens: maxTokens,
     );
   }
 

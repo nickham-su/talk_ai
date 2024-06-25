@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../modules/chat/repositorys/chat_app_repository.dart';
+import '../../../modules/sync/controllers/sync_controller.dart';
 import '../buttons/cancel_button.dart';
 import '../buttons/confirm_button.dart';
 import '../../services/llm_service.dart';
@@ -24,7 +25,7 @@ class LLMShareImportDialog extends StatelessWidget {
     String input = importValue ?? '';
 
     return DialogWidget(
-      width: min(Get.width / 2, 400), // or whatever you need
+      width: min(Get.width / 2, 500), // or whatever you need
       height: 300,
       title: '导入数据',
       child: GetBuilder<LLMShareController>(
@@ -77,7 +78,7 @@ class LLMShareImportDialog extends StatelessWidget {
   }
 
   importData(String url) async {
-    final reg = RegExp(r'^(.*?\n)*?talkai://');
+    final reg = RegExp(r'^(.*?\n)*?talkai://(share/)?');
     final compressed = url.replaceAll(reg, '');
     final jsonStr = gzipDecompress(compressed);
     final data = jsonDecode(jsonStr);
@@ -108,6 +109,9 @@ class LLMShareImportDialog extends StatelessWidget {
             prompt: app['prompt'],
             temperature: app['temperature'],
             multipleRound: app['multiple_round'] ?? true,
+            profilePicture: app['profile_picture'] != null
+                ? base64Decode(app['profile_picture'])
+                : null,
           );
         } catch (e) {
           if (app['name'] != null) {
@@ -140,5 +144,9 @@ class LLMShareImportDialog extends StatelessWidget {
       }
     }
     snackbar('导入结果', ret, duration: const Duration(seconds: 5));
+
+    /// 同步数据
+    final syncController = Get.find<SyncController>();
+    syncController.delaySync();
   }
 }
