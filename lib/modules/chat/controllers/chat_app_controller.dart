@@ -77,6 +77,22 @@ class ChatAppController extends GetxController {
   void onInit() {
     // 监听消息生成更新editor_toolbar
     _updateToolbarByGenerate();
+
+    // 监听用户滚动列表，停止吸附底部
+    double lastPixels = 0; // 上次滚动的位置
+    Timer? timer; // 定时器
+    scrollController.addListener(() {
+      final pixels = scrollController.position.pixels;
+      // 向上滚动，代表用户操作
+      if (pixels < lastPixels) {
+        stopAttach = true;
+        timer?.cancel();
+        timer = Timer(const Duration(seconds: 1), () {
+          stopAttach = false;
+        });
+      }
+      lastPixels = pixels;
+    });
     super.onInit();
   }
 
@@ -221,9 +237,13 @@ class ChatAppController extends GetxController {
   /// 最近一次滚动的时间，用于去重
   DateTime lastScrollTime = DateTime.now();
 
+  /// 停止吸附
+  bool stopAttach = false;
+
   /// 吸附到底部
   void _attachToBottom({always = false}) {
     if (isClosed) return; // 防止控制器被销毁后调用
+    if (stopAttach) return; // 用户主动滚动，停止吸附
     if (scrollController.position.pixels >
         (scrollController.position.maxScrollExtent - 200)) {
       // 如果两次滚动时间间隔小于500ms，则不滚动
@@ -531,8 +551,10 @@ class ChatAppController extends GetxController {
     _scrollToBottomByGenerateListener =
         generateMessageService.listenGenerate(genMsg.generateId, (event) {
       if (isClosed) return;
+      final message = messageService.getMessage(genMsg.msgId);
       // 如果是最后一条消息，则滚动到底部
-      if (isLastMessage(msgId: genMsg.msgId)) {
+      if (isLastMessage(msgId: genMsg.msgId) &&
+          message?.generateId == genMsg.generateId) {
         _attachToBottom(always: event.type != GenerateEventType.generate);
       }
     });
