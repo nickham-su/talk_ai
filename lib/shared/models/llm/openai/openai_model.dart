@@ -131,7 +131,7 @@ class OpenaiModel extends LLM {
   @override
   Stream<String> chatCompletions({
     required List<MessageModel> messages,
-    double temperature = 1,
+    double temperature = 0.8,
     double topP = 0.95,
   }) {
     List<String>? stopList;
