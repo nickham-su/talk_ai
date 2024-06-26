@@ -6,8 +6,8 @@ TalkAI 是一款基于 Flutter 开发的大语言模型客户端，支持多种�
 
 在我的工作中，就算是GPT-4也不能完全解答我的所有问题，我需要频繁切换不同的模型，以便高效的解决问题。但我接触到的多个对话工具，并没有满足我这个需求。所以自己动手，开发了这款工具。
 
-<img src="readme/assistant.png" style="width: 67%;">
-<img src="readme/model.png" style="width: 67%;">
+<img src="assets/images/readme/assistant.png" style="width: 67%;">
+<img src="assets/images/readme/model.png" style="width: 67%;">
 
 ## 特性
 
