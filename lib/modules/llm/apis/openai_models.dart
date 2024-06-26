@@ -25,7 +25,6 @@ class OpenaiModelsApi {
         },
       ),
     );
-    print(jsonEncode(response.data));
     final modelList = ModelList.fromJson(response.data);
     return modelList.data.map((model) => model.id).toList();
   }
