@@ -95,9 +95,9 @@ class ChatAppSettingDialog extends GetView<ChatAppSettingController> {
                       ),
                       SliderWidget(
                         labelText: 'Temperature',
-                        tooltip: '''控制生成文本的随机性，它是一个0到1之间的浮点数。
-                      当temperature接近0时,模型会变得更加确定和保守,倾向于选择概率最高的下一个词。这会导致输出更加确定但缺乏多样性。
-                      当temperature接近1时,模型会变得更加随机和富有创造力,生成的文本更加多样化但相关性可能降低。''',
+                        tooltip: '''控制生成文本的随机性，它是一个0到2之间的浮点数。
+temperature接近0时,模型会变得更加确定和保守,倾向于选择概率最高的下一个词。这会导致输出更加确定但缺乏多样性。
+temperature增大时,模型会变得更加随机和富有创造力,生成的文本更加多样化但相关性可能降低。''',
                         labelWidth: 120,
                         initialValue: controller.temperature,
                         max: 2,
@@ -107,9 +107,9 @@ class ChatAppSettingDialog extends GetView<ChatAppSettingController> {
                           controller.temperature = value;
                         },
                         format: (value) {
-                          if (value < 0.75) {
+                          if (value < 0.55) {
                             return '${value.toStringAsFixed(2)} 严谨';
-                          } else if (value < 1.25) {
+                          } else if (value < 0.85) {
                             return '${value.toStringAsFixed(2)} 均衡';
                           } else {
                             return '${value.toStringAsFixed(2)} 创意';

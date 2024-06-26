@@ -51,7 +51,7 @@ class _PreWrapperState extends State<PreWrapperWidget> {
                   ),
                   onTap: () async {
                     if (hasCopied) return;
-                    await Clipboard.setData(ClipboardData(text: widget.text));
+                    await Clipboard.setData(ClipboardData(text: widget.text.trim()));
                     _switchWidget = Icon(
                       Icons.check,
                       key: UniqueKey(),

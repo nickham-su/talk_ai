@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import '../../message/message_model.dart';
 import '../llm.dart';
 import '../llm_form_data_item.dart';
@@ -120,7 +122,7 @@ class QianFanModel extends LLM {
   @override
   Stream<String> chatCompletions({
     required List<MessageModel> messages,
-    double temperature = 1,
+    double temperature = 0.8,
     double topP = 0.95,
   }) {
     if (messages.isEmpty) {
@@ -142,7 +144,7 @@ class QianFanModel extends LLM {
       apiKey: apiKey,
       secretKey: secretKey,
       messages: messages,
-      temperature: temperature / 2, // 千帆平台的取值范围是0-1
+      temperature: min(1, temperature), // 千帆平台的取值范围是0-1
     );
   }
 

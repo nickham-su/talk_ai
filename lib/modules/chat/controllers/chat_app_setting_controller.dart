@@ -9,7 +9,7 @@ class ChatAppSettingController extends GetxController {
   int chatAppId = 0;
   String name = '';
   String prompt = '';
-  double temperature = 1;
+  double temperature = 0.8;
   int llmId = 0;
   bool multipleRound = true;
   Uint8List? profilePicture;
@@ -47,7 +47,7 @@ class ChatAppSettingController extends GetxController {
     chatAppId = 0;
     name = '';
     prompt = '';
-    temperature = 1;
+    temperature = 0.8;
     llmId = 0;
     multipleRound = true;
     profilePicture = null;
