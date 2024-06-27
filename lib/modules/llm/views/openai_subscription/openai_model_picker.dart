@@ -24,41 +24,31 @@ class OpenaiModelPicker extends StatelessWidget {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                '第2步：选择需要添加的模型',
-                style: TextStyle(
-                  height: 1,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w300,
-                ),
-              ),
-              const SizedBox(height: 8),
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(
-                    child: TextWidget(
-                      labelText: '前缀',
-                      hintText: '自定义模型名称添加前缀',
-                      initialValue: controller.prefix,
-                      onChanged: (value) {
-                        controller.setPrefix(value);
-                      },
+                  const Text(
+                    '第2步：选择需要添加的模型',
+                    style: TextStyle(
+                      height: 1,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w300,
                     ),
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: TextWidget(
-                      labelText: '后缀',
-                      hintText: '自定义模型名称添加后缀',
-                      initialValue: controller.suffix,
-                      onChanged: (value) {
-                        controller.setSuffix(value);
-                      },
+                  TextButton(
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 12),
+                      minimumSize: const Size(0, 0),
                     ),
-                  ),
+                    onPressed: () {
+                      controller.selectAll();
+                    },
+                    child: const Text('全选'),
+                  )
                 ],
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 16),
               Expanded(
                   child: ListView.builder(
                 itemCount: controller.models.length,
@@ -66,8 +56,52 @@ class OpenaiModelPicker extends StatelessWidget {
                   return getItem(controller, index);
                 },
               )),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: Container(
+                      height: 50,
+                      alignment: Alignment.centerLeft,
+                      child: const Text(
+                        '当模型名称冲突时，可添加前后缀',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w300,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: TextWidget(
+                      labelText: '前缀',
+                      hintText: '添加前缀',
+                      initialValue: controller.prefix,
+                      margin: EdgeInsets.zero,
+                      onChanged: (value) {
+                        controller.setPrefix(value);
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    flex: 1,
+                    child: TextWidget(
+                      labelText: '后缀',
+                      hintText: '添加后缀',
+                      initialValue: controller.suffix,
+                      margin: EdgeInsets.zero,
+                      onChanged: (value) {
+                        controller.setSuffix(value);
+                      },
+                    ),
+                  ),
+                ],
+              ),
               Container(
-                margin: EdgeInsets.only(top: 8),
+                margin: EdgeInsets.only(top: 32),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

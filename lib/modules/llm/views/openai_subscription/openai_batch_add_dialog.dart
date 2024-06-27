@@ -29,7 +29,7 @@ class OpenaiBatchAddDialog extends StatelessWidget {
                 '第1步：填写URl和API Key，查询可用模型。（服务需要提供/v1/models接口）',
                 style: TextStyle(
                   height: 1,
-                  fontSize: 14,
+                  fontSize: 16,
                   fontWeight: FontWeight.w300,
                 ),
               ),

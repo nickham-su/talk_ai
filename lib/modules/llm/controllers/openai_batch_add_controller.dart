@@ -50,6 +50,14 @@ class OpenaiBatchAddController extends GetxController {
     update();
   }
 
+  /// 全选
+  void selectAll() {
+    for (var model in models) {
+      selected[model] = true;
+    }
+    update();
+  }
+
   /// 获取完整模型名
   String getFullName(String model) {
     return '$prefix$model$suffix';
