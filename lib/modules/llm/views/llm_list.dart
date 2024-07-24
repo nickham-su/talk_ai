@@ -5,6 +5,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
 import '../../../shared/components/layout/models/layout_menu_type.dart';
+import '../../../shared/components/custom_search_bar.dart';
 import '../controllers/llm_controller.dart';
 import 'llm_add_dialog.dart';
 import 'llm_share_dialog.dart';
@@ -17,13 +18,22 @@ class LLMList extends GetView<LLMController> {
     return Column(
       children: [
         const ListHeader(),
+        Container(
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          height: 24,
+          child: CustomSearchBar(
+            onChanged: (value) {
+              controller.filterText.value = value;
+            },
+          ),
+        ),
         Expanded(
           child: Obx(() {
             final currentId = controller.currentId.value;
             return ListView.separated(
-              itemCount: controller.llmService.llmList.length,
+              itemCount: controller.filteredLLMList.length,
               itemBuilder: (context, index) {
-                final llm = controller.llmService.llmList[index];
+                final llm = controller.filteredLLMList[index];
                 return ListItem(
                   onTap: () {
                     controller.changeIndex(llm.llmId);
@@ -85,7 +95,7 @@ class _ListItemState extends State<ListItem> {
           widget.onTap();
         },
         child: Container(
-          padding: const EdgeInsets.only(left: 12, right: 12),
+          padding: const EdgeInsets.only(left: 8, right: 8),
           height: 40,
           decoration: BoxDecoration(
             color: widget.selected
@@ -135,7 +145,7 @@ class ListHeader extends GetView<LLMController> {
     return Container(
       width: double.infinity,
       height: isMacOS ? 60 : 28,
-      padding: EdgeInsets.only(left: 12, top: isMacOS ? 32 : 0, bottom: 4),
+      padding: EdgeInsets.only(left: 8, top: isMacOS ? 32 : 0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,

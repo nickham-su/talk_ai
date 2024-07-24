@@ -7,6 +7,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
 import '../../../../shared/components/layout/models/layout_menu_type.dart';
+import '../../../../shared/components/custom_search_bar.dart';
 import '../../controllers/chat_app_list_controller.dart';
 import 'app_share_dialog.dart';
 import 'chat_app_setting_dialog.dart';
@@ -19,12 +20,21 @@ class AppList extends GetView<ChatAppListController> {
     return Column(
       children: [
         const ListHeader(),
+        Container(
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          height: 24,
+          child: CustomSearchBar(
+            onChanged: (value) {
+              controller.filterText.value = value;
+            },
+          ),
+        ),
         Expanded(
           child: Obx(
             () => ListView.separated(
-              itemCount: controller.chatAppList.length,
+              itemCount: controller.filteredChatAppList.length,
               itemBuilder: (context, index) {
-                final app = controller.chatAppList[index];
+                final app = controller.filteredChatAppList[index];
                 return ListItem(
                     key: ValueKey('key_chat_app_${app.chatAppId}'),
                     app: app,
@@ -151,7 +161,7 @@ class ListHeader extends GetView<ChatAppListController> {
     return Container(
       width: double.infinity,
       height: isMacOS ? 60 : 28,
-      padding: EdgeInsets.only(left: 12, top: isMacOS ? 32 : 0, bottom: 4),
+      padding: EdgeInsets.only(left: 8, top: isMacOS ? 32 : 0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
