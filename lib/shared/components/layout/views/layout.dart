@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../repositories/setting_repository.dart';
@@ -8,7 +7,7 @@ import '../controllers/layout_controller.dart';
 import '../models/layout_menu_type.dart';
 import 'sidebar.dart';
 import 'topbar.dart';
-import 'window_buttons.dart';
+import 'windows_title_bar/windows_title_bar.dart';
 
 class Layout extends StatelessWidget {
   final Widget child;
@@ -32,23 +31,7 @@ class Layout extends StatelessWidget {
           child: Stack(children: [
             Column(
               children: [
-                if (!isMacOS)
-                  Container(
-                      height: 32,
-                      color: Get.theme.colorScheme.secondaryContainer
-                          .withOpacity(0.3),
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: const Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Talk AI',
-                            style: TextStyle(fontSize: 14),
-                          ),
-                          WindowButtons()
-                        ],
-                      )),
+                if (!isMacOS) const WindowsTitleBar(),
                 Expanded(
                   child: Row(
                     children: [
