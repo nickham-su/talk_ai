@@ -26,22 +26,43 @@ class AppShareDialog extends StatelessWidget {
         builder: (controller) {
           return Column(
             children: [
-              Expanded(child: ListView.builder(
-                itemCount: chatAppListController.chatAppList.length,
-                itemBuilder: (context, index) {
-                  final app = chatAppListController.chatAppList[index];
-                  return CheckboxListTile(
-                    contentPadding: EdgeInsets.symmetric(horizontal: 4),
-                    title: Text(app.name),
-                    value: controller.isSelect(app.chatAppId),
-                    onChanged: (value) {
-                      controller.toggleSelect(app.chatAppId);
-                    },
-                  );
-                },
+              Expanded(
+                  child: Container(
+                color: Get.theme.scaffoldBackgroundColor.withOpacity(0.5),
+                child: ListView.builder(
+                  itemCount: chatAppListController.chatAppList.length,
+                  itemBuilder: (context, index) {
+                    final app = chatAppListController.chatAppList[index];
+                    return CheckboxListTile(
+                      contentPadding: EdgeInsets.only(left: 8, right: 4),
+                      title: Text(app.name),
+                      value: controller.isSelect(app.chatAppId),
+                      onChanged: (value) {
+                        controller.toggleSelect(app.chatAppId);
+                      },
+                    );
+                  },
+                ),
               )),
               Container(
-                margin: EdgeInsets.only(top: 24),
+                padding: const EdgeInsets.all(8),
+                child: Row(
+                  children: [
+                    const Text('分享包含助理头像',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w300,
+                        )),
+                    const SizedBox(width: 4),
+                    Checkbox(
+                        value: controller.shareProfilePicture,
+                        onChanged: (value) {
+                          controller.setShareProfilePicture(value);
+                        }),
+                  ],
+                ),
+              ),
+              Container(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -50,8 +71,7 @@ class AppShareDialog extends StatelessWidget {
                       onPressed: () async {
                         final url = controller.getShareUrl();
                         Get.back();
-                        await Future.delayed(
-                            const Duration(milliseconds: 200));
+                        await Future.delayed(const Duration(milliseconds: 200));
                         Get.dialog(
                           LLMShareLinkDialog(url: url),
                           barrierDismissible: true,
