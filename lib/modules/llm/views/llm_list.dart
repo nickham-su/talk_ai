@@ -131,11 +131,11 @@ class ListHeader extends GetView<LLMController> {
 
   @override
   Widget build(BuildContext context) {
+    bool isMacOS = Platform.isMacOS;
     return Container(
       width: double.infinity,
-      height: 60,
-      alignment: Alignment.centerLeft,
-      padding: EdgeInsets.only(left: 12, top: Platform.isMacOS?20:0),
+      height: isMacOS ? 60 : 28,
+      padding: EdgeInsets.only(left: 12, top: isMacOS ? 32 : 0, bottom: 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -201,7 +201,6 @@ class ListHeader extends GetView<LLMController> {
                   ),
                 ),
               ),
-              const SizedBox(width: 4),
             ],
           ),
         ],
