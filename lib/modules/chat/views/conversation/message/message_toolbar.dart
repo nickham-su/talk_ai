@@ -1,3 +1,4 @@
+import 'package:TalkAI/modules/chat/controllers/editor_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
@@ -79,7 +80,9 @@ class UserMessageToolbar extends StatelessWidget {
           onPressed: () {
             final controller = Get.find<ChatAppController>();
             controller.quote(message.msgId);
-            controller.inputController.text = message.content;
+            Get.find<EditorController>()
+              ..setContent(message.content)
+              ..focus();
           },
         ),
         ToolbarIcon(

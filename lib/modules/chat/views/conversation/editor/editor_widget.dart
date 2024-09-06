@@ -5,8 +5,10 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../../../../../shared/components/resizable_sidebar/resizable_sidebar_widget.dart';
+import '../../../../../shared/components/snackbar.dart';
 import '../../../../../shared/repositories/setting_repository.dart';
 import '../../../controllers/chat_app_controller.dart';
+import '../../../controllers/editor_controller.dart';
 import 'editor_toolbar.dart';
 
 class EditorWidget extends StatelessWidget {
@@ -14,7 +16,8 @@ class EditorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<ChatAppController>(
+    return GetBuilder<EditorController>(
+      init: EditorController(),
       builder: (controller) {
         return ResizableSidebarWidget(
           tag: 'editor',
@@ -32,14 +35,24 @@ class EditorWidget extends StatelessWidget {
               Expanded(
                 child: RawKeyboardListener(
                   focusNode: FocusNode(),
-                  onKey: (RawKeyEvent event) {
+                  onKey: (RawKeyEvent event) async {
                     if (event is RawKeyDownEvent &&
                         event.logicalKey == LogicalKeyboardKey.enter &&
                         !event.isAltPressed &&
                         !event.isControlPressed &&
                         !event.isMetaPressed &&
                         !event.isShiftPressed) {
-                      controller.onEnterKey();
+                      final completeContent = await controller.onEnterKey();
+                      if (completeContent != null) {
+                        // 发送消息
+                        try {
+                          Get.find<ChatAppController>()
+                              .sendMessage(completeContent);
+                          controller.clearContent();
+                        } catch (e) {
+                          snackbar('提示', e.toString());
+                        }
+                      }
                     }
 
                     // 判断是macos系统，同时按下了command键和enter键时，输入换行

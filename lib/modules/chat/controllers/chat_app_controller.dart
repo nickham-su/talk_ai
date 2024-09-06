@@ -25,12 +25,6 @@ class ChatAppController extends GetxController {
   /// 当前聊天App
   ChatAppModel? chatApp;
 
-  /// 输入框控制器
-  final TextEditingController inputController = TextEditingController();
-
-  /// 输入框焦点
-  final inputFocusNode = FocusNode();
-
   /// 显示搜索框
   bool showSearch = false;
 
@@ -99,8 +93,6 @@ class ChatAppController extends GetxController {
 
   @override
   void onClose() {
-    inputController.dispose();
-    inputFocusNode.dispose();
     super.onClose();
   }
 
@@ -131,8 +123,6 @@ class ChatAppController extends GetxController {
       scrollToBottom(animate: false);
       await Future.delayed(const Duration(milliseconds: 100));
       scrollToBottom(animate: false);
-      // 聚焦输入框
-      inputFocusNode.requestFocus();
       // 判断是否正在生成，且生成的消息是当前chatApp的消息，监听生成消息
       _scrollToBottomByGenerate();
     } else {
@@ -307,23 +297,21 @@ class ChatAppController extends GetxController {
   }
 
   /// 发送消息
-  void sendMessage(String text) async {
+  Future<void> sendMessage(String text) async {
     if (chatApp == null) {
-      return;
+      throw Exception('chatApp is null');
     }
     closeSearch();
 
     // 检查发送中的消息
     if (isSending) {
-      snackbar('提示', '请等待发送中的消息发送完成');
-      return;
+      throw Exception('请等待发送中的消息发送完成');
     }
 
     // 获取模型
     final LLM? llm = Get.find<LLMPickerController>().currentLLM;
     if (llm == null) {
-      snackbar('提示', '模型设置错误，请检查！');
-      return;
+      throw Exception('模型设置错误，请检查！');
     }
 
     // 处理单轮对话
@@ -342,9 +330,6 @@ class ChatAppController extends GetxController {
     useChatApp();
     // 更新会话时间
     conversationService.updateConversationTime(conversationId);
-
-    // 清空输入框
-    inputController.clear();
 
     // 插入用户消息
     messageService.insertMessage(
@@ -371,7 +356,7 @@ class ChatAppController extends GetxController {
     );
 
     // 滚动到底部
-    await scrollToBottom();
+    scrollToBottom();
   }
 
   /// 重新生成消息
@@ -604,11 +589,6 @@ class ChatAppController extends GetxController {
     changeLLM();
     // 滚动到底部
     await scrollToBottom();
-    // 如果是用户消息，则将消息内容放入输入框
-    if (quoteMessage.role == MessageRole.user) {
-      inputController.text = quoteMessage.content;
-    }
-    inputFocusNode.requestFocus();
   }
 
   /// 切换模型
@@ -872,24 +852,5 @@ class ChatAppController extends GetxController {
       list.addAll(children);
     });
     return list;
-  }
-
-  /// 输入Enter键
-  void onEnterKey() {
-    final text1 = inputController.text; // 按Enter键前的文本
-    Future.delayed(const Duration(milliseconds: 16), () {
-      final text2 = inputController.text; // 按Enter键后的文本
-      // 比较按Enter键前后的文本，如果是插入换行，则发送消息
-      final dmp = DiffMatchPatch();
-      List<Diff> diffs = dmp.diff(text1, text2);
-      if ((diffs.length == 2 || diffs.length == 3) &&
-          (diffs[0].text == '\n' || diffs[1].text == '\n')) {
-        final inputText = text1.trim();
-        // 恢复文本
-        inputController.text = inputText;
-        // 发送消息，用text1是因为text2包含换行
-        sendMessage(inputText);
-      }
-    });
   }
 }

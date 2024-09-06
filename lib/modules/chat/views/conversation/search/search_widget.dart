@@ -3,6 +3,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
 import '../../../controllers/chat_app_controller.dart';
+import '../../../controllers/editor_controller.dart';
 
 class SearchWidget extends StatelessWidget {
   SearchWidget({Key? key}) : super(key: key);
@@ -127,7 +128,8 @@ class SearchWidget extends StatelessWidget {
                   onPressed: () async {
                     await Future.delayed(const Duration(milliseconds: 100));
                     controller.toggleSearch();
-                    controller.inputFocusNode.requestFocus();
+                    // 聚焦输入框
+                    Get.find<EditorController>().focus();
                   },
                 ),
               ],

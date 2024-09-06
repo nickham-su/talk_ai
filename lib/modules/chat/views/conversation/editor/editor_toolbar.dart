@@ -5,6 +5,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
 import '../../../controllers/chat_app_controller.dart';
+import '../../../controllers/editor_controller.dart';
 import 'llm_picker.dart';
 
 /// 编辑器工具栏
@@ -13,10 +14,18 @@ class EditorToolbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<ChatAppController>(
-      id: 'editor_toolbar',
-      builder: (controller) {
-        List<Widget> tools = [
+    return Container(
+      padding: const EdgeInsets.only(left: 10, top: 10, bottom: 4),
+      decoration: BoxDecoration(
+        border: Border(
+          top: BorderSide(
+            color: Get.theme.colorScheme.outlineVariant.withOpacity(0.5),
+          ),
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
           const LLMPicker(),
           const SizedBox(width: 8),
           const AddButton(),
@@ -24,28 +33,21 @@ class EditorToolbar extends StatelessWidget {
           getDivider(),
           const UpButton(),
           const BottomButton(),
-        ];
-
-        if (controller.isSending) {
-          tools.add(getDivider());
-          tools.add(const StopButton());
-        }
-
-        return Container(
-          padding: const EdgeInsets.only(left: 10, top: 10, bottom: 4),
-          decoration: BoxDecoration(
-            border: Border(
-              top: BorderSide(
-                color: Get.theme.colorScheme.outlineVariant.withOpacity(0.5),
-              ),
-            ),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: tools,
-          ),
-        );
-      },
+          getDivider(),
+          const AddImageButton(),
+          GetBuilder<ChatAppController>(
+            id: 'editor_toolbar',
+            builder: (controller) {
+              if (!controller.isSending) {
+                return const SizedBox();
+              }
+              return Row(
+                children: [getDivider(), const StopButton()],
+              );
+            },
+          )
+        ],
+      ),
     );
   }
 }
@@ -88,12 +90,11 @@ class AddButton extends StatelessWidget {
           ),
         ),
         onPressed: () {
-          final controller = Get.find<ChatAppController>();
-          controller.addConversation();
-          // 滚动到底部
-          controller.scrollToBottom();
+          Get.find<ChatAppController>()
+            ..addConversation() // 添加新会话
+            ..scrollToBottom(); // 滚动到底部
           // 聚焦输入框
-          controller.inputFocusNode.requestFocus();
+          Get.find<EditorController>().focus();
         },
       ),
     );
@@ -165,11 +166,10 @@ class StopButton extends StatelessWidget {
         ),
         onPressed: () {
           Future.delayed(const Duration(milliseconds: 100)).then((value) {
-            final controller = Get.find<ChatAppController>();
             // 停止接收
-            controller.stopReceive();
+            Get.find<ChatAppController>().stopReceive();
             // 聚焦输入框
-            controller.inputFocusNode.requestFocus();
+            Get.find<EditorController>().focus();
           });
         },
       ),
@@ -209,9 +209,10 @@ class UpButton extends StatelessWidget {
           ),
         ),
         onPressed: () {
-          final controller = Get.find<ChatAppController>();
-          controller.scrollToPreviousConversation();
-          controller.inputFocusNode.requestFocus();
+          // 滚动到上一个会话
+          Get.find<ChatAppController>().scrollToPreviousConversation();
+          // 聚焦输入框
+          Get.find<EditorController>().focus();
         },
       ),
     );
@@ -246,9 +247,46 @@ class BottomButton extends StatelessWidget {
           ),
         ),
         onPressed: () {
-          final controller = Get.find<ChatAppController>();
-          controller.scrollToBottom();
-          controller.inputFocusNode.requestFocus();
+          // 滚动到底部
+          Get.find<ChatAppController>().scrollToBottom();
+          // 聚焦输入框
+          Get.find<EditorController>().focus();
+        },
+      ),
+    );
+  }
+}
+
+/// 添加图片按钮
+class AddImageButton extends StatelessWidget {
+  const AddImageButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: IconButton(
+        padding: const EdgeInsets.all(0),
+        style: ButtonStyle(
+          minimumSize: MaterialStateProperty.all(const Size(32, 32)),
+          shape: MaterialStateProperty.all<OutlinedBorder>(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(6),
+            ),
+          ),
+        ),
+        tooltip: '添加图片',
+        icon: SvgPicture.asset(
+          'assets/icons/add_image.svg',
+          width: 20,
+          height: 20,
+          theme: SvgTheme(
+            currentColor: Get.theme.colorScheme.inverseSurface,
+          ),
+        ),
+        onPressed: () {
+          // final controller = Get.find<ChatAppController>();
+          // controller.pickImage();
         },
       ),
     );
