@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 
-import '../../modules/chat/models/conversation_message_model.dart';
-import '../../modules/chat/repositorys/message_repository.dart';
+import '../models/message/conversation_message_model.dart';
+import '../repositories/message_repository.dart';
 import '../models/event_queue/event.dart';
 import '../models/event_queue/event_listener.dart';
 import '../models/event_queue/event_queue.dart';

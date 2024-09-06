@@ -7,7 +7,7 @@ import 'package:get/get.dart';
 
 import '../../../../../shared/models/message/message_model.dart';
 import '../../../controllers/chat_app_controller.dart';
-import '../../../models/conversation_message_model.dart';
+import '../../../../../shared/models/message/conversation_message_model.dart';
 import 'message_content.dart';
 import 'message_pagination.dart';
 

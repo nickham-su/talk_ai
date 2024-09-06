@@ -8,7 +8,7 @@ import '../../../../../shared/models/message/message_model.dart';
 import '../../../../../shared/services/generate_message_service.dart';
 import '../../../../../shared/services/message_service.dart';
 import '../../../controllers/chat_app_controller.dart';
-import '../../../models/conversation_message_model.dart';
+import '../../../../../shared/models/message/conversation_message_model.dart';
 import '../editor/llm_picker.dart';
 
 /// 工具栏

@@ -1,6 +1,6 @@
 import 'package:TalkAI/shared/models/message/message_model.dart';
 
-import '../../../shared/models/message/message_status.dart';
+import 'message_status.dart';
 
 /// 会话消息模型
 class ConversationMessageModel {

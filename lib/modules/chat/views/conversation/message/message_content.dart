@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import '../../../../../shared/models/message/message_status.dart';
 import '../../../../../shared/models/message/message_model.dart';
 import '../../../../../shared/services/generate_message_service.dart';
-import '../../../models/conversation_message_model.dart';
+import '../../../../../shared/models/message/conversation_message_model.dart';
 import 'components/animated_ball.dart';
 import 'components/constrained_widget.dart';
 import 'markdown/markdown_content_widget.dart';

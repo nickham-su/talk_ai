@@ -5,7 +5,7 @@ import '../../../shared/models/event_queue/event_listener.dart';
 import '../../../shared/models/message/message_model.dart';
 import '../../../shared/services/conversation_service.dart';
 import '../../../shared/services/message_service.dart';
-import '../models/conversation_message_model.dart';
+import '../../../shared/models/message/conversation_message_model.dart';
 import '../models/conversation_model.dart';
 import '../repositorys/conversation_repository.dart';
 

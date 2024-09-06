@@ -2,7 +2,7 @@ import 'package:sqlite3/common.dart';
 
 import '../models/conversation_model.dart';
 import '../../../shared/utils/sqlite.dart';
-import 'message_repository.dart';
+import '../../../shared/repositories/message_repository.dart';
 
 class ConversationRepository {
   static String tableName = 'conversation';

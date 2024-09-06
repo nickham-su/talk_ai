@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../controllers/message_pagination_controller.dart';
-import '../../../models/conversation_message_model.dart';
+import '../../../../../shared/models/message/conversation_message_model.dart';
 
 class MessagePagination extends StatelessWidget {
   // 消息ID

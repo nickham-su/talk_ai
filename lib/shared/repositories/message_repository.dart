@@ -1,9 +1,9 @@
 import 'package:sqlite3/sqlite3.dart';
 
-import '../../../shared/models/message/message_status.dart';
-import '../../../shared/models/message/message_model.dart';
-import '../models/conversation_message_model.dart';
-import '../../../shared/utils/sqlite.dart';
+import '../models/message/message_status.dart';
+import '../models/message/message_model.dart';
+import '../models/message/conversation_message_model.dart';
+import '../utils/sqlite.dart';
 
 class MessageRepository {
   static String tableName = 'message';
