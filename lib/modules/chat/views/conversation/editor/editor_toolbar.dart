@@ -1,12 +1,16 @@
 import 'dart:math';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
+import '../../../../../shared/components/snackbar.dart';
+import '../../../../../shared/repositories/cache_image_repository.dart';
 import '../../../controllers/chat_app_controller.dart';
 import '../../../controllers/editor_controller.dart';
 import 'llm_picker.dart';
+import 'package:image/image.dart' as img;
 
 /// 编辑器工具栏
 class EditorToolbar extends StatelessWidget {
@@ -284,9 +288,21 @@ class AddImageButton extends StatelessWidget {
             currentColor: Get.theme.colorScheme.inverseSurface,
           ),
         ),
-        onPressed: () {
-          // final controller = Get.find<ChatAppController>();
-          // controller.pickImage();
+        onPressed: () async {
+          FilePickerResult? result = await FilePicker.platform.pickFiles(
+            type: FileType.image,
+            withData: true,
+          );
+          if (result == null) return;
+          img.Image? image = img.decodeImage(result.files.single.bytes!);
+          if (image == null) {
+            snackbar('提示', '图片格式不支持，请重新选择');
+            return;
+          }
+          // 添加缓存
+          final imgFile =
+              CacheImageRepository.saveLocalImage(result.files.single);
+          Get.find<EditorController>().addFile(imgFile);
         },
       ),
     );

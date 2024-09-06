@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:diff_match_patch/diff_match_patch.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -48,5 +49,26 @@ class EditorController extends GetxController {
       return inputText;
     }
     return null;
+  }
+
+  /// 文件列表
+  final List<File> files = [];
+
+  /// 添加文件
+  void addFile(File file) {
+    files.add(file);
+    update(['editor_images']);
+  }
+
+  /// 移除文件
+  void removeFile(File file) {
+    files.remove(file);
+    update(['editor_images']);
+  }
+
+  /// 清空文件
+  void clearFiles() {
+    files.clear();
+    update(['editor_images']);
   }
 }

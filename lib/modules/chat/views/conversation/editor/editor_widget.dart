@@ -9,6 +9,7 @@ import '../../../../../shared/components/snackbar.dart';
 import '../../../../../shared/repositories/setting_repository.dart';
 import '../../../controllers/chat_app_controller.dart';
 import '../../../controllers/editor_controller.dart';
+import 'editor_images.dart';
 import 'editor_toolbar.dart';
 
 class EditorWidget extends StatelessWidget {
@@ -32,6 +33,7 @@ class EditorWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const EditorToolbar(),
+              const EditorImages(),
               Expanded(
                 child: RawKeyboardListener(
                   focusNode: FocusNode(),
@@ -48,7 +50,9 @@ class EditorWidget extends StatelessWidget {
                         try {
                           Get.find<ChatAppController>()
                               .sendMessage(completeContent);
-                          controller.clearContent();
+                          controller
+                            ..clearContent()
+                            ..clearFiles();
                         } catch (e) {
                           snackbar('提示', e.toString());
                         }
