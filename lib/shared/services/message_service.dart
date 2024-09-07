@@ -115,6 +115,7 @@ class MessageService extends GetxService {
     int llmId = 0,
     String llmName = '',
     int generateId = 0,
+    List<String>? filePaths,
   }) {
     // 删除消息列表缓存
     clearMessageListCache(conversationId);
@@ -128,6 +129,7 @@ class MessageService extends GetxService {
       llmId: llmId,
       llmName: llmName,
       generateId: generateId,
+      filePaths: filePaths,
     );
     _cachedMessages[message.msgId] = message;
     messageIdsChangeEventQueue.emit(conversationId, Event<void>(null));

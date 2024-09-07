@@ -297,7 +297,10 @@ class ChatAppController extends GetxController {
   }
 
   /// 发送消息
-  Future<void> sendMessage(String text) async {
+  Future<void> sendMessage({
+    required String text,
+    List<String>? filePaths,
+  }) async {
     if (chatApp == null) {
       throw Exception('chatApp is null');
     }
@@ -338,6 +341,7 @@ class ChatAppController extends GetxController {
       role: MessageRole.user,
       content: text,
       status: MessageStatus.completed,
+      filePaths: filePaths,
     );
 
     // 查询历史消息

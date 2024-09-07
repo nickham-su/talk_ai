@@ -18,7 +18,6 @@ class EditorWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<EditorController>(
-      init: EditorController(),
       builder: (controller) {
         return ResizableSidebarWidget(
           tag: 'editor',
@@ -48,8 +47,10 @@ class EditorWidget extends StatelessWidget {
                       if (completeContent != null) {
                         // 发送消息
                         try {
-                          Get.find<ChatAppController>()
-                              .sendMessage(completeContent);
+                          Get.find<ChatAppController>().sendMessage(
+                            text: completeContent,
+                            filePaths: controller.getFilePaths(),
+                          );
                           controller
                             ..clearContent()
                             ..clearFiles();

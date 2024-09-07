@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../controllers/chat_app_list_controller.dart';
 import '../controllers/chat_app_setting_controller.dart';
 import '../controllers/chat_app_controller.dart';
+import '../controllers/editor_controller.dart';
 
 class ChatBinding extends Bindings {
   @override
@@ -10,5 +11,6 @@ class ChatBinding extends Bindings {
     Get.lazyPut<ChatAppListController>(() => ChatAppListController());
     Get.lazyPut<ChatAppController>(() => ChatAppController());
     Get.lazyPut<ChatAppSettingController>(() => ChatAppSettingController());
+    Get.lazyPut<EditorController>(() => EditorController());
   }
 }

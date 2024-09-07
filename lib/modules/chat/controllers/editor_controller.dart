@@ -29,7 +29,9 @@ class EditorController extends GetxController {
 
   /// 获取焦点
   void focus() {
-    inputFocusNode.requestFocus();
+    Future.delayed(Duration.zero, () {
+      inputFocusNode.requestFocus();
+    });
   }
 
   /// 输入Enter键
@@ -58,6 +60,11 @@ class EditorController extends GetxController {
   void addFile(File file) {
     files.add(file);
     update(['editor_images']);
+  }
+
+  /// 获取文件路径
+  List<String> getFilePaths() {
+    return files.map((e) => e.path).toList();
   }
 
   /// 移除文件
