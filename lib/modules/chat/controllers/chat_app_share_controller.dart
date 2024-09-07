@@ -21,6 +21,15 @@ class ChatAppShareController extends GetxController {
     update();
   }
 
+  /// 分享头像
+  bool shareProfilePicture = false;
+
+  /// 设置分享头像
+  void setShareProfilePicture(value) {
+    shareProfilePicture = value;
+    update();
+  }
+
   /// 获取分享链接
   String getShareUrl() {
     List<int> chatAppIds = [];
@@ -41,7 +50,7 @@ class ChatAppShareController extends GetxController {
         'prompt': e.prompt,
         'temperature': e.temperature,
         'multiple_round': e.multipleRound,
-        'profile_picture': e.profilePicture != null
+        'profile_picture': shareProfilePicture && e.profilePicture != null
             ? base64Encode(e.profilePicture as List<int>)
             : null,
       };

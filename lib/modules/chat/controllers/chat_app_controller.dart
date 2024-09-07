@@ -82,6 +82,7 @@ class ChatAppController extends GetxController {
     double lastPixels = 0; // 上次滚动的位置
     Timer? timer; // 定时器
     scrollController.addListener(() {
+      if (!isSending) return;
       final pixels = scrollController.position.pixels;
       // 向上滚动，代表用户操作
       if (pixels < lastPixels) {

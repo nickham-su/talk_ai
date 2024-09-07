@@ -129,7 +129,9 @@ class ChoiceModel {
     return ChoiceModel(
       index: json['index'],
       finishReason: json['finish_reason'],
-      delta: json['delta'] != null ? Delta.fromJson(json['delta']) : null,
+      delta: json['delta'] != null && json['delta'] is Map<String, dynamic>
+          ? Delta.fromJson(json['delta'])
+          : null,
     );
   }
 

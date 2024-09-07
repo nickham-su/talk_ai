@@ -12,11 +12,13 @@ class ResizableSidebarWidget extends StatelessWidget {
   final double maxWidth; // 最大宽度
   final double initWidth; // 初始宽度
   final Function(double)? onWidthChanged; // 宽度变化回调
+  final Function(double)? onWidthChanging; // 宽度变化中回调
   final bool resizeHeight; // 是否可调整高度
   final double minHeight; // 最小高度
   final double maxHeight; // 最大高度
   final double initHeight; // 初始高度
   final Function(double)? onHeightChanged; // 高度变化回调
+  final Function(double)? onHeightChanging; // 高度变化中回调
 
   const ResizableSidebarWidget({
     super.key,
@@ -27,11 +29,13 @@ class ResizableSidebarWidget extends StatelessWidget {
     this.maxWidth = double.infinity,
     this.initWidth = 200,
     this.onWidthChanged,
+    this.onWidthChanging,
     this.resizeHeight = false,
     this.minHeight = 0,
     this.maxHeight = double.infinity,
     this.initHeight = 200,
     this.onHeightChanged,
+    this.onHeightChanging,
   });
 
   @override
@@ -61,6 +65,7 @@ class ResizableSidebarWidget extends StatelessWidget {
                   onPanUpdate: (DragUpdateDetails details) {
                     final width = controller.width + details.delta.dx;
                     controller.setWidth(width);
+                    onWidthChanging?.call(width);
                   },
                   onPanEnd: (DragEndDetails details) {
                     double width = max(controller.width, minWidth);
@@ -86,6 +91,7 @@ class ResizableSidebarWidget extends StatelessWidget {
                   onPanUpdate: (DragUpdateDetails details) {
                     final height = controller.height - details.delta.dy;
                     controller.setHeight(height);
+                    onHeightChanging?.call(height);
                   },
                   onPanEnd: (DragEndDetails details) {
                     double height = max(controller.height, minHeight);

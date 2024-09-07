@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -21,7 +23,7 @@ class Sidebar extends StatelessWidget {
         width: 48,
         child: Column(
           children: [
-            const SizedBox(height: 60),
+            SizedBox(height: Platform.isMacOS ? 60 : 28),
             Expanded(
                 child: ListView(
               padding: EdgeInsets.zero,

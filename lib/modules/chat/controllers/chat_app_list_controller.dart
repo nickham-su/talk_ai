@@ -37,6 +37,23 @@ class ChatAppListController extends GetxController {
   /// 会话控制器
   final chatAppController = Get.find<ChatAppController>();
 
+  /// 筛选文本
+  final filterText = ''.obs;
+
+  /// 筛选后的聊天App列表，不区分大小写
+  List<ChatAppModel> get filteredChatAppList {
+    final filter = filterText.value.trim().toLowerCase();
+    if (filter.isEmpty) return chatAppList;
+
+    final nameSet = chatAppList
+        .where((element) => element.name.toLowerCase().contains(filter))
+        .toSet();
+    final promptSet = chatAppList
+        .where((element) => element.prompt.toLowerCase().contains(filter))
+        .toSet();
+    return nameSet.union(promptSet).toList();
+  }
+
   @override
   void onInit() async {
     super.onInit();

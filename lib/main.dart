@@ -80,7 +80,7 @@ void main() async {
           const VoidCallbackIntent(searchCallback),
     };
   }
-  if (Platform.isWindows){
+  if (Platform.isWindows) {
     shortcuts = {
       LogicalKeySet(LogicalKeyboardKey.keyF, LogicalKeyboardKey.control):
           const VoidCallbackIntent(searchCallback),
@@ -123,10 +123,15 @@ Future initWindowPosition() async {
   WindowOptions windowOptions = WindowOptions(
     center: true,
     size: size,
-    titleBarStyle: Platform.isMacOS?TitleBarStyle.hidden:TitleBarStyle.normal,
-    title:"Talk AI",
+    titleBarStyle: TitleBarStyle.hidden,
+    title: "Talk AI",
   );
   windowManager.waitUntilReadyToShow(windowOptions);
+
+  // windows下设置无边框
+  if (Platform.isWindows) {
+    windowManager.setAsFrameless();
+  }
 
   /// 监听窗口事件
   windowManager.addListener(MyWindowListener());

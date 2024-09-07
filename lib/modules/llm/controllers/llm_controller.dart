@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:TalkAI/shared/models/llm/llm.dart';
 import 'package:get/get.dart';
 import '../../../shared/models/llm/llm_form_data_item.dart';
 import '../../../shared/models/llm/llm_type.dart';
@@ -25,6 +26,19 @@ class LLMController extends GetxController {
 
   /// 是否是创建状态
   get isCreate => currentId.value == -1 && formData.isNotEmpty;
+
+  /// 筛选文本
+  final filterText = ''.obs;
+
+  /// 筛选后的LLM列表，不区分大小写
+  List<LLM> get filteredLLMList {
+    final filter = filterText.value.trim().toLowerCase();
+    if (filter.isEmpty) return llmService.llmList.value;
+
+    return llmService.llmList.value
+        .where((element) => element.name.toLowerCase().contains(filter))
+        .toList();
+  }
 
   @override
   void onInit() {
