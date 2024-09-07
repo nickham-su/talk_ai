@@ -33,12 +33,11 @@ class EditorToolbar extends StatelessWidget {
           const LLMPicker(),
           const SizedBox(width: 8),
           const AddButton(),
-          const SearchButton(),
+          const AddImageButton(),
           getDivider(),
           const UpButton(),
           const BottomButton(),
-          getDivider(),
-          const AddImageButton(),
+          const SearchButton(),
           GetBuilder<ChatAppController>(
             id: 'editor_toolbar',
             builder: (controller) {
@@ -282,8 +281,8 @@ class AddImageButton extends StatelessWidget {
         tooltip: '添加图片',
         icon: SvgPicture.asset(
           'assets/icons/add_image.svg',
-          width: 20,
-          height: 20,
+          width: 22,
+          height: 22,
           theme: SvgTheme(
             currentColor: Get.theme.colorScheme.inverseSurface,
           ),
@@ -301,7 +300,7 @@ class AddImageButton extends StatelessWidget {
           }
           // 添加缓存
           final imgFile =
-              CacheImageRepository.saveLocalImage(result.files.single);
+              await CacheImageRepository.saveLocalImage(result.files.single);
           Get.find<EditorController>()
             ..addFile(imgFile)
             ..focus();

@@ -93,7 +93,7 @@ class CacheImageRepository {
   }
 
   /// 保存本地图片
-  static File saveLocalImage(PlatformFile file) {
+  static Future<File> saveLocalImage(PlatformFile file) async {
     // 创建缓存文件夹
     var imgDir =
         Directory(path.join(getAppCacheDirSync(), _cacheLocalImageDir));
@@ -106,13 +106,29 @@ class CacheImageRepository {
     if (imgDir.existsSync() == false) {
       imgDir.createSync();
     }
-    // 保存文件
-    final imgFile = File(path.join(imgDir.path, file.name));
+
+    final fileName = path.basenameWithoutExtension(file.name);
+    final imgFile = File(path.join(imgDir.path, '$fileName.jpg'));
     // 判断文件是否存在
     if (imgFile.existsSync()) {
       return imgFile;
     }
-    imgFile.writeAsBytesSync(file.bytes!);
+
+    img.Image? decodedImage = img.decodeImage(file.bytes!);
+    if (decodedImage == null) {
+      throw '图片数据异常';
+    }
+
+    // 调整图片大小，长边超过1024px则缩放至1024px
+    if (decodedImage.width > 1024 || decodedImage.height > 1024) {
+      if (decodedImage.width > decodedImage.height) {
+        decodedImage = img.copyResize(decodedImage, width: 1024);
+      } else {
+        decodedImage = img.copyResize(decodedImage, height: 1024);
+      }
+    }
+
+    imgFile.writeAsBytesSync(img.encodeJpg(decodedImage, quality: 80));
     return imgFile;
   }
 }
