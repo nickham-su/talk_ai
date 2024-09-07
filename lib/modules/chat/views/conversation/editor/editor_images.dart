@@ -80,7 +80,9 @@ class EditorImages extends StatelessWidget {
                             ),
                           ),
                           onPressed: () {
-                            controller.removeFile(file);
+                            controller
+                              ..removeFile(file)
+                              ..focus();
                           },
                         ),
                       ),

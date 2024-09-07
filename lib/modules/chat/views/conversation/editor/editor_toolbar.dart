@@ -302,7 +302,9 @@ class AddImageButton extends StatelessWidget {
           // 添加缓存
           final imgFile =
               CacheImageRepository.saveLocalImage(result.files.single);
-          Get.find<EditorController>().addFile(imgFile);
+          Get.find<EditorController>()
+            ..addFile(imgFile)
+            ..focus();
         },
       ),
     );

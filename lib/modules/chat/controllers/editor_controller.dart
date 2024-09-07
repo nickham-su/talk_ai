@@ -39,6 +39,14 @@ class EditorController extends GetxController {
     final text1 = inputController.text; // 按Enter键前的文本
     await Future.delayed(const Duration(milliseconds: 16));
     final text2 = inputController.text; // 按Enter键后的文本
+    if (text2.trim().isEmpty) {
+      if (files.isEmpty) {
+        inputController.text = '';
+        return null;
+      } else {
+        return '';
+      }
+    }
     // 比较按Enter键前后的文本，如果是插入换行，则发送消息
     final dmp = DiffMatchPatch();
     List<Diff> diffs = dmp.diff(text1, text2);

@@ -429,6 +429,7 @@ class ChatAppController extends GetxController {
         .map((e) => MessageModel(
               content: e.content,
               role: e.role,
+              files: e.files,
             ))
         .toList();
 

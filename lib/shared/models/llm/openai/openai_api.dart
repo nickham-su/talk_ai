@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import '../../message/message_model.dart';
 import '../request/request.dart';
@@ -27,15 +28,35 @@ class OpenaiApi {
   }) async* {
     // 拼接请求地址
     url = Uri.parse(url).resolve(completionPath).toString();
-
     // 过滤空消息
     messages.removeWhere((m) => m.content == '');
-
     _request = Request();
+
+    // 处理消息
+    final msgList = messages.map((e) {
+      if (e.files.isEmpty) {
+        return {'role': e.role.value, 'content': e.content};
+      }
+      List<Map<String, dynamic>> msgs = [
+        {"type": "text", "text": e.content}
+      ];
+      for (var f in e.files) {
+        // 读文件，转为base64
+        final bytes = File(f).readAsBytesSync();
+        String base64String = base64Encode(bytes);
+        msgs.add({
+          "type": "image_url",
+          "image_url": {
+            "url": 'data:image/jpeg;base64,$base64String',
+          }
+        });
+      }
+      return {'role': e.role.value, 'content': msgs};
+    }).toList();
 
     Map<String, dynamic> data = {
       'model': model,
-      'messages': messages.map((e) => e.toJson()).toList(),
+      'messages': msgList,
       'temperature': temperature,
       'top_p': topP,
       'stream': true,
