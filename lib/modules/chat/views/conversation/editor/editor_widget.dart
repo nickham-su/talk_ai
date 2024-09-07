@@ -47,7 +47,7 @@ class EditorWidget extends StatelessWidget {
                       if (completeContent != null) {
                         // 发送消息
                         try {
-                          Get.find<ChatAppController>().sendMessage(
+                          await Get.find<ChatAppController>().sendMessage(
                             text: completeContent,
                             filePaths: controller.getFilePaths(),
                           );

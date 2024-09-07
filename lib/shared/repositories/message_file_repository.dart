@@ -30,7 +30,7 @@ class MessageFileRepository {
 
   /// 批量添加消息文件
   static void addMessageFiles(int msgId, List<String> filePaths) {
-    final values = filePaths.map((e) => '($msgId, $e)').join(',');
+    final values = filePaths.map((e) => "($msgId, '$e')").join(',');
     Sqlite.db.execute(
       'INSERT INTO $tableName (msg_id, file_path) VALUES $values',
     );
