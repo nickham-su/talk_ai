@@ -81,7 +81,10 @@ class UserMessageToolbar extends StatelessWidget {
             final controller = Get.find<ChatAppController>();
             controller.quote(message.msgId);
             Get.find<EditorController>()
-              ..setContent(message.content)
+              ..setContent(
+                content: message.content,
+                filePaths: message.files,
+              )
               ..focus();
           },
         ),

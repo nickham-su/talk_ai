@@ -23,8 +23,20 @@ class EditorController extends GetxController {
   }
 
   /// 设置输入框内容
-  void setContent(String content) {
+  void setContent({
+    required String content,
+    required List<String> filePaths,
+  }) {
+    // 设置内容
     inputController.text = content;
+    // 设置文件
+    files.clear();
+    for (final path in filePaths) {
+      final file = File(path);
+      if (file.existsSync()) {
+        addFile(file);
+      }
+    }
   }
 
   /// 获取焦点
