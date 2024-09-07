@@ -1,6 +1,9 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:crypto/crypto.dart';
+import 'package:file_picker/file_picker.dart';
+
 import '../utils/app_cache_dir.dart';
 import 'package:path/path.dart' as path;
 import 'package:image/image.dart' as img;
@@ -8,30 +11,34 @@ import 'package:image/image.dart' as img;
 import '../utils/hash.dart';
 
 class CacheImageRepository {
-  static const String _cacheDir = 'cache_images';
+  /// 缓存网络图片文件夹
+  static const String _cacheNetworkImageDir = 'cache_images';
 
-  /// 获取缓存图片文件
-  static File? getImage(String uri) {
+  /// 缓存本地图片文件夹
+  static const String _cacheLocalImageDir = 'cache_local_images';
+
+  /// 获取缓存的网络图片
+  static File? getNetworkImage(String uri) {
     try {
-      final imgFile = File(_getImgCachePath(uri));
+      final imgFile = File(_getNetworkImgCachePath(uri));
       return imgFile.existsSync() ? imgFile : null;
     } catch (e) {
       return null;
     }
   }
 
-  /// 保存图片
-  static File saveImage(String uri, Uint8List bytes) {
-    final imgFile = File(_getImgCachePath(uri));
+  /// 保存网络图片
+  static File saveNetworkImage(String uri, Uint8List bytes) {
+    final imgFile = File(_getNetworkImgCachePath(uri));
     imgFile.writeAsBytesSync(bytes);
     return imgFile;
   }
 
-  /// 导出图片
+  /// 导出网络图片
   /// [uri] 图片地址
   /// [targetDir] 目标文件夹
-  static Future<void> exportImage(String uri, String targetDir) async {
-    final imgFile = getImage(uri);
+  static Future<void> exportNetworkImage(String uri, String targetDir) async {
+    final imgFile = getNetworkImage(uri);
     if (imgFile == null) {
       throw '图片不存在';
     }
@@ -57,12 +64,12 @@ class CacheImageRepository {
     }
   }
 
-  /// 获取图片缓存路径
-  static String _getImgCachePath(String uri) {
+  /// 获取网络图片缓存路径
+  static String _getNetworkImgCachePath(String uri) {
     // app缓存文件夹
     final appCacheDir = getAppCacheDirSync();
     // 图片缓存文件夹
-    final imgDirPath = path.join(appCacheDir, _cacheDir);
+    final imgDirPath = path.join(appCacheDir, _cacheNetworkImageDir);
     final imgDir = Directory(imgDirPath);
     if (imgDir.existsSync() == false) {
       imgDir.createSync(); // 创建文件夹
@@ -73,5 +80,55 @@ class CacheImageRepository {
     final extension = path.extension(imgUri.path);
     final fileName = '$urlHash$extension';
     return path.join(imgDirPath, fileName);
+  }
+
+  /// 获取缓存的本地图片
+  static File? getLocalImage(String path) {
+    try {
+      final imgFile = File(path);
+      return imgFile.existsSync() ? imgFile : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// 保存本地图片
+  static Future<File> saveLocalImage(PlatformFile file) async {
+    // 创建缓存文件夹
+    var imgDir =
+        Directory(path.join(getAppCacheDirSync(), _cacheLocalImageDir));
+    if (imgDir.existsSync() == false) {
+      imgDir.createSync();
+    }
+    // 以文件hash值作为文件夹名，避免文件名冲突
+    var digest = sha256.convert(file.bytes!); // 计算SHA-256哈希值
+    imgDir = Directory(path.join(imgDir.path, digest.toString()));
+    if (imgDir.existsSync() == false) {
+      imgDir.createSync();
+    }
+
+    final fileName = path.basenameWithoutExtension(file.name);
+    final imgFile = File(path.join(imgDir.path, '$fileName.jpg'));
+    // 判断文件是否存在
+    if (imgFile.existsSync()) {
+      return imgFile;
+    }
+
+    img.Image? decodedImage = img.decodeImage(file.bytes!);
+    if (decodedImage == null) {
+      throw '图片数据异常';
+    }
+
+    // 调整图片大小，长边超过1024px则缩放至1024px
+    if (decodedImage.width > 1024 || decodedImage.height > 1024) {
+      if (decodedImage.width > decodedImage.height) {
+        decodedImage = img.copyResize(decodedImage, width: 1024);
+      } else {
+        decodedImage = img.copyResize(decodedImage, height: 1024);
+      }
+    }
+
+    imgFile.writeAsBytesSync(img.encodeJpg(decodedImage, quality: 80));
+    return imgFile;
   }
 }

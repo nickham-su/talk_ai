@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import '../../../../../shared/models/message/message_status.dart';
 import '../../../../../shared/models/message/message_model.dart';
 import '../../../../../shared/services/generate_message_service.dart';
-import '../../../models/conversation_message_model.dart';
+import '../../../../../shared/models/message/conversation_message_model.dart';
 import 'components/animated_ball.dart';
 import 'components/constrained_widget.dart';
 import 'markdown/markdown_content_widget.dart';
@@ -39,10 +39,18 @@ class MessageContent extends StatelessWidget {
         error != null && error.isNotEmpty ? '发送失败：\n$error' : '发送失败';
 
     // 消息内容
-    final content =
-        message.role == MessageRole.system && message.content.isEmpty
-            ? '我是您的助理，请问有什么可以帮您？'
-            : message.content;
+    String content = message.content;
+
+    if (message.role == MessageRole.system && message.content.isEmpty) {
+      // 添加默认系统消息
+      content = '我是您的助理，请问有什么可以帮您？';
+    }
+    if (message.role == MessageRole.user && message.files.isNotEmpty) {
+      // 使用markdown添加图片
+      for (final file in message.files) {
+        content += '\n![图片]($file)';
+      }
+    }
 
     return GetBuilder<MessageContentController>(
       id: 'message_content_${message.msgId}',

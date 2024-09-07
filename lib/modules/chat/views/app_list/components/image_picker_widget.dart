@@ -1,11 +1,12 @@
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:image/image.dart' as img;
+
+import '../../../../../shared/components/snackbar.dart';
 
 class ImagePickerWidget extends StatefulWidget {
   final Uint8List? data;
@@ -109,7 +110,7 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
 
     img.Image? image = img.decodeImage(result.files.single.bytes!);
     if (image == null) {
-      Get.snackbar('提示', '图片格式不支持，请重新选择');
+      snackbar('提示', '图片格式不支持，请重新选择');
       return;
     }
     final resizeImg = img.copyResize(image, width: 100, height: 100);

@@ -1,11 +1,16 @@
 import 'dart:math';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
+import '../../../../../shared/components/snackbar.dart';
+import '../../../../../shared/repositories/cache_image_repository.dart';
 import '../../../controllers/chat_app_controller.dart';
+import '../../../controllers/editor_controller.dart';
 import 'llm_picker.dart';
+import 'package:image/image.dart' as img;
 
 /// 编辑器工具栏
 class EditorToolbar extends StatelessWidget {
@@ -13,39 +18,39 @@ class EditorToolbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<ChatAppController>(
-      id: 'editor_toolbar',
-      builder: (controller) {
-        List<Widget> tools = [
+    return Container(
+      padding: const EdgeInsets.only(left: 10, top: 10, bottom: 4),
+      decoration: BoxDecoration(
+        border: Border(
+          top: BorderSide(
+            color: Get.theme.colorScheme.outlineVariant.withOpacity(0.5),
+          ),
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
           const LLMPicker(),
           const SizedBox(width: 8),
           const AddButton(),
-          const SearchButton(),
+          const AddImageButton(),
           getDivider(),
           const UpButton(),
           const BottomButton(),
-        ];
-
-        if (controller.isSending) {
-          tools.add(getDivider());
-          tools.add(const StopButton());
-        }
-
-        return Container(
-          padding: const EdgeInsets.only(left: 10, top: 10, bottom: 4),
-          decoration: BoxDecoration(
-            border: Border(
-              top: BorderSide(
-                color: Get.theme.colorScheme.outlineVariant.withOpacity(0.5),
-              ),
-            ),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: tools,
-          ),
-        );
-      },
+          const SearchButton(),
+          GetBuilder<ChatAppController>(
+            id: 'editor_toolbar',
+            builder: (controller) {
+              if (!controller.isSending) {
+                return const SizedBox();
+              }
+              return Row(
+                children: [getDivider(), const StopButton()],
+              );
+            },
+          )
+        ],
+      ),
     );
   }
 }
@@ -88,12 +93,11 @@ class AddButton extends StatelessWidget {
           ),
         ),
         onPressed: () {
-          final controller = Get.find<ChatAppController>();
-          controller.addConversation();
-          // 滚动到底部
-          controller.scrollToBottom();
+          Get.find<ChatAppController>()
+            ..addConversation() // 添加新会话
+            ..scrollToBottom(); // 滚动到底部
           // 聚焦输入框
-          controller.inputFocusNode.requestFocus();
+          Get.find<EditorController>().focus();
         },
       ),
     );
@@ -165,11 +169,10 @@ class StopButton extends StatelessWidget {
         ),
         onPressed: () {
           Future.delayed(const Duration(milliseconds: 100)).then((value) {
-            final controller = Get.find<ChatAppController>();
             // 停止接收
-            controller.stopReceive();
+            Get.find<ChatAppController>().stopReceive();
             // 聚焦输入框
-            controller.inputFocusNode.requestFocus();
+            Get.find<EditorController>().focus();
           });
         },
       ),
@@ -209,9 +212,10 @@ class UpButton extends StatelessWidget {
           ),
         ),
         onPressed: () {
-          final controller = Get.find<ChatAppController>();
-          controller.scrollToPreviousConversation();
-          controller.inputFocusNode.requestFocus();
+          // 滚动到上一个会话
+          Get.find<ChatAppController>().scrollToPreviousConversation();
+          // 聚焦输入框
+          Get.find<EditorController>().focus();
         },
       ),
     );
@@ -246,9 +250,60 @@ class BottomButton extends StatelessWidget {
           ),
         ),
         onPressed: () {
-          final controller = Get.find<ChatAppController>();
-          controller.scrollToBottom();
-          controller.inputFocusNode.requestFocus();
+          // 滚动到底部
+          Get.find<ChatAppController>().scrollToBottom();
+          // 聚焦输入框
+          Get.find<EditorController>().focus();
+        },
+      ),
+    );
+  }
+}
+
+/// 添加图片按钮
+class AddImageButton extends StatelessWidget {
+  const AddImageButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: IconButton(
+        padding: const EdgeInsets.all(0),
+        style: ButtonStyle(
+          minimumSize: MaterialStateProperty.all(const Size(32, 32)),
+          shape: MaterialStateProperty.all<OutlinedBorder>(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(6),
+            ),
+          ),
+        ),
+        tooltip: '添加图片',
+        icon: SvgPicture.asset(
+          'assets/icons/add_image.svg',
+          width: 22,
+          height: 22,
+          theme: SvgTheme(
+            currentColor: Get.theme.colorScheme.inverseSurface,
+          ),
+        ),
+        onPressed: () async {
+          FilePickerResult? result = await FilePicker.platform.pickFiles(
+            type: FileType.image,
+            withData: true,
+          );
+          if (result == null) return;
+          img.Image? image = img.decodeImage(result.files.single.bytes!);
+          if (image == null) {
+            snackbar('提示', '图片格式不支持，请重新选择');
+            return;
+          }
+          // 添加缓存
+          final imgFile =
+              await CacheImageRepository.saveLocalImage(result.files.single);
+          Get.find<EditorController>()
+            ..addFile(imgFile)
+            ..focus();
         },
       ),
     );

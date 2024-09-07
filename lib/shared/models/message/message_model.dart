@@ -12,35 +12,11 @@ enum MessageRole {
 class MessageModel {
   MessageRole role;
   String content;
+  List<String> files;
 
-  MessageModel({required this.role, required this.content});
-
-  factory MessageModel.fromJson(Map<String, dynamic> json) {
-    late MessageRole role;
-    switch (json['role']) {
-      case 'system':
-        role = MessageRole.system;
-        break;
-      case 'user':
-        role = MessageRole.user;
-        break;
-      case 'assistant':
-        role = MessageRole.assistant;
-        break;
-      default:
-        throw Exception('Unknown role: ${json['role']}');
-    }
-
-    return MessageModel(
-      role: role,
-      content: json['content'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'role': role.value,
-      'content': content,
-    };
-  }
+  MessageModel({
+    required this.role,
+    required this.content,
+    required this.files,
+  });
 }

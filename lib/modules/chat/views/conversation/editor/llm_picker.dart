@@ -1,15 +1,14 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:TalkAI/modules/chat/controllers/chat_app_controller.dart';
 import 'package:TalkAI/shared/components/snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 
 import '../../../../../shared/models/llm/llm.dart';
-import '../../../../../shared/repositories/setting_repository.dart';
 import '../../../../../shared/services/llm_service.dart';
+import '../../../controllers/editor_controller.dart';
 
 /// 模型选择器
 class LLMPicker extends StatelessWidget {
@@ -126,7 +125,8 @@ class LLMPickerController extends GetxController {
                     }
                   } finally {
                     Get.back();
-                    Get.find<ChatAppController>().inputFocusNode.requestFocus();
+                    // 聚焦输入框
+                    Get.find<EditorController>().focus();
                   }
                 },
               );

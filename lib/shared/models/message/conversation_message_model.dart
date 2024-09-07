@@ -1,6 +1,6 @@
 import 'package:TalkAI/shared/models/message/message_model.dart';
 
-import '../../../shared/models/message/message_status.dart';
+import 'message_status.dart';
 
 /// 会话消息模型
 class ConversationMessageModel {
@@ -14,6 +14,7 @@ class ConversationMessageModel {
   final int llmId; // 当role为assistant时，记录模型id，0表示没有记录
   final String llmName; // 当role为assistant时，记录模型名称
   final int generateId; // 生成id
+  final List<String> files; // 文件路径
 
   ConversationMessageModel({
     required this.msgId,
@@ -26,6 +27,7 @@ class ConversationMessageModel {
     required this.llmId,
     required this.llmName,
     required this.generateId,
+    required this.files,
   });
 
   @override

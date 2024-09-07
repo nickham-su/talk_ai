@@ -1,3 +1,4 @@
+import 'package:TalkAI/modules/chat/controllers/editor_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
@@ -7,7 +8,7 @@ import '../../../../../shared/models/message/message_model.dart';
 import '../../../../../shared/services/generate_message_service.dart';
 import '../../../../../shared/services/message_service.dart';
 import '../../../controllers/chat_app_controller.dart';
-import '../../../models/conversation_message_model.dart';
+import '../../../../../shared/models/message/conversation_message_model.dart';
 import '../editor/llm_picker.dart';
 
 /// 工具栏
@@ -79,7 +80,12 @@ class UserMessageToolbar extends StatelessWidget {
           onPressed: () {
             final controller = Get.find<ChatAppController>();
             controller.quote(message.msgId);
-            controller.inputController.text = message.content;
+            Get.find<EditorController>()
+              ..setContent(
+                content: message.content,
+                filePaths: message.files,
+              )
+              ..focus();
           },
         ),
         ToolbarIcon(

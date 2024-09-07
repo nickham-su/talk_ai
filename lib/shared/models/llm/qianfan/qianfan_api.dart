@@ -73,7 +73,9 @@ class QianFanApi {
         'x-bce-date': timestamp,
       },
       data: {
-        'messages': messages.map((e) => e.toJson()).toList(),
+        'messages': messages
+            .map((e) => {'role': e.role.value, 'content': e.content})
+            .toList(),
         'temperature': temperature,
         'stream': true,
       },

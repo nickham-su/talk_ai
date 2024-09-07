@@ -5,22 +5,22 @@
         <description>An intelligent chatbot powered by large language models. Easily integrate OpenAI API, customize prompts to generate personalized assistants. Simple and user-friendly, empowering seamless conversations.</description>
         <language>en</language>
         <item>
-            <title>Version 1.3.7</title>
-            <sparkle:shortVersionString>1.3.7</sparkle:shortVersionString>
-            <sparkle:version>43</sparkle:version>
-            <pubDate>Wed, 04 Sep 2024 20:19:06 +0800</pubDate>
-            <enclosure url="https://github.com/nickham-su/talk_ai/releases/latest/download/TalkAI-1.3.7+43-macos.zip"
-                sparkle:edSignature="Eplpdb+ZX2feWQmXHksehQqs1ljz3Eebi5zsWwQZ9B/Ojc5iMXylPvqtUltWNY4+PnMyPjkIxMgnSZFCnkONBw=="
+            <title>Version 1.4.1</title>
+            <sparkle:shortVersionString>1.4.1</sparkle:shortVersionString>
+            <sparkle:version>47</sparkle:version>
+            <pubDate>Sat, 07 Sep 2024 12:00:34 +0800</pubDate>
+            <enclosure url="https://github.com/nickham-su/talk_ai/releases/latest/download/TalkAI-1.4.1+47-macos.zip"
+                sparkle:edSignature="0phtt4K0zvdAS0pdWDWkG5lw04SfnV6X8pfGKSOWk0u0nWkHioc8e9vIOw87OTNeoIELFLxfoXJ/3PXJAqxoDg=="
                 sparkle:os="macos"
-                length="25449379"
+                length="25469642"
                 type="application/octet-stream" />
         </item>
         <item>
-            <title>Version 1.3.7</title>
-            <pubDate>Wed, 04 Sep 2024 20:19:06 +0800</pubDate>
-            <enclosure url="https://github.com/nickham-su/talk_ai/releases/latest/download/TalkAI-1.3.7+43-windows-setup.exe"
-                sparkle:dsaSignature="MDwCHF9N9K2hD38XSe4D/JtW/14kKZtwWsDAKjwXI1cCHHe+N1nfDBUeffxr9+CmzVZ7xLPo/OEGJs6NmW0="
-                sparkle:version="1.3.7+43"
+            <title>Version 1.4.1</title>
+            <pubDate>Sat, 07 Sep 2024 12:00:34 +0800</pubDate>
+            <enclosure url="https://github.com/nickham-su/talk_ai/releases/latest/download/TalkAI-1.4.1+47-windows-setup.exe"
+                sparkle:dsaSignature="MD0CHBZqA4TKVPonqo2xxlol93d06jqniuOkLk1gRFkCHQCP8O1V9Vfrb3u3z5lxSdJNpHVWL2LQnRNXgdya"
+                sparkle:version="1.4.1+47"
                 sparkle:os="windows"
                 sparkle:installerArguments="/SP- /silent /noicons"
                 length="0"

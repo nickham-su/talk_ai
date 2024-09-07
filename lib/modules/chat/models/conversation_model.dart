@@ -1,4 +1,4 @@
-import 'conversation_message_model.dart';
+import '../../../shared/models/message/conversation_message_model.dart';
 
 /// 会话消息模型
 class ConversationModel {

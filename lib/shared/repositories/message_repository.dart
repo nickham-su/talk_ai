@@ -1,9 +1,10 @@
 import 'package:sqlite3/sqlite3.dart';
 
-import '../../../shared/models/message/message_status.dart';
-import '../../../shared/models/message/message_model.dart';
-import '../models/conversation_message_model.dart';
-import '../../../shared/utils/sqlite.dart';
+import '../models/message/message_status.dart';
+import '../models/message/message_model.dart';
+import '../models/message/conversation_message_model.dart';
+import '../utils/sqlite.dart';
+import 'message_file_repository.dart';
 
 class MessageRepository {
   static String tableName = 'message';
@@ -143,8 +144,11 @@ class MessageRepository {
         throw ArgumentError('未知的status: ${msg['status']}');
     }
 
+    final msgId = msg['msg_id'] as int;
+    final files = MessageFileRepository.getMessageFile(msgId);
+
     return ConversationMessageModel(
-      msgId: msg['msg_id'] as int,
+      msgId: msgId,
       chatAppId: msg['chat_app_id'] as int,
       conversationId: msg['conversation_id'] as int,
       role: role,
@@ -154,6 +158,7 @@ class MessageRepository {
       llmId: (msg['llm_id'] as int?) ?? 0,
       llmName: (msg['llm_name'] as String?) ?? '',
       generateId: msg['generate_id'] as int,
+      files: files,
     );
   }
 
@@ -167,6 +172,7 @@ class MessageRepository {
     int llmId = 0,
     String llmName = '',
     int generateId = 0,
+    List<String>? filePaths,
   }) {
     Sqlite.db.execute('''
       INSERT INTO $tableName (chat_app_id, conversation_id, role, content, created_time, status, llm_name, generate_id, llm_id)
@@ -182,7 +188,11 @@ class MessageRepository {
       generateId,
       llmId,
     ]);
-    return getMessage(Sqlite.db.lastInsertRowId)!;
+    final msgId = Sqlite.db.lastInsertRowId;
+    if (filePaths != null && filePaths.isNotEmpty) {
+      MessageFileRepository.addMessageFiles(msgId, filePaths);
+    }
+    return getMessage(msgId)!;
   }
 
   /// 更新消息

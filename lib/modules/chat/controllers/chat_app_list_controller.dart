@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:TalkAI/modules/chat/controllers/editor_controller.dart';
 import 'package:TalkAI/modules/chat/repositorys/chat_app_repository.dart';
 import 'package:TalkAI/shared/models/message/message_model.dart';
 import 'package:get/get.dart';
@@ -75,6 +76,7 @@ class ChatAppListController extends GetxController {
   void selectChatApp(int chatAppId) {
     currentChatAppId.value = chatAppId;
     chatAppController.setChatApp(currentChatApp);
+    Get.find<EditorController>().focus();
   }
 
   /// 刷新聊天App列表

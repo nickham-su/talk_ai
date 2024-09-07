@@ -4,7 +4,7 @@ import '../../../shared/models/event_queue/event_listener.dart';
 import '../../../shared/models/message/generated_message.dart';
 import '../../../shared/services/generate_message_service.dart';
 import '../../../shared/services/message_service.dart';
-import '../models/conversation_message_model.dart';
+import '../../../shared/models/message/conversation_message_model.dart';
 
 class MessageController extends GetxController {
   /// 生成消息服务

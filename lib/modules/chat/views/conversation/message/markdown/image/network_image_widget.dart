@@ -50,7 +50,7 @@ class _NetworkImageWidgetState extends State<NetworkImageWidget> {
   /// 加载缓存图片
   Widget? loadCacheImg() {
     try {
-      final imgFile = CacheImageRepository.getImage(widget.url);
+      final imgFile = CacheImageRepository.getNetworkImage(widget.url);
       if (imgFile != null) {
         return Image.file(
           imgFile,
@@ -69,7 +69,7 @@ class _NetworkImageWidgetState extends State<NetworkImageWidget> {
       final response = await newDio(timeout: 30)
           .get(widget.url, options: Options(responseType: ResponseType.bytes));
       // 保存缓存
-      CacheImageRepository.saveImage(widget.url, response.data);
+      CacheImageRepository.saveNetworkImage(widget.url, response.data);
 
       if (!mounted) return;
       // 显示图片
@@ -122,7 +122,7 @@ class _NetworkImageWidgetState extends State<NetworkImageWidget> {
     try {
       // 获取下载文档目录
       final downloadDir = await getDownloadsDirectory();
-      await CacheImageRepository.exportImage(widget.url, downloadDir!.path);
+      await CacheImageRepository.exportNetworkImage(widget.url, downloadDir!.path);
       snackbar('保存成功', '已保存到"下载"文件夹');
     } catch (e) {
       snackbar('提示', e.toString());
