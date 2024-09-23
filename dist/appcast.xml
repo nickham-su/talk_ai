@@ -5,22 +5,22 @@
         <description>An intelligent chatbot powered by large language models. Easily integrate OpenAI API, customize prompts to generate personalized assistants. Simple and user-friendly, empowering seamless conversations.</description>
         <language>en</language>
         <item>
-            <title>Version 1.4.1</title>
-            <sparkle:shortVersionString>1.4.1</sparkle:shortVersionString>
-            <sparkle:version>47</sparkle:version>
+            <title>Version 1.4.2</title>
+            <sparkle:shortVersionString>1.4.2</sparkle:shortVersionString>
+            <sparkle:version>48</sparkle:version>
             <pubDate>Sat, 07 Sep 2024 12:00:34 +0800</pubDate>
-            <enclosure url="https://github.com/nickham-su/talk_ai/releases/latest/download/TalkAI-1.4.1+47-macos.zip"
-                sparkle:edSignature="0phtt4K0zvdAS0pdWDWkG5lw04SfnV6X8pfGKSOWk0u0nWkHioc8e9vIOw87OTNeoIELFLxfoXJ/3PXJAqxoDg=="
+            <enclosure url="https://github.com/nickham-su/talk_ai/releases/latest/download/TalkAI-1.4.2+48-macos.zip"
+                sparkle:edSignature="a2QG76yMqMMseBA0M7u20jqWIFIkqw0DxfgVgc6as+yldG5mPNv7QjWRzpOeYeQAKxs2XIUCWboIw5iZiUcLAA=="
                 sparkle:os="macos"
-                length="25469642"
+                length="25469892"
                 type="application/octet-stream" />
         </item>
         <item>
-            <title>Version 1.4.1</title>
+            <title>Version 1.4.2</title>
             <pubDate>Sat, 07 Sep 2024 12:00:34 +0800</pubDate>
-            <enclosure url="https://github.com/nickham-su/talk_ai/releases/latest/download/TalkAI-1.4.1+47-windows-setup.exe"
-                sparkle:dsaSignature="MD0CHBZqA4TKVPonqo2xxlol93d06jqniuOkLk1gRFkCHQCP8O1V9Vfrb3u3z5lxSdJNpHVWL2LQnRNXgdya"
-                sparkle:version="1.4.1+47"
+            <enclosure url="https://github.com/nickham-su/talk_ai/releases/latest/download/TalkAI-1.4.2+48-windows-setup.exe"
+                sparkle:dsaSignature="MD0CHErJnbX32NpN6uLL+rX/Io1KPV19srhNKjHT8N0CHQCOEdjV1BPpPfPVfSvMc0ySVklI8irT1/nVxj3o"
+                sparkle:version="1.4.2+48"
                 sparkle:os="windows"
                 sparkle:installerArguments="/SP- /silent /noicons"
                 length="0"
