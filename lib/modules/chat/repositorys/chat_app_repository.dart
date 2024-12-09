@@ -20,7 +20,8 @@ class ChatAppRepository {
         top_p DOUBLE,
         topping_time INTEGER DEFAULT 0,
         multiple_round INTEGER DEFAULT 1,
-        updated_time INTEGER DEFAULT 0
+        updated_time INTEGER DEFAULT 0,
+        deleted_time INTEGER DEFAULT 0
       );
     ''');
 
@@ -48,6 +49,13 @@ class ChatAppRepository {
         ALTER TABLE $tableName ADD COLUMN updated_time INTEGER DEFAULT 0
       ''');
     }
+
+    /// 添加deleted_time列
+    if (!columnNames.contains('deleted_time')) {
+      Sqlite.db.execute('''
+        ALTER TABLE $tableName ADD COLUMN deleted_time INTEGER DEFAULT 0
+      ''');
+    }
   }
 
   /// 新建聊天App
@@ -60,11 +68,24 @@ class ChatAppRepository {
     int llmId = 0, // 默认模型id，0表示没有设置默认模型
     Uint8List? profilePicture,
     int? updatedTime,
+    int? deletedTime,
   }) {
+    // 如果存在已删除的同名助理，则先物理删除
+    final result = Sqlite.db.select('''
+      SELECT chat_app_id FROM $tableName
+      WHERE name = ? AND deleted_time != 0
+    ''', [name]);
+    if (result.isNotEmpty){
+      final chatAppId = result[0]['chat_app_id'] as int;
+      Sqlite.db.execute('DELETE FROM $tableName WHERE chat_app_id = ?', [chatAppId]);
+      ChatAppPictureRepository.delete(chatAppId);
+    }
+
+    // 插入新的助理
     final now = DateTime.now();
     Sqlite.db.execute('''
-      INSERT INTO $tableName (name, prompt, last_use_time, llm_id, temperature, top_p, multiple_round, updated_time)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO $tableName (name, prompt, last_use_time, llm_id, temperature, top_p, multiple_round, updated_time, deleted_time)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     ''', [
       name,
       prompt,
@@ -74,6 +95,7 @@ class ChatAppRepository {
       topP,
       multipleRound ? 1 : 0,
       updatedTime ?? now.millisecondsSinceEpoch,
+      deletedTime ?? 0,
     ]);
     final chatAppId = Sqlite.db.lastInsertRowId;
 
@@ -93,13 +115,16 @@ class ChatAppRepository {
       multipleRound: multipleRound,
       profilePicture: profilePicture,
       updatedTime: now,
+      deletedTime: deletedTime == null || deletedTime == 0
+          ? null
+          : DateTime.fromMillisecondsSinceEpoch(deletedTime),
     );
   }
 
   /// 查询所有聊天App，置顶时间+最后使用时间降序
-  static List<ChatAppModel> queryAll() {
+  static List<ChatAppModel> queryAll({bool withoutDeleted = true}) {
     final result = Sqlite.db.select(
-        'SELECT * FROM $tableName ORDER BY topping_time DESC, last_use_time DESC');
+        'SELECT * FROM $tableName ${withoutDeleted ? 'WHERE deleted_time = 0' : ''} ORDER BY topping_time DESC, last_use_time DESC');
     return result.map((e) {
       return ChatAppModel(
         chatAppId: e['chat_app_id'] as int,
@@ -115,6 +140,9 @@ class ChatAppRepository {
         multipleRound: e['multiple_round'] == 1,
         updatedTime:
             DateTime.fromMillisecondsSinceEpoch(e['updated_time'] as int),
+        deletedTime: e['deleted_time'] == 0
+            ? null
+            : DateTime.fromMillisecondsSinceEpoch(e['deleted_time'] as int),
         profilePicture:
             ChatAppPictureRepository.getPicture(e['chat_app_id'] as int),
       );
@@ -147,6 +175,9 @@ class ChatAppRepository {
       multipleRound: e['multiple_round'] == 1,
       updatedTime:
           DateTime.fromMillisecondsSinceEpoch(e['updated_time'] as int),
+      deletedTime: e['deleted_time'] == 0
+          ? null
+          : DateTime.fromMillisecondsSinceEpoch(e['deleted_time'] as int),
       profilePicture:
           ChatAppPictureRepository.getPicture(e['chat_app_id'] as int),
     );
@@ -162,11 +193,12 @@ class ChatAppRepository {
     required bool multipleRound,
     Uint8List? profilePicture,
     int? updatedTime,
+    int? deletedTime,
   }) {
     final now = DateTime.now();
     Sqlite.db.execute('''
       UPDATE $tableName
-      SET name = ?, prompt = ?, last_use_time = ?, temperature = ?, llm_id = ?, multiple_round = ?, updated_time = ?
+      SET name = ?, prompt = ?, last_use_time = ?, temperature = ?, llm_id = ?, multiple_round = ?, updated_time = ?, deleted_time = ?
       WHERE chat_app_id = ?
     ''', [
       name,
@@ -176,6 +208,7 @@ class ChatAppRepository {
       llmId,
       multipleRound ? 1 : 0,
       updatedTime ?? now.millisecondsSinceEpoch,
+      deletedTime ?? 0,
       chatAppId
     ]);
 
@@ -188,8 +221,12 @@ class ChatAppRepository {
 
   /// 删除聊天App
   static void delete(int chatAppId) {
-    Sqlite.db
-        .execute('DELETE FROM $tableName WHERE chat_app_id = ?', [chatAppId]);
+    final now = DateTime.now().millisecondsSinceEpoch;
+    Sqlite.db.execute('''
+      UPDATE $tableName
+      SET updated_time = ?, deleted_time = ?
+      WHERE chat_app_id = ?
+    ''', [now, now, chatAppId]);
     ChatAppPictureRepository.delete(chatAppId);
   }
 
