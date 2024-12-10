@@ -240,7 +240,7 @@ class SyncController extends GetxController {
   Uint8List getLocalData() {
     final chatAppList = ChatAppRepository.queryAll(withoutDeleted: false);
     chatAppList.sort((a, b) => a.name.compareTo(b.name));
-    final llmList = LLMRepository.queryAll();
+    final llmList = LLMRepository.queryAll(withoutDeleted: false);
     llmList.sort((a, b) => a.name.compareTo(b.name));
     final data = {
       'chat_app_list': chatAppList
@@ -261,6 +261,7 @@ class SyncController extends GetxController {
         map['name'] = e.name;
         map['type'] = e.type.value;
         map['updated_time'] = e.updatedTime.millisecondsSinceEpoch;
+        map['deleted_time'] = e.deletedTime?.millisecondsSinceEpoch ?? 0;
         return map;
       }).toList(),
     };

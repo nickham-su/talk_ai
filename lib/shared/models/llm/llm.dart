@@ -15,6 +15,9 @@ abstract class LLM {
   /// 更新时间
   late DateTime updatedTime;
 
+  /// 删除时间
+  late DateTime? deletedTime;
+
   /// 模型类型
   abstract final LLMType type;
 
@@ -23,9 +26,13 @@ abstract class LLM {
     required this.llmId,
     required int lastUseTime,
     required int updatedTime,
+    required int? deletedTime,
   }) {
     this.lastUseTime = DateTime.fromMillisecondsSinceEpoch(lastUseTime);
     this.updatedTime = DateTime.fromMillisecondsSinceEpoch(updatedTime);
+    this.deletedTime = deletedTime == null || deletedTime == 0
+        ? null
+        : DateTime.fromMillisecondsSinceEpoch(deletedTime);
   }
 
   /// 聊天
