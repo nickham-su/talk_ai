@@ -19,7 +19,8 @@ class LLMRepository {
         type VARCHAR(32) NOT NULL,
         model_fields TEXT NOT NULL,
         last_use_time INTEGER DEFAULT 0,
-        updated_time INTEGER DEFAULT 0
+        updated_time INTEGER DEFAULT 0,
+        deleted_time INTEGER DEFAULT 0
       );
     ''');
 
@@ -42,26 +43,47 @@ class LLMRepository {
         ADD COLUMN updated_time INTEGER DEFAULT 0;
       ''');
     }
+
+    /// 添加deleted_time列
+    if (!columnNames.contains('deleted_time')) {
+      Sqlite.db.execute('''
+        ALTER TABLE $tableName
+        ADD COLUMN deleted_time INTEGER DEFAULT 0;
+      ''');
+    }
   }
 
   /// 创建模型
   static int insert({
     required LLM llm,
   }) {
+    // 如果存在已删除的同名模型，则先将原数据物理删除
+    final result = Sqlite.db.select('''
+      SELECT * FROM $tableName
+      WHERE name = ? AND deleted_time != 0
+    ''', [llm.name]);
+    if (result.isNotEmpty) {
+      Sqlite.db.execute(
+          'DELETE FROM $tableName WHERE name = ? AND deleted_time != 0',
+          [llm.name]);
+    }
+
     final now = DateTime.now();
     final updatedTime = llm.updatedTime.millisecondsSinceEpoch != 0
         ? llm.updatedTime.millisecondsSinceEpoch
         : now.millisecondsSinceEpoch;
+    final deletedTime = llm.deletedTime?.millisecondsSinceEpoch ?? 0;
     try {
       Sqlite.db.execute('''
-      INSERT INTO $tableName (name, type, model_fields, last_use_time, updated_time)
-      VALUES (?, ?, ?, ?, ?)
+      INSERT INTO $tableName (name, type, model_fields, last_use_time, updated_time, deleted_time)
+      VALUES (?, ?, ?, ?, ?, ?)
     ''', [
         llm.name,
         llm.type.value,
         jsonEncode(llm.toJson()),
         now.millisecondsSinceEpoch,
         updatedTime,
+        deletedTime,
       ]);
     } catch (e) {
       throw '模型保存失败，请检查模型名称是否重复：\n${llm.name}';
@@ -70,9 +92,9 @@ class LLMRepository {
   }
 
   /// 查询所有模型
-  static List<LLM> queryAll() {
-    final result = Sqlite.db
-        .select('SELECT * FROM $tableName ORDER BY last_use_time DESC');
+  static List<LLM> queryAll({bool withoutDeleted = true}) {
+    final result = Sqlite.db.select(
+        'SELECT * FROM $tableName ${withoutDeleted ? 'WHERE deleted_time = 0' : ''} ORDER BY last_use_time DESC');
 
     List<LLM?> list = result.map((e) {
       final type = e['type'] as String;
@@ -81,6 +103,7 @@ class LLMRepository {
       json['name'] = e['name'] as String;
       json['last_use_time'] = (e['last_use_time'] as int?) ?? 0;
       json['updated_time'] = (e['updated_time'] as int?) ?? 0;
+      json['deleted_time'] = (e['deleted_time'] as int?) ?? 0;
       final llmType =
           LLMType.values.firstWhereOrNull((element) => element.value == type);
       if (llmType == null) {
@@ -116,6 +139,7 @@ class LLMRepository {
     json['name'] = result[0]['name'] as String;
     json['last_use_time'] = (result[0]['last_use_time'] as int?) ?? 0;
     json['updated_time'] = (result[0]['updated_time'] as int?) ?? 0;
+    json['deleted_time'] = (result[0]['deleted_time'] as int?) ?? 0;
     final llmType =
         LLMType.values.firstWhereOrNull((element) => element.value == type);
     if (llmType == null) {
@@ -130,13 +154,14 @@ class LLMRepository {
     final now = DateTime.now();
     Sqlite.db.execute('''
       UPDATE $tableName
-      SET name = ?, model_fields = ?, last_use_time = ?, updated_time = ?
+      SET name = ?, model_fields = ?, last_use_time = ?, updated_time = ?, deleted_time = ?
       WHERE llm_id = ?
     ''', [
       llm.name,
       jsonEncode(llm.toJson()),
       now.millisecondsSinceEpoch,
       updatedTime ?? now.millisecondsSinceEpoch,
+      llm.deletedTime?.millisecondsSinceEpoch ?? 0,
       llm.llmId,
     ]);
   }
@@ -155,9 +180,11 @@ class LLMRepository {
 
   /// 删除模型
   static void delete(int llmId) {
+    final now = DateTime.now().millisecondsSinceEpoch;
     Sqlite.db.execute('''
-      DELETE FROM $tableName
+      UPDATE $tableName
+      SET deleted_time = ?, updated_time = ?
       WHERE llm_id = ?
-    ''', [llmId]);
+    ''', [now, now, llmId]);
   }
 }

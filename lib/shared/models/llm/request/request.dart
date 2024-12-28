@@ -55,6 +55,8 @@ class Request {
         uncompletedData = data;
         continue;
       }
+      // 删除空数据
+      resStr = resStr.replaceAll(RegExp(r'(data:\s+)+data:', dotAll: true), 'data:');
 
       // 匹配所有 data: 开头的字符串
       final regex = RegExp(r'data:(.*)(?=\n|$|data:)');

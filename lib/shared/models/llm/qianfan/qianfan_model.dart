@@ -19,6 +19,7 @@ class QianFanModel extends LLM {
     required super.name,
     required super.lastUseTime,
     required super.updatedTime,
+    required super.deletedTime,
     required this.url,
     required this.apiKey,
     required this.secretKey,
@@ -33,6 +34,7 @@ class QianFanModel extends LLM {
       apiKey: json['api_key'] ?? '',
       secretKey: json['secret_key'] ?? '',
       updatedTime: json['updated_time'] ?? 0,
+      deletedTime: json['deleted_time'],
     );
   }
 

@@ -238,9 +238,9 @@ class SyncController extends GetxController {
 
   /// 获取本地数据
   Uint8List getLocalData() {
-    final chatAppList = ChatAppRepository.queryAll();
+    final chatAppList = ChatAppRepository.queryAll(withoutDeleted: false);
     chatAppList.sort((a, b) => a.name.compareTo(b.name));
-    final llmList = LLMRepository.queryAll();
+    final llmList = LLMRepository.queryAll(withoutDeleted: false);
     llmList.sort((a, b) => a.name.compareTo(b.name));
     final data = {
       'chat_app_list': chatAppList
@@ -253,6 +253,7 @@ class SyncController extends GetxController {
                     ? base64Encode(e.profilePicture as List<int>)
                     : null,
                 'updated_time': e.updatedTime.millisecondsSinceEpoch,
+                'deleted_time': e.deletedTime?.millisecondsSinceEpoch ?? 0,
               })
           .toList(),
       'llm_list': llmList.map((e) {
@@ -260,6 +261,7 @@ class SyncController extends GetxController {
         map['name'] = e.name;
         map['type'] = e.type.value;
         map['updated_time'] = e.updatedTime.millisecondsSinceEpoch;
+        map['deleted_time'] = e.deletedTime?.millisecondsSinceEpoch ?? 0;
         return map;
       }).toList(),
     };
@@ -280,22 +282,21 @@ class SyncController extends GetxController {
       // 所以这里出错不能影响之后的操作
       final remoteDataStr = decrypt(decrypted);
       final remoteData = jsonDecode(remoteDataStr);
-      final remoteFileCreatedTime = DateTime.parse(backupFile.createdAt!);
       // 更新助理
       final remoteChatAppList = remoteData['chat_app_list'];
-      final localChatAppList = ChatAppRepository.queryAll();
-      updateLocalChatApp(
-          remoteChatAppList, localChatAppList, remoteFileCreatedTime);
+      final localChatAppList =
+          ChatAppRepository.queryAll(withoutDeleted: false);
+      updateLocalChatApp(remoteChatAppList, localChatAppList);
       // 更新模型
       final remoteLLMList = remoteData['llm_list'];
       final localLLMList = LLMRepository.queryAll();
-      updateLocalLLM(remoteLLMList, localLLMList, remoteFileCreatedTime);
+      updateLocalLLM(remoteLLMList, localLLMList);
     } catch (e) {}
   }
 
   /// 更新本地助理
-  updateLocalChatApp(List remoteChatAppList,
-      List<ChatAppModel> localChatAppList, DateTime remoteFileCreatedTime) {
+  updateLocalChatApp(
+      List remoteChatAppList, List<ChatAppModel> localChatAppList) {
     final remoteChatAppNameSet =
         remoteChatAppList.map((e) => e['name']).toSet();
     final localChatAppNameSet = localChatAppList.map((e) => e.name).toSet();
@@ -313,6 +314,7 @@ class SyncController extends GetxController {
           multipleRound: remoteChatApp['multiple_round'],
           profilePicture: profilePicture,
           updatedTime: remoteChatApp['updated_time'],
+          deletedTime: remoteChatApp['deleted_time'],
         );
       }
     }
@@ -340,25 +342,15 @@ class SyncController extends GetxController {
             updatedTime: remoteUpdatedTime != 0
                 ? remoteUpdatedTime
                 : DateTime.now().millisecondsSinceEpoch,
+            deletedTime: remoteChatApp['deleted_time'],
           );
-        }
-      }
-    }
-
-    // 云端无、本地有：云端文件创建时间晚于本地更新时间，删除本地
-    for (final localChatApp in localChatAppList) {
-      final localChatAppName = localChatApp.name;
-      if (!remoteChatAppNameSet.contains(localChatAppName)) {
-        if (remoteFileCreatedTime.isAfter(localChatApp.updatedTime)) {
-          ChatAppRepository.delete(localChatApp.chatAppId);
         }
       }
     }
   }
 
   /// 更新本地LLM
-  updateLocalLLM(List remoteLLMList, List<LLM> localLLMList,
-      DateTime remoteFileCreatedTime) {
+  updateLocalLLM(List remoteLLMList, List<LLM> localLLMList) {
     final remoteLLMNameSet = remoteLLMList.map((e) => e['name']).toSet();
     final localLLMNameSet = localLLMList.map((e) => e.name).toSet();
     // 云端有、本地无：新增
@@ -385,16 +377,6 @@ class SyncController extends GetxController {
                 ? remoteUpdatedTime
                 : DateTime.now().millisecondsSinceEpoch,
           );
-        }
-      }
-    }
-
-    // 云端无、本地有：云端文件创建时间晚于本地更新时间，删除本地
-    for (final localLLM in localLLMList) {
-      final localLLMName = localLLM.name;
-      if (!remoteLLMNameSet.contains(localLLMName)) {
-        if (remoteFileCreatedTime.isAfter(localLLM.updatedTime)) {
-          Get.find<LLMService>().deleteLLM(localLLM.llmId);
         }
       }
     }

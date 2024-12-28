@@ -5,7 +5,7 @@ import '../../message/message_model.dart';
 import '../request/request.dart';
 
 class OpenaiApi {
-  static const completionPath = '/v1/chat/completions';
+  static const completionPath = 'v1/chat/completions';
 
   /// Dio 实例
   static Request? _request;
@@ -27,7 +27,9 @@ class OpenaiApi {
     int? maxTokens, // 最大令牌数
   }) async* {
     // 拼接请求地址
-    url = Uri.parse(url).resolve(completionPath).toString();
+    url = url.endsWith('/') ? url : '$url/';
+    url = '$url$completionPath';
+
     // 过滤空消息
     messages.removeWhere((m) => m.content == '');
     _request = Request();

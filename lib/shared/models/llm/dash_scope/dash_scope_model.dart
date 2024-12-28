@@ -19,6 +19,7 @@ class DashScopeModel extends LLM {
     required super.name,
     required super.lastUseTime,
     required super.updatedTime,
+    required super.deletedTime,
     required this.apiKey,
     required this.model,
   });
@@ -31,6 +32,7 @@ class DashScopeModel extends LLM {
       apiKey: json['api_key'] ?? '',
       model: json['model'] ?? '',
       updatedTime: json['updated_time'] ?? 0,
+      deletedTime: json['deleted_time'],
     );
   }
 

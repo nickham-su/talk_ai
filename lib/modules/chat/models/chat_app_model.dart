@@ -12,6 +12,7 @@ class ChatAppModel {
   final int llmId; // 默认模型id
   final bool multipleRound; // 是否多轮对话
   final DateTime updatedTime; // 更新时间
+  final DateTime? deletedTime; // 删除时间
   final Uint8List? profilePicture; // 头像
 
   ChatAppModel({
@@ -25,6 +26,7 @@ class ChatAppModel {
     required this.llmId,
     required this.multipleRound,
     required this.updatedTime,
+    required this.deletedTime,
     required this.profilePicture,
   });
 }
