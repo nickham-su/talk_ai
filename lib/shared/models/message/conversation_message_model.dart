@@ -10,6 +10,7 @@ class ConversationMessageModel {
   final MessageRole role; // 角色
   final DateTime createdTime; // 创建时间
   String content; // 内容
+  String reasoningContent; // 理由内容
   MessageStatus status; // 状态
   final int llmId; // 当role为assistant时，记录模型id，0表示没有记录
   final String llmName; // 当role为assistant时，记录模型名称
@@ -23,6 +24,7 @@ class ConversationMessageModel {
     required this.role,
     required this.createdTime,
     required this.content,
+    required this.reasoningContent,
     required this.status,
     required this.llmId,
     required this.llmName,

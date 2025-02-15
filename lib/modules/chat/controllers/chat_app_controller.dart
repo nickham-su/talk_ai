@@ -11,6 +11,7 @@ import 'package:get/get.dart';
 import '../../../shared/components/snackbar.dart';
 import '../../../shared/models/event_queue/event_listener.dart';
 import '../../../shared/models/llm/llm.dart';
+import '../../../shared/models/llm/message_chunk.dart';
 import '../../../shared/models/message/message_status.dart';
 import '../../../shared/models/message/generated_message.dart';
 import '../../../shared/services/conversation_service.dart';
@@ -439,7 +440,6 @@ class ChatAppController extends GetxController {
         chatAppId: chatApp!.chatAppId,
         conversationId: conversationId,
         role: MessageRole.assistant,
-        content: '',
         status: MessageStatus.unsent,
         llmId: llm.llmId,
         llmName: llm.name,
@@ -451,6 +451,7 @@ class ChatAppController extends GetxController {
         msgId: assistantMsgId,
         status: MessageStatus.unsent,
         content: '',
+        reasoningContent: '',
         llmId: llm.llmId,
         llmName: llm.name,
       );
@@ -473,9 +474,13 @@ class ChatAppController extends GetxController {
       }
       switch (event.type) {
         case GenerateEventType.generate:
+          final data = event.data as Map<String, String>;
           messageService.updateMessage(
             msgId: assistantMsgId!,
-            content: event.data as String,
+            content: data['content'] != '' ? data['content'] : null,
+            reasoningContent: data['reasoningContent'] != ''
+                ? data['reasoningContent']
+                : null,
             status: MessageStatus.sending,
           );
           break;

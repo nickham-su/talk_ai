@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import '../../message/message_model.dart';
+import '../message_chunk.dart';
 import '../request/request.dart';
 
 class CozeApi {
@@ -13,7 +14,7 @@ class CozeApi {
   }
 
   /// 聊天
-  static Stream<String> chatCompletions({
+  static Stream<MessageChunk> chatCompletions({
     required String url, // 请求地址
     required String apiKey, // 请求密钥
     required String botId, // botId
@@ -83,9 +84,9 @@ class CozeApi {
       }
       if (rsp.message == null) continue;
       if (rsp.message!.type == 'answer') {
-        yield rsp.message!.content;
+        yield MessageChunk(content: rsp.message!.content, reasoningContent: '');
       } else if (rsp.message!.type == 'function_call') {
-        yield '> 正在调用插件...\n${rsp.message!.content}\n\n';
+        yield MessageChunk(content: '> 正在调用插件...\n${rsp.message!.content}\n\n', reasoningContent: '');
       }
     }
   }

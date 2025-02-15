@@ -84,6 +84,7 @@ class GenerateMessageService extends GetxService {
         status: MessageStatus.unsent,
         content: '',
         error: '',
+        reasoningContent: '',
       );
       currentGenerateId = generateId;
     }
@@ -96,19 +97,34 @@ class GenerateMessageService extends GetxService {
 
     // 生成消息
     String content = '';
+    String reasoningContent = '';
     llm.chatCompletions(messages: messages).listen(
       (chunk) {
-        content += chunk;
         if (!isGenerating) {
           return;
         }
-        GeneratedMessageRepository.update(
-          generateId: generateId!,
-          status: MessageStatus.sending,
-          content: content,
-        );
-        _generateEventQueue.emit(generateId,
-            Event(GenerateEvent(GenerateEventType.generate, content)));
+        if (chunk.content != '') {
+          content += chunk.content;
+          GeneratedMessageRepository.update(
+            generateId: generateId!,
+            status: MessageStatus.sending,
+            content: content,
+          );
+        }
+        if (chunk.reasoningContent != '') {
+          reasoningContent += chunk.reasoningContent;
+          GeneratedMessageRepository.update(
+            generateId: generateId!,
+            status: MessageStatus.sending,
+            reasoningContent: reasoningContent,
+          );
+        }
+        _generateEventQueue.emit(
+            generateId,
+            Event(GenerateEvent(GenerateEventType.generate, {
+              'content': content,
+              'reasoningContent': reasoningContent,
+            })));
       },
       onDone: () {
         if (isGenerating) {

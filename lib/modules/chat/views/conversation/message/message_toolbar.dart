@@ -146,6 +146,7 @@ class AssistantMessageToolbar extends StatelessWidget {
               messageService.updateMessage(
                 msgId: lastGenerateMessage.msgId,
                 content: lastGenerateMessage.content,
+                reasoningContent: lastGenerateMessage.reasoningContent,
                 status: lastGenerateMessage.status,
                 llmId: lastGenerateMessage.llmId,
                 llmName: lastGenerateMessage.llmName,

@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 
 import '../../../apis/new_dio.dart';
 import '../../message/message_model.dart';
+import '../message_chunk.dart';
 import '../request/request.dart';
 
 class QianFanApi {
@@ -40,7 +41,7 @@ class QianFanApi {
   }
 
   /// 聊天
-  static Stream<String> chatCompletions({
+  static Stream<MessageChunk> chatCompletions({
     required String url,
     required List<MessageModel> messages, // 聊天信息
     required double temperature, // 温度
@@ -83,7 +84,7 @@ class QianFanApi {
 
     await for (var data in stream) {
       ResponseModel rsp = ResponseModel.fromJson(data);
-      yield rsp.result;
+      yield MessageChunk(content: rsp.result, reasoningContent: '');
     }
   }
 }

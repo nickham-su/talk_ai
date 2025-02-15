@@ -4,6 +4,7 @@ import '../../message/message_model.dart';
 import '../llm.dart';
 import '../llm_form_data_item.dart';
 import '../llm_type.dart';
+import '../message_chunk.dart';
 import 'qianfan_api.dart';
 
 class QianFanModel extends LLM {
@@ -122,7 +123,7 @@ class QianFanModel extends LLM {
 
   /// 聊天
   @override
-  Stream<String> chatCompletions({
+  Stream<MessageChunk> chatCompletions({
     required List<MessageModel> messages,
     double temperature = 0.8,
     double topP = 0.95,

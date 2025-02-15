@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import '../../message/message_model.dart';
+import '../message_chunk.dart';
 import '../request/request.dart';
 
 class OpenaiApi {
@@ -16,7 +17,7 @@ class OpenaiApi {
   }
 
   /// 聊天
-  static Stream<String> chatCompletions({
+  static Stream<MessageChunk> chatCompletions({
     required String url, // 请求地址
     required String apiKey, // 请求密钥
     required String model, // 请求模型
@@ -82,7 +83,10 @@ class OpenaiApi {
     await for (var data in stream) {
       final rsp = ChatCompletionsResponse.fromJson(data);
       for (var choice in rsp.choices) {
-        yield choice.delta?.content ?? '';
+        yield MessageChunk(
+          content: choice.delta?.content ?? '',
+          reasoningContent: choice.delta?.reasoningContent ?? '',
+        );
       }
     }
   }
@@ -170,20 +174,25 @@ class ChoiceModel {
 /// 消息块
 class Delta {
   /// 构造函数
-  Delta({this.content});
+  Delta({this.content, this.reasoningContent});
 
   /// 内容字符串
   final String? content;
 
+  /// 推理内容字符串
+  final String? reasoningContent;
+
   factory Delta.fromJson(Map<String, dynamic> json) {
     return Delta(
       content: json['content'],
+      reasoningContent: json['reasoning_content'],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'content': content,
+      'reasoning_content': reasoningContent,
     };
   }
 }

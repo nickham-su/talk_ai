@@ -22,7 +22,8 @@ class MessageRepository {
         status INTEGER NOT NULL,
         llm_id INTEGER DEFAULT 0,
         llm_name VARCHAR(32),
-        generate_id INTEGER DEFAULT 0
+        generate_id INTEGER DEFAULT 0,
+        reasoning_content TEXT
       )
     ''');
 
@@ -58,6 +59,13 @@ class MessageRepository {
     if (!columnNames.contains('generate_id')) {
       Sqlite.db.execute('''
         ALTER TABLE $tableName ADD COLUMN generate_id INTEGER DEFAULT 0
+      ''');
+    }
+
+    /// 添加reasoning_content列
+    if (!columnNames.contains('reasoning_content')) {
+      Sqlite.db.execute('''
+        ALTER TABLE $tableName ADD COLUMN reasoning_content TEXT DEFAULT ''
       ''');
     }
   }
@@ -153,6 +161,7 @@ class MessageRepository {
       conversationId: msg['conversation_id'] as int,
       role: role,
       content: msg['content'] as String,
+      reasoningContent: msg['reasoning_content'] ?? '',
       createdTime: DateTime.fromMillisecondsSinceEpoch(msg[5] as int),
       status: status,
       llmId: (msg['llm_id'] as int?) ?? 0,
@@ -167,16 +176,17 @@ class MessageRepository {
     required int chatAppId,
     required int conversationId,
     required MessageRole role,
-    required String content,
     required MessageStatus status,
     int llmId = 0,
     String llmName = '',
     int generateId = 0,
+    String content = '',
+    String reasoningContent = '',
     List<String>? filePaths,
   }) {
     Sqlite.db.execute('''
-      INSERT INTO $tableName (chat_app_id, conversation_id, role, content, created_time, status, llm_name, generate_id, llm_id)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO $tableName (chat_app_id, conversation_id, role, content, created_time, status, llm_name, generate_id, llm_id, reasoning_content)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ''', [
       chatAppId,
       conversationId,
@@ -187,6 +197,7 @@ class MessageRepository {
       llmName,
       generateId,
       llmId,
+      reasoningContent,
     ]);
     final msgId = Sqlite.db.lastInsertRowId;
     if (filePaths != null && filePaths.isNotEmpty) {
@@ -199,12 +210,14 @@ class MessageRepository {
   static void updateMessage({
     required int msgId,
     String? content,
+    String? reasoningContent,
     MessageStatus? status,
     int? llmId,
     String? llmName,
     int? generateId,
   }) {
     if (content == null &&
+        reasoningContent == null &&
         status == null &&
         llmId == null &&
         llmName == null &&
@@ -217,6 +230,10 @@ class MessageRepository {
     if (content != null) {
       setFields.add('content = ?');
       args.add(content);
+    }
+    if (reasoningContent != null) {
+      setFields.add('reasoning_content = ?');
+      args.add(reasoningContent);
     }
     if (status != null) {
       setFields.add('status = ?');

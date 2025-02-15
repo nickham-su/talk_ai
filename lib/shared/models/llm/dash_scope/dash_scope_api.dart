@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import '../../message/message_model.dart';
+import '../message_chunk.dart';
 import '../request/request.dart';
 
 /// 阿里云DashScope API
@@ -18,7 +19,7 @@ class DashScopeApi {
   }
 
   /// 聊天
-  static Stream<String> chatCompletions({
+  static Stream<MessageChunk> chatCompletions({
     required String apiKey, // 请求密钥
     required String model, // 请求模型
     required List<MessageModel> messages, // 聊天信息
@@ -71,7 +72,7 @@ class DashScopeApi {
 
     await for (var data in stream) {
       ResponseModel rsp = ResponseModel.fromJson(data);
-      yield rsp.output.text;
+      yield MessageChunk(content: rsp.output.text, reasoningContent: '');
     }
   }
 }

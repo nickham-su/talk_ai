@@ -63,7 +63,9 @@ class MessageContent extends StatelessWidget {
             child: getTextContent(
               content,
               fontWeight: FontWeight.w300,
-              color: Get.theme.textTheme.bodyMedium?.color?.withOpacity(0.3),
+              color: message.content.isEmpty
+                  ? Get.theme.textTheme.bodyMedium?.color
+                  : Get.theme.textTheme.bodyMedium?.color?.withOpacity(0.3),
             ),
           );
         } else if (controller.showMarkdown) {
@@ -71,7 +73,6 @@ class MessageContent extends StatelessWidget {
         } else {
           contentWidget = getTextContent(content);
         }
-
         return Container(
           padding: const EdgeInsets.only(left: 12),
           child: Column(
@@ -83,6 +84,22 @@ class MessageContent extends StatelessWidget {
                   fontWeight: FontWeight.w300,
                   color:
                       Get.theme.textTheme.bodyMedium?.color?.withOpacity(0.7),
+                ),
+              ),
+              Visibility(
+                visible: message.reasoningContent.isNotEmpty,
+                child: Container(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SelectionArea(
+                    child: Text(
+                      '深度思考:\n${message.reasoningContent.trim()}',
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w100,
+                          color: Get.theme.textTheme.bodyMedium?.color
+                              ?.withOpacity(0.5)),
+                    ),
+                  ),
                 ),
               ),
               contentWidget,
@@ -129,14 +146,15 @@ class MessageContent extends StatelessWidget {
     );
   }
 
-  getTextContent(String content, {Color? color, FontWeight? fontWeight}) {
+  getTextContent(String content,
+      {Color? color, FontWeight? fontWeight, double fontSize = 16}) {
     return Container(
       padding: const EdgeInsets.only(top: 8, bottom: 8),
       child: SelectionArea(
         child: Text(
           content,
           style: TextStyle(
-            fontSize: 16,
+            fontSize: fontSize,
             fontWeight: fontWeight,
             color: color ?? Get.theme.textTheme.bodyMedium?.color,
           ),

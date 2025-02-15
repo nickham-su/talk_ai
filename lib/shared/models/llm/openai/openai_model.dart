@@ -1,4 +1,5 @@
 import '../llm_form_data_item.dart';
+import '../message_chunk.dart';
 import 'openai_api.dart';
 import '../llm.dart';
 import '../../message/message_model.dart';
@@ -131,7 +132,7 @@ class OpenaiModel extends LLM {
 
   /// 聊天完成
   @override
-  Stream<String> chatCompletions({
+  Stream<MessageChunk> chatCompletions({
     required List<MessageModel> messages,
     double temperature = 0.8,
     double topP = 0.95,

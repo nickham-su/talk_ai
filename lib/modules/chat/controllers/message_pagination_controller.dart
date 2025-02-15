@@ -42,6 +42,7 @@ class MessagePaginationController extends GetxController {
     messageService.updateMessage(
       msgId: generatedMessage.msgId,
       content: generatedMessage.content,
+      reasoningContent: generatedMessage.reasoningContent,
       status: generatedMessage.status,
       llmId: generatedMessage.llmId,
       llmName: generatedMessage.llmName,

@@ -110,12 +110,13 @@ class MessageService extends GetxService {
     required int chatAppId,
     required int conversationId,
     required MessageRole role,
-    required String content,
     required MessageStatus status,
     int llmId = 0,
     String llmName = '',
     int generateId = 0,
     List<String>? filePaths,
+    String content = '',
+    String reasoningContent = '',
   }) {
     // 删除消息列表缓存
     clearMessageListCache(conversationId);
@@ -125,6 +126,7 @@ class MessageService extends GetxService {
       conversationId: conversationId,
       role: role,
       content: content,
+      reasoningContent: reasoningContent,
       status: status,
       llmId: llmId,
       llmName: llmName,
@@ -140,12 +142,14 @@ class MessageService extends GetxService {
   void updateMessage({
     required int msgId,
     String? content,
+    String? reasoningContent,
     MessageStatus? status,
     int? llmId,
     String? llmName,
     int? generateId,
   }) {
     if (content == null &&
+        reasoningContent == null &&
         status == null &&
         llmId == null &&
         llmName == null &&
@@ -158,6 +162,7 @@ class MessageService extends GetxService {
     MessageRepository.updateMessage(
       msgId: msgId,
       content: content,
+      reasoningContent: reasoningContent,
       status: status,
       llmId: llmId,
       llmName: llmName,

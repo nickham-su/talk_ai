@@ -18,7 +18,8 @@ class GeneratedMessageRepository {
         llm_name VARCHAR(32),
         status INTEGER NOT NULL,
         content TEXT,
-        error TEXT
+        error TEXT,
+        reasoning_content TEXT
       )
     ''');
 
@@ -31,6 +32,17 @@ class GeneratedMessageRepository {
     Sqlite.db.execute('''
       CREATE INDEX IF NOT EXISTS idx_${tableName}_chat_app_id ON $tableName (chat_app_id)
     ''');
+
+    /// 查询列名
+    final result = Sqlite.db.select('PRAGMA table_info($tableName)');
+    final columnNames = result.map((e) => e[1] as String).toList();
+
+    /// 添加reasoning_content列
+    if (!columnNames.contains('reasoning_content')) {
+      Sqlite.db.execute('''
+        ALTER TABLE $tableName ADD COLUMN reasoning_content TEXT DEFAULT ''
+      ''');
+    }
   }
 
   /// 获取生成的消息列表
@@ -84,7 +96,8 @@ class GeneratedMessageRepository {
       llmName: msg['llm_name'] as String,
       status: status,
       content: msg['content'] as String,
-      error: msg['error'] as String,
+      error: msg['error'] ?? '',
+      reasoningContent: msg['reasoning_content'] ?? '',
     );
   }
 
@@ -97,10 +110,11 @@ class GeneratedMessageRepository {
     required MessageStatus status,
     required String content,
     String error = '',
+    String reasoningContent = '',
   }) {
     Sqlite.db.execute('''
-      INSERT INTO $tableName (msg_id, chat_app_id, llm_id, llm_name, status, content, error)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO $tableName (msg_id, chat_app_id, llm_id, llm_name, status, content, error, reasoning_content)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     ''', [
       msgId,
       chatAppId,
@@ -109,6 +123,7 @@ class GeneratedMessageRepository {
       status.value,
       content,
       error,
+      reasoningContent,
     ]);
     return GeneratedMessage(
       generateId: Sqlite.db.lastInsertRowId,
@@ -119,6 +134,7 @@ class GeneratedMessageRepository {
       status: status,
       content: content,
       error: error,
+      reasoningContent: reasoningContent,
     );
   }
 
@@ -128,8 +144,9 @@ class GeneratedMessageRepository {
     MessageStatus? status,
     String? content,
     String? error,
+    String? reasoningContent,
   }) {
-    if (status == null && content == null && error == null) {
+    if (status == null && content == null && error == null && reasoningContent == null) {
       return;
     }
     List<String> setFields = [];
@@ -145,6 +162,10 @@ class GeneratedMessageRepository {
     if (error != null) {
       setFields.add('error = ?');
       args.add(error);
+    }
+    if (reasoningContent != null) {
+      setFields.add('reasoning_content = ?');
+      args.add(reasoningContent);
     }
     args.add(generateId);
     Sqlite.db.execute('''

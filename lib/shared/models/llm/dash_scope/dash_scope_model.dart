@@ -4,6 +4,7 @@ import 'package:TalkAI/shared/models/message/message_model.dart';
 
 import '../llm_form_data_item.dart';
 import '../llm.dart';
+import '../message_chunk.dart';
 import 'dash_scope_api.dart';
 
 /// 阿里云DashScope模型
@@ -107,7 +108,7 @@ class DashScopeModel extends LLM {
 
   /// 聊天
   @override
-  Stream<String> chatCompletions({
+  Stream<MessageChunk> chatCompletions({
     required List<MessageModel> messages,
     double temperature = 0.8,
     double topP = 0.95,

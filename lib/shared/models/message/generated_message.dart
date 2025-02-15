@@ -10,6 +10,7 @@ class GeneratedMessage {
   MessageStatus status; // 状态
   String content; // 内容
   String error; // 错误信息
+  String reasoningContent; // 推理内容
 
   GeneratedMessage({
     required this.generateId,
@@ -19,6 +20,7 @@ class GeneratedMessage {
     required this.llmName,
     required this.status,
     required this.content,
-    this.error = '',
+    required this.error,
+    required this.reasoningContent,
   });
 }
